@@ -16,7 +16,7 @@
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from bot.fuzzers.utils import options
+from src.bot.fuzzers.utils import options
 from tests.test_libs import test_utils
 
 

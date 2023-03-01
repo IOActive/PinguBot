@@ -25,23 +25,23 @@ from typing import List
 
 import six
 
-from bot.datastore.data_handler import store_crash, update_testcase
+from src.bot.datastore.data_handler import store_crash, update_testcase
 from bot import testcase_manager
-from bot.build_management import build_manager
-from bot.crash_analysis import crash_analyzer
-from bot.crash_analysis.crash_result import CrashResult
-from bot.crash_analysis.stack_parsing import stack_analyzer
-from bot.datastore import data_handler, storage, data_types, crash_uploader
-from bot.fuzzers.utils import engine_common, fuzzer_utils, builtin
-from bot.fuzzing import corpus_manager, gesture_handler, coverage_uploader, leak_blacklist, fuzzer_selection
-from bot.metrics import logs, monitoring_metrics, fuzzer_stats, fuzzer_logs
-from bot.platforms import android
-from bot.stacktraces import CrashInfo
-from bot.system import environment, shell, process_handler
-from bot.tasks import setup, task_creation, trials
-from bot.utils import utils, dates
-from bot.fuzzers.libFuzzer import stats as libfuzzer_stats
-from bot.fuzzers.templates.python import PythonTemplateEngine as engine
+from src.bot.build_management import build_manager
+from src.bot.crash_analysis import crash_analyzer
+from src.bot.crash_analysis.crash_result import CrashResult
+from src.bot.crash_analysis.stack_parsing import stack_analyzer
+from src.bot.datastore import data_handler, storage, data_types, crash_uploader
+from src.bot.fuzzers.utils import engine_common, fuzzer_utils, builtin
+from src.bot.fuzzing import corpus_manager, gesture_handler, coverage_uploader, leak_blacklist, fuzzer_selection
+from src.bot.metrics import logs, monitoring_metrics, fuzzer_stats, fuzzer_logs
+from src.bot.platforms import android
+from src.bot.stacktraces import CrashInfo
+from src.bot.system import environment, shell, process_handler
+from src.bot.tasks import setup, task_creation, trials
+from src.bot.utils import utils, dates
+from src.bot.fuzzers.libFuzzer import stats as libfuzzer_stats
+from src.bot.fuzzers.templates.python import PythonTemplateEngine as engine
 
 SelectionMethod = namedtuple('SelectionMethod', 'method_name probability')
 
@@ -436,7 +436,7 @@ class SyncCorpusStorage(object):
     def __init__(self, engine_name, project_qualified_target_name,
                  corpus_directory, data_directory):
         # if environment.is_trusted_host():
-        #     from bot._internal.bot.untrusted_runner import \
+        #     from src.bot._internal.bot.untrusted_runner import \
         #         corpus_manager as remote_corpus_manager
         #     self.gcs_corpus = remote_corpus_manager.RemoteFuzzTargetCorpus(
         #         engine_name, project_qualified_target_name)
@@ -451,7 +451,7 @@ class SyncCorpusStorage(object):
 
     def _walk(self):
         # if environment.is_trusted_host():
-        #     from bot._internal.bot.untrusted_runner import file_host
+        #     from src.bot._internal.bot.untrusted_runner import file_host
         #     for file_path in file_host.list_files(
         #             self._corpus_directory, recursive=True):
         #         yield file_path
@@ -468,7 +468,7 @@ class SyncCorpusStorage(object):
 
         # Get last time we synced corpus.
         # if environment.is_trusted_host():
-        #     from bot._internal.bot.untrusted_runner import file_host
+        #     from src.bot._internal.bot.untrusted_runner import file_host
         #     worker_sync_file_path = file_host.rebase_to_worker_root(sync_file_path)
         #     shell.remove_file(sync_file_path)
         #     file_host.copy_file_from_worker(worker_sync_file_path, sync_file_path)
@@ -497,7 +497,7 @@ class SyncCorpusStorage(object):
             utils.write_data_to_file(time_before_sync_start, sync_file_path)
 
             # if environment.is_trusted_host():
-            #     from bot._internal.bot.untrusted_runner import file_host
+            #     from src.bot._internal.bot.untrusted_runner import file_host
             #     worker_sync_file_path = file_host.rebase_to_worker_root(sync_file_path)
             #     file_host.copy_file_to_worker(sync_file_path, worker_sync_file_path)
 
@@ -1204,7 +1204,7 @@ def run_engine_fuzzer(engine_impl, target_name, sync_corpus_directory,
                       testcase_directory):
     """Run engine for fuzzing."""
     # if environment.is_trusted_host():
-    #     from bot._internal.bot.untrusted_runner import tasks_host
+    #     from src.bot._internal.bot.untrusted_runner import tasks_host
     #     return tasks_host.engine_fuzz(engine_impl, target_name,
     #                                   sync_corpus_directory, testcase_directory)
 
@@ -1305,7 +1305,7 @@ class FuzzingSession(object):
         """Return file size depending on whether file is local or remote (untrusted
     worker)."""
         # if environment.is_trusted_host():
-        #     from bot._internal.bot.untrusted_runner import file_host
+        #     from src.bot._internal.bot.untrusted_runner import file_host
         #     stat_result = file_host.stat(file_path)
         #     return stat_result.st_size if stat_result else None
 
@@ -1427,7 +1427,7 @@ class FuzzingSession(object):
             android.device.push_testcases_to_device()
 
         # if environment.is_trusted_host():
-        #     from bot._internal.bot.untrusted_runner import file_host
+        #     from src.bot._internal.bot.untrusted_runner import file_host
         #     file_host.push_testcases_to_worker()
 
         fuzzer_metadata = get_fuzzer_metadata_from_output(fuzzer_output)
@@ -1708,7 +1708,7 @@ class FuzzingSession(object):
         # Pull testcase directory to host. The testcase file contents could have
         # been changed (by e.g. libFuzzer) and stats files could have been written.
         # if environment.is_trusted_host():
-        #     from bot._internal.bot.untrusted_runner import file_host
+        #     from src.bot._internal.bot.untrusted_runner import file_host
         #     file_host.pull_testcases_from_worker()
 
         # Synchronize corpus files with GCS after fuzzing

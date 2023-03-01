@@ -855,7 +855,7 @@ class FuchsiaBuild(RegularBuild):
     #
     #     # Prevent App Engine import issues.
     #     #from src.bot.platforms.fuchsia.util.fuzzer import Fuzzer
-    #     #from bot._internal.platforms.fuchsia.util.host import Host
+    #     #from src.bot._internal.platforms.fuchsia.util.host import Host
     #     #host = Host.from_dir(os.path.join(build_dir, self.FUCHSIA_BUILD_REL_PATH))
     #
     #     sanitizer = environment.get_memory_tool_name(
@@ -868,7 +868,7 @@ class FuchsiaBuild(RegularBuild):
     # def _setup_legacy_build(self):
     #     """setup() for builds that don't use undercoat."""
     #     # Prevent App Engine import issues.
-    #     from bot._internal.platforms import fuchsia
+    #     from src.bot._internal.platforms import fuchsia
     #
     #     # Select a fuzzer, as we skipped doing so in the superclass's setup()
     #     _set_random_fuzz_target_for_fuzzing_if_needed(
@@ -895,7 +895,7 @@ class FuchsiaBuild(RegularBuild):
     # def _setup_undercoat_build(self):
     #     """setup() for builds that do use undercoat."""
     #     # Prevent App Engine import issues.
-    #     from bot._internal.platforms import fuchsia
+    #     from src.bot._internal.platforms import fuchsia
     #
     #     # Kill any stale undercoat instances (currently, this is in fact the only
     #     # path through which instances are shut down)
@@ -913,7 +913,7 @@ class FuchsiaBuild(RegularBuild):
     # def setup(self):
     #     """Fuchsia build setup."""
     #     # Prevent App Engine import issues.
-    #     from bot._internal.platforms import fuchsia
+    #     from src.bot._internal.platforms import fuchsia
     #
     #     # Decide per-build whether to use undercoat, based on rollout level
     #     rollout_level = environment.get_value('FUCHSIA_UNDERCOAT_ROLLOUT_LEVEL', 0)
@@ -1501,7 +1501,7 @@ def setup_regular_build(revision,
 
     build_class = RegularBuild
     # if environment.is_trusted_host():
-    #     from bot._internal.bot.untrusted_runner import build_setup_host
+    #     from src.bot._internal.bot.untrusted_runner import build_setup_host
     #     build_class = build_setup_host.RemoteRegularBuild
     # elif environment.platform() == 'FUCHSIA':
     #     build_class = FuchsiaBuild
@@ -1548,7 +1548,7 @@ def setup_symbolized_builds(revision):
 
     build_class = SymbolizedBuild
     # if environment.is_trusted_host():
-    #     from bot._internal.bot.untrusted_runner import build_setup_host
+    #     from src.bot._internal.bot.untrusted_runner import build_setup_host
     #     build_class = build_setup_host.RemoteSymbolizedBuild
 
     build = build_class(base_build_dir, revision, sym_release_build_url,
@@ -1631,7 +1631,7 @@ def setup_production_build(build_type):
 
     build_class = ProductionBuild
     # if environment.is_trusted_host():
-    #     from bot._internal.bot.untrusted_runner import build_setup_host
+    #     from src.bot._internal.bot.untrusted_runner import build_setup_host
     #     build_class = build_setup_host.RemoteProductionBuild
 
     build = build_class(base_build_dir, version, build_url, build_type)

@@ -14,11 +14,11 @@ import requests
 import six
 from pydantic import ValidationError
 
-from bot.crash_analysis import severity_analyzer
-from bot.datastore import blobs_manager
-from bot.datastore.data_types import Trial
-from bot.fuzzing import leak_blacklist
-from bot.system import memoize, errors
+from src.bot.crash_analysis import severity_analyzer
+from src.bot.datastore import blobs_manager
+from src.bot.datastore.data_types import Trial
+from src.bot.fuzzing import leak_blacklist
+from src.bot.system import memoize, errors
 from src.bot.datastore import data_types
 from src.bot.datastore.data_types import Job, JobTemplate, Fuzzer, FuzzTargetJob, FuzzTarget, BuildMetadata, \
     DataBundle, Testcase, Crash, TestcaseVariant, Trial

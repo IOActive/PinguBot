@@ -84,7 +84,7 @@ def clear_build_urls_directory():
     remove_directory(environment.get_value('BUILD_URLS_DIR'), recreate=True)
 
     #if environment.is_trusted_host():
-    #    from bot._internal.bot.untrusted_runner import file_host
+    #    from src.bot._internal.bot.untrusted_runner import file_host
     #    file_host.clear_build_urls_directory()
 
 
@@ -163,7 +163,7 @@ def clear_temp_directory(clear_user_profile_directories=True):
         remove_directory(test_temp_directory, recreate=True)
 
     #if environment.is_trusted_host():
-    #    from bot._internal.bot.untrusted_runner import file_host
+    #    from src.bot._internal.bot.untrusted_runner import file_host
     #    file_host.clear_temp_directory()
 
     if not clear_user_profile_directories:
@@ -222,7 +222,7 @@ def clear_testcase_directories():
         from src.bot.platforms import fuchsia
         fuchsia.device.clear_testcase_directory()
     # if environment.is_trusted_host():
-    # from bot._internal.bot.untrusted_runner import file_host
+    # from src.bot._internal.bot.untrusted_runner import file_host
     #  file_host.clear_testcase_directories()
 
 

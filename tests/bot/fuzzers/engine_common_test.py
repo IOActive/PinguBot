@@ -20,8 +20,8 @@ import parameterized
 from pyfakefs import fake_filesystem_unittest
 import six
 
-from bot.fuzzers.utils import engine_common
-from bot.system import environment
+from src.bot.fuzzers.utils import engine_common
+from src.bot.system import environment
 from tests.test_libs import test_utils
 from tests.test_libs import helpers as test_helpers
 

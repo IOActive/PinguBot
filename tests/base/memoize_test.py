@@ -18,7 +18,7 @@ import unittest
 from pyfakefs import fake_filesystem_unittest
 import six
 
-from bot.system import memoize, environment, persistent_cache
+from src.bot.system import memoize, environment, persistent_cache
 from tests.test_libs import helpers as test_helpers
 from tests.test_libs import test_utils
 

@@ -599,7 +599,7 @@ def symbolize_stacktrace(unsymbolized_crash_stacktrace,
                          enable_inline_frames=True):
     """Symbolize a crash stacktrace."""
     # if environment.is_trusted_host():
-    #     from bot._internal.bot.untrusted_runner import symbolize_host
+    #     from src.bot._internal.bot.untrusted_runner import symbolize_host
     #     return symbolize_host.symbolize_stacktrace(unsymbolized_crash_stacktrace,
     #                                                enable_inline_frames)
 

@@ -22,14 +22,14 @@ import mock
 from pyfakefs import fake_filesystem_unittest
 
 from bot import testcase_manager, stacktraces
-from bot.build_management import build_manager
-from bot.crash_analysis.crash_result import CrashResult
-from bot.datastore import data_types, data_handler
-from bot.system import environment
+from src.bot.build_management import build_manager
+from src.bot.crash_analysis.crash_result import CrashResult
+from src.bot.datastore import data_types, data_handler
+from src.bot.system import environment
 from test_libs import helpers as test_helpers, test_utils
-from bot.fuzzers.libFuzzer import engine as libfuzzer_engine
-from bot.fuzzers.libFuzzer import constants as libfuzzer_constants
-from bot.fuzzers.templates.python import PythonTemplateEngine as engine
+from src.bot.fuzzers.libFuzzer import engine as libfuzzer_engine
+from src.bot.fuzzers.libFuzzer import constants as libfuzzer_constants
+from src.bot.fuzzers.templates.python import PythonTemplateEngine as engine
 
 
 class CreateTestcaseListFileTest(fake_filesystem_unittest.TestCase):

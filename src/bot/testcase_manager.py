@@ -588,7 +588,7 @@ def _do_run_testcase_and_return_result_in_queue(crash_queue,
 
         # Pull testcase directory to host to get any stats files.
         # if environment.is_trusted_host():
-        #    from bot._internal.bot.untrusted_runner import file_host
+        #    from src.bot._internal.bot.untrusted_runner import file_host
         #    file_host.pull_testcases_from_worker()
 
         # Analyze the crash.
@@ -653,7 +653,7 @@ def engine_reproduce(engine_impl, target_name, testcase_path, arguments,
     @return The result of the engine_impl.reproduce function.
     """
     # if environment.is_trusted_host():
-    #    from bot._internal.bot.untrusted_runner import tasks_host
+    #    from src.bot._internal.bot.untrusted_runner import tasks_host
     #    return tasks_host.engine_reproduce(engine_impl, target_name, testcase_path,
     #                                       arguments, timeout)
     build_dir = environment.get_value('BUILD_DIR')
@@ -1139,7 +1139,7 @@ def get_command_line_for_application(file_to_run='',
 
     # Rebase the file_to_run and launcher paths to the worker's root.
     # if environment.is_trusted_host():
-    #     from bot._internal.bot.untrusted_runner import file_host
+    #     from src.bot._internal.bot.untrusted_runner import file_host
     #     file_to_run = file_host.rebase_to_worker_root(file_to_run)
     #     launcher = file_host.rebase_to_worker_root(launcher)
 

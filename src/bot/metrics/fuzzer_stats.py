@@ -21,7 +21,7 @@ import os
 import random
 import re
 
-from bot.fuzzing.stats_uploader import StatsStorage
+from src.bot.fuzzing.stats_uploader import StatsStorage
 from src.bot.datastore import data_types, data_handler, fuzz_target_utils, storage
 from src.bot.metrics import logs, fuzzer_logs
 from src.bot.system import environment, shell

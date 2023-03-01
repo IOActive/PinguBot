@@ -15,7 +15,7 @@
 
 import random
 
-from bot.datastore import data_handler
+from src.bot.datastore import data_handler
 from src.bot.datastore import data_types
 from src.bot.system import environment
 from src.bot.utils import utils

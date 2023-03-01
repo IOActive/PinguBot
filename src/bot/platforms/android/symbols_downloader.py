@@ -15,9 +15,9 @@
 
 import os
 
-from bot.datastore import storage
-from bot.platforms.android import kernel_utils
-from bot.system import archive
+from src.bot.datastore import storage
+from src.bot.platforms.android import kernel_utils
+from src.bot.system import archive
 from src.bot.metrics import logs
 from src.bot.platforms.android import settings, fetch_artifact, adb
 from src.bot.system import environment, shell

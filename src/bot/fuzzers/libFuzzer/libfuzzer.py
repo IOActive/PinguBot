@@ -26,7 +26,7 @@ import sys
 import tempfile
 
 # Maximum length of a random chosen length for `-max_len`.
-from bot.utils import utils
+from src.bot.utils import utils
 from src.bot.datastore import data_types
 
 from src.bot.fuzzers.libFuzzer import constants

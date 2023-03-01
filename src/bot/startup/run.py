@@ -17,7 +17,7 @@
 # to be able to import dependencies directly, but we must store these in
 # subdirectories of common so that they are shared with App Engine.
 
-# from bot._internal.base import modules
+# from src.bot._internal.base import modules
 
 import atexit
 import multiprocessing

@@ -19,8 +19,8 @@ import unittest
 import parameterized
 from pyfakefs import fake_filesystem_unittest
 
-from bot.fuzzers.utils import builtin
-from bot.system import environment
+from src.bot.fuzzers.utils import builtin
+from src.bot.system import environment
 from tests.test_libs import helpers, test_utils
 
 

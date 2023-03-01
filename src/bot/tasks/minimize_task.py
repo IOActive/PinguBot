@@ -275,7 +275,7 @@ class TestRunner(object):
         if environment.is_android():
             android.device.push_testcases_to_device()
         # elif environment.is_trusted_host():
-        #     from bot._internal.bot.untrusted_runner import file_host
+        #     from src.bot._internal.bot.untrusted_runner import file_host
         #     file_host.push_testcases_to_worker()
 
         # If we need to write a command line file, only do so if the arguments have
@@ -1086,7 +1086,7 @@ def _run_libfuzzer_testcase(testcase, testcase_file_path, crash, crash_retries=1
     shell.clear_temp_directory()
 
     # if environment.is_trusted_host():
-    #     from bot._internal.bot.untrusted_runner import file_host
+    #     from src.bot._internal.bot.untrusted_runner import file_host
     #     file_host.copy_file_to_worker(
     #         testcase_file_path, file_host.rebase_to_worker_root(testcase_file_path))
 
@@ -1106,7 +1106,7 @@ def run_libfuzzer_engine(tool_name, target_name, arguments, testcase_path,
     """Run the libFuzzer engine."""
     arguments = list(arguments)
     # if environment.is_trusted_host():
-    #     from bot._internal.bot.untrusted_runner import tasks_host
+    #     from src.bot._internal.bot.untrusted_runner import tasks_host
     #
     #     # TODO(ochang): Remove hardcode.
     #     return tasks_host.process_testcase('libFuzzer', tool_name, target_name,

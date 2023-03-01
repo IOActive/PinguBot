@@ -16,7 +16,7 @@
 import datetime
 import unittest
 
-from bot.utils import json_utils
+from src.bot.utils import json_utils
 
 
 class JSONDumpsTest(unittest.TestCase):

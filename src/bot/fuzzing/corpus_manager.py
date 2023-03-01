@@ -17,7 +17,7 @@ import os
 import re
 import shutil
 
-from bot.datastore.storage import MinioProvider
+from src.bot.datastore.storage import MinioProvider
 from src.bot.datastore import storage
 from src.bot.metrics import logs
 from src.bot.system import shell, environment

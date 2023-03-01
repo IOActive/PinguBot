@@ -18,12 +18,10 @@ import io
 import os
 import unittest
 
-from bot.datastore import data_types
-from bot.system import environment
+from src.bot.datastore import data_types
+from src.bot.system import environment
 
 from mockupdb import MockupDB
-
-from frontend import app
 
 CURRENT_TIME = datetime.datetime.utcnow()
 EMULATOR_TIMEOUT = 20
@@ -137,22 +135,3 @@ def supported_platforms(*platforms):
             func)
 
     return decorator
-
-
-class GetDataSourceTestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(self):
-        self.server = MockupDB(auto_ismaster=True, verbose=True)
-        self.server.run()
-        # create mongo connection to mock server
-
-        app.testing = True
-        app.config['MONGO_URI'] = self.server.uri
-        self.app = app.test_client()
-
-    @classmethod
-    def tearDownClass(self):
-        self.server.stop()
-
-
-MockStdout = io.StringIO  # pylint: disable=invalid-name

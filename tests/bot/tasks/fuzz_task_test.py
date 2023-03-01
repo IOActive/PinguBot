@@ -33,13 +33,13 @@ import six
 
 import bot.datastore.data_handler
 from bot import stacktraces, testcase_manager
-from bot.datastore import data_types, data_handler, crash_uploader, big_query
-from bot.datastore.data_types import FuzzTarget
-from bot.fuzzers.libFuzzer import engine as libfuzzer_engine
+from src.bot.datastore import data_types, data_handler, crash_uploader, big_query
+from src.bot.datastore.data_types import FuzzTarget
+from src.bot.fuzzers.libFuzzer import engine as libfuzzer_engine
 import bot.fuzzers.templates.python.PythonTemplateEngine as engine
-from bot.metrics import monitor, monitoring_metrics
-from bot.system import environment, utils
-from bot.tasks import fuzz_task
+from src.bot.metrics import monitor, monitoring_metrics
+from src.bot.system import environment, utils
+from src.bot.tasks import fuzz_task
 from test_libs import helpers, test_utils
 
 

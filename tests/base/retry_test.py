@@ -17,8 +17,8 @@ import unittest
 # pylint: disable=protected-access
 import mock
 
-from bot.metrics import monitor, monitoring_metrics
-from bot.system import retry
+from src.bot.metrics import monitor, monitoring_metrics
+from src.bot.system import retry
 from test_libs import helpers
 
 

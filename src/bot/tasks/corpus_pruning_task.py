@@ -24,7 +24,7 @@ import src.bot.fuzzers.templates.python.PythonTemplateEngine as engine
 # TODO(ochang): Move common libFuzzer code from fuzzer into CF.
 
 # Redzone size for running testcase.
-from bot.datastore import blobs_manager
+from src.bot.datastore import blobs_manager
 from src.bot.build_management import build_manager
 from src.bot.crash_analysis import crash_analyzer
 from src.bot.crash_analysis.stack_parsing import stack_analyzer, stack_symbolizer
@@ -580,7 +580,7 @@ def do_corpus_pruning(context, last_execution_failed, revision):
     environment.set_value('FUZZ_TARGET', context.fuzz_target.binary)
 
     # if environment.is_trusted_host():
-    #     from bot._internal.bot.untrusted_runner import tasks_host
+    #     from src.bot._internal.bot.untrusted_runner import tasks_host
     #     return tasks_host.do_corpus_pruning(context, last_execution_failed,
     #                                         revision)
 
@@ -733,7 +733,7 @@ def _process_corpus_crashes(context, result):
 
         # Upload/store testcase.
         # if environment.is_trusted_host():
-        #     from bot._internal.bot.untrusted_runner import file_host
+        #     from src.bot._internal.bot.untrusted_runner import file_host
         #     unit_path = os.path.join(context.bad_units_path,
         #                              os.path.basename(crash.unit_path))
         #     # Prevent the worker from escaping out of |context.bad_units_path|.

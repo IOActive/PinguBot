@@ -16,11 +16,11 @@
 import unittest
 from unittest.mock import patch
 
-from bot.datastore import data_types
-from bot.fuzzers.utils import strategy_selection
-from bot.fuzzing import strategy
-from bot.system import environment
-from bot.tasks import fuzz_task
+from src.bot.datastore import data_types
+from src.bot.fuzzers.utils import strategy_selection
+from src.bot.fuzzing import strategy
+from src.bot.system import environment
+from src.bot.tasks import fuzz_task
 from tests.test_libs import test_utils
 from tests.test_libs import helpers as test_helpers
 

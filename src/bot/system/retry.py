@@ -20,7 +20,7 @@ import inspect
 import sys
 import time
 
-from bot.metrics import logs
+from src.bot.metrics import logs
 
 
 def sleep(seconds):
@@ -67,7 +67,7 @@ def wrap(retries,
                 sleep(get_delay(num_try, delay, backoff))
                 return True
 
-            from bot.metrics import monitoring_metrics
+            from src.bot.metrics import monitoring_metrics
             monitoring_metrics.TRY_COUNT.increment({
                 'function': function,
                 'is_succeeded': False
@@ -91,7 +91,7 @@ def wrap(retries,
 
                         continue
 
-                    from bot.metrics import monitoring_metrics
+                    from src.bot.metrics import monitoring_metrics
                     monitoring_metrics.TRY_COUNT.increment({
                         'function': function,
                         'is_succeeded': True
@@ -109,7 +109,7 @@ def wrap(retries,
             # This argument is not applicable for generator functions.
             assert not retry_on_false
 
-            from bot.metrics import monitoring_metrics
+            from src.bot.metrics import monitoring_metrics
 
             already_yielded_element_count = 0
             for num_try in range(1, tries + 1):
