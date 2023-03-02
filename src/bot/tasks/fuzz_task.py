@@ -26,7 +26,7 @@ from typing import List
 import six
 
 from src.bot.datastore.data_handler import store_crash, update_testcase
-from bot import testcase_manager
+from src.bot import testcase_manager
 from src.bot.build_management import build_manager
 from src.bot.crash_analysis import crash_analyzer
 from src.bot.crash_analysis.crash_result import CrashResult
@@ -441,7 +441,7 @@ class SyncCorpusStorage(object):
         #     self.gcs_corpus = remote_corpus_manager.RemoteFuzzTargetCorpus(
         #         engine_name, project_qualified_target_name)
         # else:
-        self.corpus_storage = corpus_manager.FuzzTargetCorpusStorage(
+        self.corpus_storage = corpus_manager.FuzzTargetCorpus(
             engine_name, project_qualified_target_name, log_results=False)
 
         self._corpus_directory = corpus_directory

@@ -15,11 +15,11 @@
 
 import unittest
 
-from clusterfuzz._internal.bot.untrusted_runner import remote_process
-from clusterfuzz._internal.bot.untrusted_runner import remote_process_host
-from clusterfuzz._internal.protos import untrusted_runner_pb2
-from clusterfuzz._internal.system import new_process
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
+from src.bot.untrusted_runner import remote_process
+from src.bot.untrusted_runner import remote_process_host
+from src.bot.protos import untrusted_runner_pb2
+from src.bot.system import new_process
+from src.bot.tests.test_libs import helpers as test_helpers
 
 
 class RemoteProcessHostTest(unittest.TestCase):
@@ -27,7 +27,7 @@ class RemoteProcessHostTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.untrusted_runner.host.stub',
+        'src.bot.bot_working_directory.untrusted_runner.host.stub',
     ])
 
   def test_run_and_wait(self):

@@ -18,9 +18,9 @@ import unittest
 
 import six
 
-from clusterfuzz._internal.google_cloud_utils import pubsub
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.google_cloud_utils import pubsub
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 ACK_DEADLINE = 3
 

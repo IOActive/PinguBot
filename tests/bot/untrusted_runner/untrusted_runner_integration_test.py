@@ -22,24 +22,24 @@ import tempfile
 
 import six
 
-from clusterfuzz._internal.base import utils
-from clusterfuzz._internal.bot import testcase_manager
-from clusterfuzz._internal.bot.tasks import setup
-from clusterfuzz._internal.bot.untrusted_runner import \
+from src.bot.base import utils
+from src.bot.bot import testcase_manager
+from src.bot.tasks import setup
+from src.bot.untrusted_runner import \
     environment as untrusted_env
-from clusterfuzz._internal.bot.untrusted_runner import config
-from clusterfuzz._internal.bot.untrusted_runner import corpus_manager
-from clusterfuzz._internal.bot.untrusted_runner import file_host
-from clusterfuzz._internal.bot.untrusted_runner import host
-from clusterfuzz._internal.bot.untrusted_runner import remote_process_host
-from clusterfuzz._internal.bot.untrusted_runner import symbolize_host
-from clusterfuzz._internal.build_management import build_manager
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.google_cloud_utils import blobs
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.system import process_handler
-from clusterfuzz._internal.system import shell
-from clusterfuzz._internal.tests.test_libs import untrusted_runner_helpers
+from src.bot.untrusted_runner import config
+from src.bot.untrusted_runner import corpus_manager
+from src.bot.untrusted_runner import file_host
+from src.bot.untrusted_runner import host
+from src.bot.untrusted_runner import remote_process_host
+from src.bot.untrusted_runner import symbolize_host
+from src.bot.build_management import build_manager
+from src.bot.datastore import data_types
+from src.bot.google_cloud_utils import blobs
+from src.bot.system import environment
+from src.bot.system import process_handler
+from src.bot.system import shell
+from src.bot.tests.test_libs import untrusted_runner_helpers
 
 TEST_FILE_CONTENTS = (b'A' * config.FILE_TRANSFER_CHUNK_SIZE +
                       b'B' * config.FILE_TRANSFER_CHUNK_SIZE +

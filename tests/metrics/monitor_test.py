@@ -17,8 +17,8 @@
 import os
 import unittest
 
-from clusterfuzz._internal.metrics import monitor
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.metrics import monitor
+from src.bot.tests.test_libs import helpers
 
 
 class InitializeTest(unittest.TestCase):
@@ -26,8 +26,8 @@ class InitializeTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.config.local_config.ProjectConfig.get',
-        'clusterfuzz._internal.metrics.monitor.check_module_loaded',
+        'src.bot.config.local_config.ProjectConfig.get',
+        'src.bot.metrics.monitor.check_module_loaded',
         'google.cloud.monitoring_v3.MetricServiceClient',
         'threading.Thread.start',
     ])
@@ -66,7 +66,7 @@ class MonitorTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.metrics.monitor.check_module_loaded',
+        'src.bot.metrics.monitor.check_module_loaded',
     ])
     self.mock.check_module_loaded.return_value = True
     monitor.metrics_store().reset_for_testing()

@@ -18,11 +18,11 @@ import unittest
 
 import parameterized
 
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.datastore import ndb_utils
-from clusterfuzz._internal.fuzzing import fuzzer_selection
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.datastore import data_types
+from src.bot.datastore import ndb_utils
+from src.bot.fuzzing import fuzzer_selection
+from src.bot.tests.test_libs import helpers as test_helpers
+from src.bot.tests.test_libs import test_utils
 
 
 def _get_job_list_for_fuzzer(fuzzer):
@@ -229,7 +229,7 @@ class GetFuzzTaskPayloadTest(unittest.TestCase):
   def setUp(self):
     test_helpers.patch_environ(self)
     test_helpers.patch(self, [
-        'clusterfuzz._internal.base.utils.random_weighted_choice',
+        'src.bot.base.utils.random_weighted_choice',
     ])
 
     self.mock.random_weighted_choice.side_effect = _mock_random_weighted_choice
@@ -321,7 +321,7 @@ class SelectFuzzTargetTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'clusterfuzz._internal.base.utils.random_weighted_choice',
+        'src.bot.base.utils.random_weighted_choice',
     ])
 
     self.mock.random_weighted_choice.side_effect = lambda x: x[0]

@@ -15,8 +15,8 @@
 
 import unittest
 
-from clusterfuzz._internal.bot.tokenizer.antlr_tokenizer import AntlrTokenizer
-from clusterfuzz._internal.bot.tokenizer.grammars.JavaScriptLexer import \
+from src.bot.tokenizer.antlr_tokenizer import AntlrTokenizer
+from src.bot.tokenizer.grammars.JavaScriptLexer import \
     JavaScriptLexer
 
 

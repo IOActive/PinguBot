@@ -16,9 +16,9 @@
 import os
 import unittest
 
-from clusterfuzz._internal.bot.fuzzers import libfuzzer
-from clusterfuzz._internal.bot.fuzzers.libFuzzer import stats
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
+from src.bot.fuzzers import libfuzzer
+from src.bot.fuzzers.libFuzzer import stats
+from src.bot.tests.test_libs import helpers as test_helpers
 
 
 class PerformanceStatsTest(unittest.TestCase):

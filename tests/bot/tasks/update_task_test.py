@@ -18,12 +18,12 @@ import unittest
 
 from pyfakefs import fake_filesystem_unittest
 
-from clusterfuzz._internal.base import utils
-from clusterfuzz._internal.bot.tasks import update_task
-from clusterfuzz._internal.metrics import monitor
-from clusterfuzz._internal.metrics import monitoring_metrics
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.base import utils
+from src.bot.tasks import update_task
+from src.bot.metrics import monitor
+from src.bot.metrics import monitoring_metrics
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 
 class GetLocalSourceRevisionTest(fake_filesystem_unittest.TestCase):
@@ -86,8 +86,8 @@ class GetNewerSourceRevisionTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.tasks.update_task.get_remote_source_revision',
-        'clusterfuzz._internal.bot_working_directory.tasks.update_task.get_local_source_revision',
+        'src.bot.bot_working_directory.tasks.update_task.get_remote_source_revision',
+        'src.bot.bot_working_directory.tasks.update_task.get_local_source_revision',
     ])
 
     os.environ['ROOT_DIR'] = 'root_dir'

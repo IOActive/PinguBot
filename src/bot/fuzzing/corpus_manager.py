@@ -289,7 +289,7 @@ class CorpusStorage(object):
         storage_provider.sync_folder_to(file_paths, self.get_storage_path())
 
 
-class FuzzTargetCorpusStorage(CorpusStorage):
+class FuzzTargetCorpus(CorpusStorage):
     """Engine fuzzer (libFuzzer, AFL) specific corpus."""
 
     def __init__(self,

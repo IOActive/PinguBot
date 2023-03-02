@@ -20,9 +20,9 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.fuzzing import leak_blacklist
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.datastore import data_types
+from src.bot.fuzzing import leak_blacklist
+from src.bot.tests.test_libs import test_utils
 
 
 @test_utils.with_cloud_emulators('datastore')
@@ -79,7 +79,7 @@ class LeaksTest(unittest.TestCase):
     self.assertTrue(blacklist_item.key.get())
 
   @mock.patch(
-      'clusterfuzz._internal.fuzzing.leak_blacklist.get_local_blacklist_file_path'
+      'src.bot.fuzzing.leak_blacklist.get_local_blacklist_file_path'
   )
   def test_copy_global_to_local_blacklist(self,
                                           mock_get_local_blacklist_file_path):

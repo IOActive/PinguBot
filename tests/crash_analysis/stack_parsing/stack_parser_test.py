@@ -16,7 +16,7 @@
 import re
 import unittest
 
-from clusterfuzz._internal.crash_analysis.stack_parsing import stack_parser
+from src.bot.crash_analysis.stack_parsing import stack_parser
 
 
 class StackFrameTestcase(unittest.TestCase):

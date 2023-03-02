@@ -15,8 +15,8 @@
 
 import unittest
 
-from clusterfuzz._internal.bot.init_scripts import init_runner
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.init_scripts import init_runner
+from src.bot.tests.test_libs import helpers
 
 
 class InitRunnerTest(unittest.TestCase):
@@ -24,8 +24,8 @@ class InitRunnerTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.system.environment.platform',
-        'clusterfuzz._internal.system.process_handler.run_process',
+        'src.bot.system.environment.platform',
+        'src.bot.system.process_handler.run_process',
     ])
 
   def test_windows(self):

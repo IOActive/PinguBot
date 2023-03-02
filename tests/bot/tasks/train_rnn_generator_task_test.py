@@ -19,13 +19,13 @@ import unittest
 
 import pyfakefs.fake_filesystem_unittest as fake_fs_unittest
 
-from clusterfuzz._internal.bot.fuzzers.ml.rnn import constants
-from clusterfuzz._internal.bot.tasks import train_rnn_generator_task
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.system import new_process
-from clusterfuzz._internal.system import shell
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.fuzzers.ml.rnn import constants
+from src.bot.tasks import train_rnn_generator_task
+from src.bot.datastore import data_types
+from src.bot.system import new_process
+from src.bot.system import shell
+from src.bot.tests.test_libs import helpers as test_helpers
+from src.bot.tests.test_libs import test_utils
 
 MODEL_DIR = '/fake/model_directory'
 
@@ -129,9 +129,9 @@ class ExecuteTaskTest(unittest.TestCase):
     os.environ['FUZZ_INPUTS_DISK'] = self.temp_dir
 
     test_helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.tasks.ml_train_utils.get_corpus',
-        'clusterfuzz._internal.bot_working_directory.tasks.train_rnn_generator_task.train_rnn',
-        'clusterfuzz._internal.bot_working_directory.tasks.train_rnn_generator_task.upload_model_to_gcs',
+        'src.bot.bot_working_directory.tasks.ml_train_utils.get_corpus',
+        'src.bot.bot_working_directory.tasks.train_rnn_generator_task.train_rnn',
+        'src.bot.bot_working_directory.tasks.train_rnn_generator_task.upload_model_to_gcs',
     ])
 
     self.mock.get_corpus.return_value = True

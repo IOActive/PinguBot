@@ -19,12 +19,12 @@ import unittest
 from google.cloud import ndb
 import mock
 
-from clusterfuzz._internal.base import errors
-from clusterfuzz._internal.bot.tasks import commands
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.base import errors
+from src.bot.tasks import commands
+from src.bot.datastore import data_types
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 
 @commands.set_task_payload
@@ -71,10 +71,10 @@ class RunCommandTest(unittest.TestCase):
     helpers.patch_environ(self)
     helpers.patch(self, [
         ('fuzz_execute_task',
-         'clusterfuzz._internal.bot_working_directory.tasks.fuzz_task.execute_task'),
+         'src.bot.bot_working_directory.tasks.fuzz_task.execute_task'),
         ('progression_execute_task',
-         'clusterfuzz._internal.bot_working_directory.tasks.progression_task.execute_task'),
-        'clusterfuzz._internal.base.utils.utcnow',
+         'src.bot.bot_working_directory.tasks.progression_task.execute_task'),
+        'src.bot.base.utils.utcnow',
     ])
 
     os.environ['BOT_NAME'] = 'bot_name'

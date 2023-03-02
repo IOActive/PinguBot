@@ -18,12 +18,12 @@
 import os
 import unittest
 
-from clusterfuzz._internal.base import errors
-from clusterfuzz._internal.bot.tasks import regression_task
-from clusterfuzz._internal.datastore import data_handler
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.base import errors
+from src.bot.tasks import regression_task
+from src.bot.datastore import data_handler
+from src.bot.datastore import data_types
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 
 class WriteToBigQueryTest(unittest.TestCase):
@@ -31,7 +31,7 @@ class WriteToBigQueryTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.google_cloud_utils.big_query.write_range',
+        'src.bot.google_cloud_utils.big_query.write_range',
     ])
 
     self.testcase = data_types.Testcase(
@@ -58,9 +58,9 @@ class TestcaseReproducesInRevisionTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.build_management.build_manager.setup_regular_build',
-        'clusterfuzz._internal.bot_working_directory.testcase_manager.test_for_crash_with_retries',
-        'clusterfuzz._internal.bot_working_directory.testcase_manager.check_for_bad_build',
+        'src.bot.build_management.build_manager.setup_regular_build',
+        'src.bot.bot_working_directory.testcase_manager.test_for_crash_with_retries',
+        'src.bot.bot_working_directory.testcase_manager.check_for_bad_build',
     ])
 
   def test_error_on_failed_setup(self):
@@ -79,8 +79,8 @@ class TestFoundRegressionNearExtremeRevisions(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.tasks.regression_task.save_regression_range',
-        'clusterfuzz._internal.bot_working_directory.tasks.regression_task._testcase_reproduces_in_revision',
+        'src.bot.bot_working_directory.tasks.regression_task.save_regression_range',
+        'src.bot.bot_working_directory.tasks.regression_task._testcase_reproduces_in_revision',
     ])
 
     # Keep a dummy test case. Values are not important, but we need an id.
@@ -143,7 +143,7 @@ class ValidateRegressionRangeTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.tasks.regression_task._testcase_reproduces_in_revision',
+        'src.bot.bot_working_directory.tasks.regression_task._testcase_reproduces_in_revision',
         'random.sample',
     ])
 

@@ -18,11 +18,11 @@ import os
 import shutil
 import unittest
 
-from clusterfuzz._internal.bot.fuzzers import engine_common
-from clusterfuzz._internal.bot.fuzzers.honggfuzz import engine
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.fuzzers import engine_common
+from src.bot.fuzzers.honggfuzz import engine
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers as test_helpers
+from src.bot.tests.test_libs import test_utils
 
 TEST_PATH = os.path.abspath(os.path.dirname(__file__))
 DATA_DIR = os.path.join(TEST_PATH, 'test_data')

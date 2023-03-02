@@ -21,8 +21,8 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.metrics import logs
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.metrics import logs
+from src.bot.tests.test_libs import helpers
 
 
 class GetSourceLocationTest(unittest.TestCase):
@@ -135,7 +135,7 @@ class FormatRecordTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self,
-                  ['clusterfuzz._internal.metrics.logs.update_entry_with_exc'])
+                  ['src.bot.metrics.logs.update_entry_with_exc'])
     helpers.patch_environ(self)
 
     self.maxDiff = None  # pylint: disable=invalid-name
@@ -232,7 +232,7 @@ class JsonSocketHandler(unittest.TestCase):
   """Test JsonSocketHandler."""
 
   def setUp(self):
-    helpers.patch(self, ['clusterfuzz._internal.metrics.logs.format_record'])
+    helpers.patch(self, ['src.bot.metrics.logs.format_record'])
 
   def test_make_pickle(self):
     """Test makePickle."""
@@ -251,12 +251,12 @@ class ConfigureTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.metrics.logs.get_logging_config_dict',
-        'clusterfuzz._internal.metrics.logs.set_logger',
+        'src.bot.metrics.logs.get_logging_config_dict',
+        'src.bot.metrics.logs.set_logger',
         'logging.config.dictConfig',
         'logging.getLogger',
-        'clusterfuzz._internal.metrics.logs._is_running_on_app_engine',
-        'clusterfuzz._internal.metrics.logs.suppress_unwanted_warnings',
+        'src.bot.metrics.logs._is_running_on_app_engine',
+        'src.bot.metrics.logs.suppress_unwanted_warnings',
         'google.cloud.logging.Client',
     ])
 
@@ -287,8 +287,8 @@ class EmitTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.metrics.logs.get_logger',
-        'clusterfuzz._internal.metrics.logs._is_running_on_app_engine'
+        'src.bot.metrics.logs.get_logger',
+        'src.bot.metrics.logs._is_running_on_app_engine'
     ])
     # Reset default extras as it may be modified during other test runs.
     logs._default_extras = {}  # pylint: disable=protected-access
@@ -366,7 +366,7 @@ class LogErrorTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self,
-                  ['clusterfuzz._internal.metrics.logs.emit', 'sys.exc_info'])
+                  ['src.bot.metrics.logs.emit', 'sys.exc_info'])
 
   def test_no_exception(self):
     """Tests no exception."""

@@ -193,11 +193,11 @@ class Context(object):
             '%s_bad_units' % self.fuzz_target.project_qualified_name())
         self.merge_tmp_dir = self._create_temp_corpus_directory('merge_workdir')
 
-        self.corpus = corpus_manager.FuzzTargetCorpusStorage(
+        self.corpus = corpus_manager.FuzzTargetCorpus(
             self.fuzz_target.engine,
             self.fuzz_target.project_qualified_name(),
             include_regressions=True)
-        self.quarantine_corpus = corpus_manager.FuzzTargetCorpusStorage(
+        self.quarantine_corpus = corpus_manager.FuzzTargetCorpus(
             self.fuzz_target.engine,
             self.fuzz_target.project_qualified_name(),
             quarantine=True)

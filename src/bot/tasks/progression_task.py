@@ -193,7 +193,7 @@ def _store_testcase_for_regression_testing(testcase, testcase_file_path):
         # No work to do, only applicable for engine fuzzers.
         return
 
-    corpus = corpus_manager.FuzzTargetCorpusStorage(fuzz_target.engine,
+    corpus = corpus_manager.FuzzTargetCorpus(fuzz_target.engine,
                                                     fuzz_target.project_qualified_name())
     regression_testcase_url = os.path.join(
         corpus.get_regressions_corpus_gcs_url(),

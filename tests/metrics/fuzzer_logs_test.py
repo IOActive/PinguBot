@@ -17,9 +17,9 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.metrics import fuzzer_logs
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
+from src.bot.metrics import fuzzer_logs
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers as test_helpers
 
 
 class FuzzerLogsTest(unittest.TestCase):
@@ -36,7 +36,7 @@ class FuzzerLogsTest(unittest.TestCase):
 
     test_helpers.patch(self, [
         'datetime.datetime',
-        'clusterfuzz._internal.google_cloud_utils.storage.write_data',
+        'src.bot.google_cloud_utils.storage.write_data',
     ])
 
     self.mock.datetime.utcnow.return_value = self.fake_utcnow

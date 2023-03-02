@@ -19,11 +19,11 @@ import unittest
 
 from pyfakefs import fake_filesystem_unittest
 
-from clusterfuzz._internal.base import errors
-from clusterfuzz._internal.bot.tasks import progression_task
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.base import errors
+from src.bot.tasks import progression_task
+from src.bot.datastore import data_types
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 
 class WriteToBigqueryTest(unittest.TestCase):
@@ -31,7 +31,7 @@ class WriteToBigqueryTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.google_cloud_utils.big_query.write_range',
+        'src.bot.google_cloud_utils.big_query.write_range',
     ])
 
     self.testcase = data_types.Testcase(
@@ -58,9 +58,9 @@ class TestcaseReproducesInRevisionTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.build_management.build_manager.setup_regular_build',
-        'clusterfuzz._internal.bot_working_directory.testcase_manager.test_for_crash_with_retries',
-        'clusterfuzz._internal.bot_working_directory.testcase_manager.check_for_bad_build',
+        'src.bot.build_management.build_manager.setup_regular_build',
+        'src.bot.bot_working_directory.testcase_manager.test_for_crash_with_retries',
+        'src.bot.bot_working_directory.testcase_manager.check_for_bad_build',
     ])
 
   def test_error_on_failed_setup(self):
@@ -79,8 +79,8 @@ class UpdateIssueMetadataTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.fuzzers.engine_common.find_fuzzer_path',
-        'clusterfuzz._internal.bot_working_directory.fuzzers.engine_common.get_all_issue_metadata',
+        'src.bot.bot_working_directory.fuzzers.engine_common.find_fuzzer_path',
+        'src.bot.bot_working_directory.fuzzers.engine_common.get_all_issue_metadata',
     ])
 
     data_types.FuzzTarget(engine='libFuzzer', binary='fuzzer').put()
@@ -144,7 +144,7 @@ class StoreTestcaseForRegressionTesting(fake_filesystem_unittest.TestCase):
     test_utils.set_up_pyfakefs(self)
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.google_cloud_utils.storage.copy_file_to',
+        'src.bot.google_cloud_utils.storage.copy_file_to',
     ])
 
     os.environ['CORPUS_BUCKET'] = 'corpus'

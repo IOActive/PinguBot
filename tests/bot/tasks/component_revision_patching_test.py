@@ -17,8 +17,8 @@ import ast
 import os
 import unittest
 
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 DATA_DIRECTORY = os.path.join(
     os.path.dirname(__file__), 'component_related_test_data')
@@ -33,7 +33,7 @@ class ComponentRevisionPatchingTest(unittest.TestCase):
     helpers.patch_environ(self)
 
     helpers.patch(self, [
-        'clusterfuzz._internal.build_management.revisions.get_component_revisions_dict',
+        'src.bot.build_management.revisions.get_component_revisions_dict',
     ])
 
     self.mock.get_component_revisions_dict.side_effect = (

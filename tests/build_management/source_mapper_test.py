@@ -14,7 +14,7 @@
 """source_mapper tests."""
 import unittest
 
-from clusterfuzz._internal.build_management import source_mapper
+from src.bot.build_management import source_mapper
 
 
 class GetComponentSourceAndRelativePathTest(unittest.TestCase):

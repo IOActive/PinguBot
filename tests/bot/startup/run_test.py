@@ -16,7 +16,7 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.tests.test_libs import helpers
 from python.bot.startup import run
 
 
@@ -26,8 +26,8 @@ class UpdateSourceCodeIfNeededTest(unittest.TestCase):
   def setUp(self):
     helpers.patch(self, [
         'python.bot_working_directory.startup.run.stop_heartbeat',
-        'clusterfuzz._internal.bot_working_directory.tasks.update_task.get_newer_source_revision',
-        'clusterfuzz._internal.bot_working_directory.tasks.update_task.update_source_code',
+        'src.bot.bot_working_directory.tasks.update_task.get_newer_source_revision',
+        'src.bot.bot_working_directory.tasks.update_task.update_source_code',
     ])
 
   def test_not_update(self):
@@ -56,7 +56,7 @@ class RunLoopTest(unittest.TestCase):
         'python.bot_working_directory.startup.run.stop_heartbeat',
         'python.bot_working_directory.startup.run.update_source_code_if_needed',
         'python.bot_working_directory.startup.run.sleep',
-        'clusterfuzz._internal.datastore.data_handler.bot_run_timed_out',
+        'src.bot.datastore.data_handler.bot_run_timed_out',
     ])
 
   def test_loop(self):

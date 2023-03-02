@@ -16,8 +16,8 @@
 import os
 import unittest
 
-from clusterfuzz._internal.build_management import overrides
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
+from src.bot.build_management import overrides
+from src.bot.tests.test_libs import helpers as test_helpers
 
 DATA_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'overrides_data')
@@ -32,9 +32,9 @@ class UpdateCheckAndApplyOverridesTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(
-        self, ['clusterfuzz._internal.system.environment.get_platform_id'])
+        self, ['src.bot.system.environment.get_platform_id'])
     test_helpers.patch(
-        self, ['clusterfuzz._internal.google_cloud_utils.storage.read_data'])
+        self, ['src.bot.google_cloud_utils.storage.read_data'])
     output = _read_data_file('test_config.json')
     self.mock.read_data.return_value = output.encode()
     test_helpers.patch_environ(self)

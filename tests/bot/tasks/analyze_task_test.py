@@ -15,9 +15,9 @@
 
 import unittest
 
-from clusterfuzz._internal.bot.tasks import analyze_task
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.tasks import analyze_task
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 
 @test_utils.with_cloud_emulators('datastore')
@@ -28,11 +28,11 @@ class AddDefaultIssueMetadataTest(unittest.TestCase):
     helpers.patch(
         self,
         [
-            'clusterfuzz._internal.bot_working_directory.fuzzers.engine_common.'
+            'src.bot.bot_working_directory.fuzzers.engine_common.'
             'get_all_issue_metadata_for_testcase',
             # Disable logging.
-            'clusterfuzz._internal.datastore.data_types.Testcase._post_put_hook',
-            'clusterfuzz._internal.metrics.logs.log',
+            'src.bot.datastore.data_types.Testcase._post_put_hook',
+            'src.bot.metrics.logs.log',
         ])
 
   def test_union(self):

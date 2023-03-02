@@ -21,7 +21,7 @@ import unittest
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from bot import testcase_manager, stacktraces
+from src.bot import testcase_manager, stacktraces
 from src.bot.build_management import build_manager
 from src.bot.crash_analysis.crash_result import CrashResult
 from src.bot.datastore import data_types, data_handler
@@ -86,8 +86,8 @@ class UploadTestcaseOutputTest(fake_filesystem_unittest.TestCase):
     orig_utcfromtimestamp = datetime.datetime.utcfromtimestamp
 
     test_helpers.patch(self, [
-        'clusterfuzz._internal.build_management.revisions.get_component_range_list',
-        'clusterfuzz._internal.google_cloud_utils.storage.write_data',
+        'src.bot.build_management.revisions.get_component_range_list',
+        'src.bot.google_cloud_utils.storage.write_data',
         'datetime.datetime',
     ])
 
@@ -239,9 +239,9 @@ class ConvertDependencyUrlToLocalPathTest(unittest.TestCase):
     environment.set_value('FUZZ_INPUTS', '/mnt/scratch0')
 
     test_helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.webserver.http_server.get_absolute_testcase_file',
-        'clusterfuzz._internal.system.environment.platform',
-        'clusterfuzz._internal.base.utils.normalize_path',
+        'src.bot.bot_working_directory.webserver.http_server.get_absolute_testcase_file',
+        'src.bot.system.environment.platform',
+        'src.bot.base.utils.normalize_path',
     ])
     self.mock.normalize_path.side_effect = lambda x: x
 
@@ -331,7 +331,7 @@ class GetResourcePathsTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.testcase_manager.convert_dependency_url_to_local_path',
+        'src.bot.bot_working_directory.testcase_manager.convert_dependency_url_to_local_path',
     ])
     self.mock.convert_dependency_url_to_local_path.side_effect = lambda x: x
 
@@ -420,13 +420,13 @@ class TestcaseRunningTest(fake_filesystem_unittest.TestCase):
     test_utils.set_up_pyfakefs(self)
 
     test_helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.fuzzers.engine_common.find_fuzzer_path',
-        'clusterfuzz._internal.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
-        'clusterfuzz._internal.system.process_handler.run_process',
-        'clusterfuzz._internal.system.process_handler.'
+        'src.bot.bot_working_directory.fuzzers.engine_common.find_fuzzer_path',
+        'src.bot.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
+        'src.bot.system.process_handler.run_process',
+        'src.bot.system.process_handler.'
         'terminate_stale_application_instances',
         'clusterfuzz.fuzz.engine.get',
-        'clusterfuzz._internal.metrics.logs.log',
+        'src.bot.metrics.logs.log',
     ])
 
     os.environ['CRASH_RETRIES'] = '3'

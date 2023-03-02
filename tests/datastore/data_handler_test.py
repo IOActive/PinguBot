@@ -23,12 +23,12 @@ import mock
 import parameterized
 from pyfakefs import fake_filesystem_unittest
 
-from clusterfuzz._internal.config import local_config
-from clusterfuzz._internal.datastore import data_handler
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.config import local_config
+from src.bot.datastore import data_handler
+from src.bot.datastore import data_types
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 
 class SetInitialTestcaseMetadata(fake_filesystem_unittest.TestCase):
@@ -73,10 +73,10 @@ class DataHandlerTest(unittest.TestCase):
     helpers.patch_environ(self)
     project_config_get = local_config.ProjectConfig.get
     helpers.patch(self, [
-        'clusterfuzz._internal.base.utils.default_project_name',
-        'clusterfuzz._internal.config.db_config.get',
+        'src.bot.base.utils.default_project_name',
+        'src.bot.config.db_config.get',
         ('project_config_get',
-         'clusterfuzz._internal.config.local_config.ProjectConfig.get'),
+         'src.bot.config.local_config.ProjectConfig.get'),
     ])
 
     self.job = data_types.Job(
@@ -541,7 +541,7 @@ class GetSecuritySeverityTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.crash_analysis.severity_analyzer.get_security_severity',
+        'src.bot.crash_analysis.severity_analyzer.get_security_severity',
     ])
     self.gestures = ''
     self.mock.get_security_severity.return_value = 'Low'
@@ -573,7 +573,7 @@ class UpdateTestcaseCommentTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.base.utils.current_date_time',
+        'src.bot.base.utils.current_date_time',
     ])
 
     os.environ['BOT_NAME'] = 'bot_working_directory'
@@ -787,8 +787,8 @@ class RecordFuzzTargetTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.base.utils.is_oss_fuzz',
-        'clusterfuzz._internal.base.utils.utcnow',
+        'src.bot.base.utils.is_oss_fuzz',
+        'src.bot.base.utils.utcnow',
     ])
 
     self.mock.is_oss_fuzz.return_value = False

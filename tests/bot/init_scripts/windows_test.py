@@ -17,9 +17,9 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.bot.init_scripts import windows
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.init_scripts import windows
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers
 
 
 class CleanTempDirectoriesTest(unittest.TestCase):
@@ -30,7 +30,7 @@ class CleanTempDirectoriesTest(unittest.TestCase):
         'os.path.abspath',
         'os.path.expandvars',
         'os.path.join',
-        'clusterfuzz._internal.system.shell.remove_directory',
+        'src.bot.system.shell.remove_directory',
     ])
 
     def abspath(path):
@@ -84,9 +84,9 @@ class RemountIfNeededTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.metrics.logs.log_error',
-        'clusterfuzz._internal.base.retry.sleep',
-        'clusterfuzz._internal.base.utils.write_data_to_file',
+        'src.bot.metrics.logs.log_error',
+        'src.bot.base.retry.sleep',
+        'src.bot.base.utils.write_data_to_file',
         'os.path.exists',
         'os.path.join',
         'subprocess.call',

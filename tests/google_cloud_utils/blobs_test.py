@@ -18,9 +18,9 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.google_cloud_utils import blobs
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.google_cloud_utils import blobs
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 TEST_UUID = 'e612999f-ed89-4496-b4bd-3e8c7d8da18a'
 
@@ -32,13 +32,13 @@ class BlobsTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.system.environment.is_running_on_app_engine',
-        'clusterfuzz._internal.google_cloud_utils.blobs.generate_new_blob_name',
-        'clusterfuzz._internal.google_cloud_utils.storage.copy_file_from',
-        'clusterfuzz._internal.google_cloud_utils.storage.copy_file_to',
-        'clusterfuzz._internal.google_cloud_utils.storage.delete',
-        'clusterfuzz._internal.google_cloud_utils.storage.read_data',
-        'clusterfuzz._internal.google_cloud_utils.storage.get',
+        'src.bot.system.environment.is_running_on_app_engine',
+        'src.bot.google_cloud_utils.blobs.generate_new_blob_name',
+        'src.bot.google_cloud_utils.storage.copy_file_from',
+        'src.bot.google_cloud_utils.storage.copy_file_to',
+        'src.bot.google_cloud_utils.storage.delete',
+        'src.bot.google_cloud_utils.storage.read_data',
+        'src.bot.google_cloud_utils.storage.get',
     ])
 
     self.mock.is_running_on_app_engine.return_value = True

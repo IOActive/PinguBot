@@ -708,3 +708,39 @@ class Trial(BaseModel):
 
     # Additional arguments to apply if selected.
     app_args: str
+
+
+class ReportMetadata(BaseModel):
+    """Metadata associated with a crash report."""
+    # Job type from testcase.
+    #job_type: PyObjectId = Field(default_factory=PyObjectId, alias="job_id")
+
+    # Revision of build from report.
+    crash_revision: int = -1
+
+    # Has this report been successfully uploaded?
+    is_uploaded: bool = False
+
+    # Product.
+    product: str = ''
+
+    # Version.
+    version: str = ''
+
+    # Key to minidump previously written to blobstore.
+    minidump_key: str = ''
+
+    # Processed crash bytes.
+    serialized_crash_stack_frames: str = ''
+
+    # Id of the associated testcase.
+    testcase_id: PyObjectId = Field(default_factory=PyObjectId, alias="testcase_id")
+
+    # Id of the associated bot.
+    bot_id: PyObjectId = Field(default_factory=PyObjectId, alias="bot_id")
+
+    # Optional upload params, stored as a JSON object.
+    optional_params: str = ''
+
+    # Report id from crash/.
+    crash_report_id: PyObjectId = Field(default_factory=PyObjectId, alias="crash_id")

@@ -18,9 +18,9 @@ import os
 
 from pyfakefs import fake_filesystem_unittest
 
-from clusterfuzz._internal.fuzzing import coverage_uploader
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.fuzzing import coverage_uploader
+from src.bot.tests.test_libs import helpers as test_helpers
+from src.bot.tests.test_libs import test_utils
 
 
 def _mock_config_get(_, param):
@@ -47,14 +47,14 @@ class UploadTestsToCloudStorageTest(fake_filesystem_unittest.TestCase):
     """Setup for upload tests to cloud storage test."""
     test_helpers.patch_environ(self)
     test_helpers.patch(self, [
-        'clusterfuzz._internal.base.utils.utcnow',
-        'clusterfuzz._internal.config.local_config.ProjectConfig.get',
-        'clusterfuzz._internal.datastore.locks.acquire_lock',
-        'clusterfuzz._internal.datastore.locks.release_lock',
-        'clusterfuzz._internal.google_cloud_utils.gsutil.GSUtilRunner',
-        'clusterfuzz._internal.google_cloud_utils.storage.list_blobs',
-        'clusterfuzz._internal.google_cloud_utils.storage.read_data',
-        'clusterfuzz._internal.google_cloud_utils.storage.write_data',
+        'src.bot.base.utils.utcnow',
+        'src.bot.config.local_config.ProjectConfig.get',
+        'src.bot.datastore.locks.acquire_lock',
+        'src.bot.datastore.locks.release_lock',
+        'src.bot.google_cloud_utils.gsutil.GSUtilRunner',
+        'src.bot.google_cloud_utils.storage.list_blobs',
+        'src.bot.google_cloud_utils.storage.read_data',
+        'src.bot.google_cloud_utils.storage.write_data',
     ])
 
     test_utils.set_up_pyfakefs(self)

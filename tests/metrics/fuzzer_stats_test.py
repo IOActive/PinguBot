@@ -22,11 +22,11 @@ import unittest
 import mock
 import six
 
-from clusterfuzz._internal.bot.tasks import fuzz_task
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.metrics import fuzzer_stats
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.tasks import fuzz_task
+from src.bot.datastore import data_types
+from src.bot.metrics import fuzzer_stats
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 
 def sanitize_sql(s):
@@ -53,7 +53,7 @@ class FuzzerStatsTest(unittest.TestCase):
         last_run=datetime.datetime.utcnow()).put()
 
     helpers.patch(self, [
-        'clusterfuzz._internal.google_cloud_utils.storage.write_data',
+        'src.bot.google_cloud_utils.storage.write_data',
     ])
 
   def test_upload_testcase_run(self):
@@ -189,7 +189,7 @@ class FuzzerStatsTest(unittest.TestCase):
 
     mock_path_exists.return_value = True
     m = mock.mock_open(read_data=read_data)
-    with mock.patch('clusterfuzz._internal.metrics.fuzzer_stats.open', m):
+    with mock.patch('src.bot.metrics.fuzzer_stats.open', m):
       testcase_run = fuzzer_stats.TestcaseRun.read_from_disk('fake_path')
 
     self.assertIsNotNone(testcase_run)
@@ -206,7 +206,7 @@ class FuzzerStatsTest(unittest.TestCase):
                                             1472846341.017923)
 
     m = mock.mock_open()
-    with mock.patch('clusterfuzz._internal.metrics.fuzzer_stats.open', m):
+    with mock.patch('src.bot.metrics.fuzzer_stats.open', m):
       fuzzer_stats.TestcaseRun.write_to_disk(testcase_run, 'fake_path')
 
     handle = m()

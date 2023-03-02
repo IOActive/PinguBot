@@ -13,7 +13,7 @@
 # limitations under the License.
 """Tests for the Delta minimizer."""
 
-from clusterfuzz._internal.bot.minimizer import delta_minimizer
+from src.bot.minimizer import delta_minimizer
 
 from . import base_minimizer_tester
 

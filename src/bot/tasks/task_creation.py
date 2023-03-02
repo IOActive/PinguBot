@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Common functions for task creation for test cases."""
-from frontend.api.TestCaseApi import update_testcase
 from src.bot.datastore.data_handler import get_fuzz_target_job_by_job
 from src.bot.datastore.data_types import Testcase
 from src.bot.build_management import build_manager
@@ -149,7 +148,7 @@ def create_tasks(testcase):
         testcase = data_handler.get_testcase_by_id(testcase_id=testcase_id)
         testcase.minimized_keys = 'NA'
         testcase.regression = 'NA'
-        update_testcase(testcase=testcase)
+        data_handler.update_testcase(testcase=testcase)
         return
 
     # Just create the minimize task for now. Once minimization is complete, it

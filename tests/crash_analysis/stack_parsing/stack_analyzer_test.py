@@ -16,10 +16,10 @@
 import os
 import unittest
 
-from clusterfuzz._internal.crash_analysis import crash_analyzer
-from clusterfuzz._internal.crash_analysis.stack_parsing import stack_analyzer
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.crash_analysis import crash_analyzer
+from src.bot.crash_analysis.stack_parsing import stack_analyzer
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers
 
 DATA_DIRECTORY = os.path.join(os.path.dirname(__file__), 'stack_analyzer_data')
 TEST_JOB_NAME = 'test'
@@ -40,9 +40,9 @@ class StackAnalyzerTestcase(unittest.TestCase):
     """Set environment variables used by stack analyzer tests."""
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.crash_analysis.stack_parsing.stack_symbolizer.'
-        'symbolize_stacktrace', 'clusterfuzz._internal.metrics.logs.log_error',
-        'clusterfuzz._internal.platforms.android.kernel_utils.'
+        'src.bot.crash_analysis.stack_parsing.stack_symbolizer.'
+        'symbolize_stacktrace', 'src.bot.metrics.logs.log_error',
+        'src.bot.platforms.android.kernel_utils.'
         'get_kernel_prefix_and_full_hash'
     ])
 
@@ -2620,7 +2620,7 @@ class StackAnalyzerTestcase(unittest.TestCase):
       return default
 
     helpers.patch(
-        self, ['clusterfuzz._internal.config.local_config.ProjectConfig.get'])
+        self, ['src.bot.config.local_config.ProjectConfig.get'])
     self.mock.get.side_effect = _mock_config_get
 
     data = self._read_test_data('assert_with_panic_keyword.txt')

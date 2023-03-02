@@ -16,9 +16,9 @@
 import os
 import unittest
 
-from clusterfuzz._internal.bot.untrusted_runner import build_setup
-from clusterfuzz._internal.protos import untrusted_runner_pb2
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
+from src.bot.untrusted_runner import build_setup
+from src.bot.protos import untrusted_runner_pb2
+from src.bot.tests.test_libs import helpers as test_helpers
 
 
 def _failed_setup(*_):
@@ -40,7 +40,7 @@ class BuildSetupTest(unittest.TestCase):
   def setUp(self):
     test_helpers.patch(self, [
         ('regular_build_setup',
-         'clusterfuzz._internal.build_management.build_manager.RegularBuild.setup'
+         'src.bot.build_management.build_manager.RegularBuild.setup'
         ),
     ])
 

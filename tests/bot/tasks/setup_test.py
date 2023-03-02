@@ -18,11 +18,11 @@ import unittest
 
 from pyfakefs import fake_filesystem_unittest
 
-from clusterfuzz._internal.bot.tasks import setup
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.tasks import setup
+from src.bot.datastore import data_types
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 
 class IsDirectoryOnNfsTest(unittest.TestCase):

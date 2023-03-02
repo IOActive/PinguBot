@@ -17,8 +17,8 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.bot.init_scripts import mac
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.init_scripts import mac
+from src.bot.tests.test_libs import helpers
 
 
 class RunTest(unittest.TestCase):
@@ -26,9 +26,9 @@ class RunTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.init_scripts.init_runner.run',
+        'src.bot.bot_working_directory.init_scripts.init_runner.run',
         'os.path.expanduser',
-        'clusterfuzz._internal.system.shell.remove_directory',
+        'src.bot.system.shell.remove_directory',
         'shutil.rmtree',
         'subprocess.Popen',
         'os.path.exists',

@@ -17,8 +17,8 @@ import unittest
 
 import parameterized
 
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers as test_helpers
 
 
 class EnvironmentTest(unittest.TestCase):
@@ -59,7 +59,7 @@ class GetExecutableFileNameTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self,
-                       ['clusterfuzz._internal.system.environment.platform'])
+                       ['src.bot.system.environment.platform'])
 
   @parameterized.parameterized.expand(['MAC', 'LINUX'])
   def test_non_windows(self, platform):
@@ -87,8 +87,8 @@ class ParseMemoryToolOptionsTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'clusterfuzz._internal.metrics.logs.log_warn',
-        'clusterfuzz._internal.metrics.logs.log_error'
+        'src.bot.metrics.logs.log_warn',
+        'src.bot.metrics.logs.log_error'
     ])
 
     self.windows_expected = {
@@ -248,8 +248,8 @@ class ResetCurrentMemoryToolOptionsTest(unittest.TestCase):
     to the llvm symbolizer on Windows."""
     os.environ['JOB_NAME'] = 'windows_libfuzzer_chrome_asan'
     test_helpers.patch(self, [
-        'clusterfuzz._internal.system.environment.platform',
-        'clusterfuzz._internal.system.environment.get_llvm_symbolizer_path'
+        'src.bot.system.environment.platform',
+        'src.bot.system.environment.get_llvm_symbolizer_path'
     ])
     self.mock.platform.return_value = 'WINDOWS'
     windows_symbolizer_path = (
@@ -323,8 +323,8 @@ class GetMemoryToolOptionsTest(unittest.TestCase):
     test_helpers.patch_environ(self)
     os.environ['JOB_NAME'] = 'windows_libfuzzer_chrome_asan'
     test_helpers.patch(self, [
-        'clusterfuzz._internal.system.environment.platform',
-        'clusterfuzz._internal.system.environment.get_llvm_symbolizer_path'
+        'src.bot.system.environment.platform',
+        'src.bot.system.environment.get_llvm_symbolizer_path'
     ])
     self.mock.platform.return_value = 'WINDOWS'
     windows_symbolizer_path = (
@@ -348,7 +348,7 @@ class AppEngineNoopTest(unittest.TestCase):
   def setUp(self):
     test_helpers.patch(
         self,
-        ['clusterfuzz._internal.system.environment.is_running_on_app_engine'])
+        ['src.bot.system.environment.is_running_on_app_engine'])
 
   def test_appengine(self):
     """Test calling function in App Engine environment."""
@@ -377,7 +377,7 @@ class BotNoopTest(unittest.TestCase):
   def setUp(self):
     test_helpers.patch(
         self,
-        ['clusterfuzz._internal.system.environment.is_running_on_app_engine'])
+        ['src.bot.system.environment.is_running_on_app_engine'])
 
   def test_appengine(self):
     """Test calling function in App Engine environment."""
@@ -406,7 +406,7 @@ class LocalNoopTest(unittest.TestCase):
   def setUp(self):
     test_helpers.patch_environ(self)
     test_helpers.patch(self, [
-        'clusterfuzz._internal.system.environment.is_running_on_app_engine_development'
+        'src.bot.system.environment.is_running_on_app_engine_development'
     ])
 
   def test_prod(self):

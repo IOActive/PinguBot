@@ -15,11 +15,11 @@
 
 import unittest
 
-from clusterfuzz._internal.bot.tasks import trials
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.tasks import trials
+from src.bot.datastore import data_types
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers as test_helpers
+from src.bot.tests.test_libs import test_utils
 
 
 @test_utils.with_cloud_emulators('datastore')

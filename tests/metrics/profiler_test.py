@@ -16,9 +16,9 @@
 import time
 import unittest
 
-from clusterfuzz._internal.metrics import profiler
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.metrics import profiler
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers
 
 
 class ProfilerTest(unittest.TestCase):

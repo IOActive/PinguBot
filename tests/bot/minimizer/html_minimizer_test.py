@@ -15,8 +15,8 @@
 
 import unittest
 
-from clusterfuzz._internal.bot.minimizer import html_minimizer
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.minimizer import html_minimizer
+from src.bot.tests.test_libs import helpers
 
 
 class HTMLMinimizerTest(unittest.TestCase):
@@ -26,12 +26,12 @@ class HTMLMinimizerTest(unittest.TestCase):
     helpers.patch_environ(self)
     helpers.patch(self, [(
         'js_minimizer',
-        'clusterfuzz._internal.bot_working_directory.minimizer.js_minimizer.JSMinimizer.minimize'
+        'src.bot.bot_working_directory.minimizer.js_minimizer.JSMinimizer.minimize'
     ), (
         'html_minimizer',
-        'clusterfuzz._internal.bot_working_directory.minimizer.chunk_minimizer.ChunkMinimizer.minimize'
+        'src.bot.bot_working_directory.minimizer.chunk_minimizer.ChunkMinimizer.minimize'
     ), ('line_minimizer',
-        'clusterfuzz._internal.bot_working_directory.minimizer.delta_minimizer.DeltaMinimizer.minimize'
+        'src.bot.bot_working_directory.minimizer.delta_minimizer.DeltaMinimizer.minimize'
        )])
 
     # HTML Minimizer passes data to a series of sub-minimizers. These take a

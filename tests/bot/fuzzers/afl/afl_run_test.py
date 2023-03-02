@@ -15,9 +15,9 @@
 
 import os
 
-from clusterfuzz._internal.bot.fuzzers.afl import fuzzer
-from clusterfuzz._internal.tests.core.bot.fuzzers import builtin_test
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.fuzzers.afl import fuzzer
+from src.bot.tests.core.bot.fuzzers import builtin_test
+from src.bot.tests.test_libs import helpers
 
 
 class FuzzerTest(builtin_test.BaseEngineFuzzerTest):
@@ -26,7 +26,7 @@ class FuzzerTest(builtin_test.BaseEngineFuzzerTest):
   def setUp(self):
     super(FuzzerTest, self).setUp()
     helpers.patch(self, [
-        'clusterfuzz._internal.metrics.logs.log_warn',
+        'src.bot.metrics.logs.log_warn',
     ])
 
   def _test_passed(self):

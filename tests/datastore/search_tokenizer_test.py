@@ -16,8 +16,8 @@
 # pylint: disable=protected-access
 import unittest
 
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.datastore import search_tokenizer
+from src.bot.datastore import data_types
+from src.bot.datastore import search_tokenizer
 
 
 class ComplexTokenizeTest(unittest.TestCase):

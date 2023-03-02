@@ -16,8 +16,8 @@
 import os
 import unittest
 
-from clusterfuzz._internal.crash_analysis import crash_analyzer
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
+from src.bot.crash_analysis import crash_analyzer
+from src.bot.tests.test_libs import helpers as test_helpers
 
 
 class IgnoreStacktraceTest(unittest.TestCase):
@@ -47,7 +47,7 @@ class IgnoreStacktraceTest(unittest.TestCase):
       return None
 
     test_helpers.patch(
-        self, ['clusterfuzz._internal.config.local_config.ProjectConfig.get'])
+        self, ['src.bot.config.local_config.ProjectConfig.get'])
     self.mock.get.side_effect = _mock_config_get
 
     crash_stacktrace = ('aaa\nbbbbbbb\nzzzccc\nddd\n\n')

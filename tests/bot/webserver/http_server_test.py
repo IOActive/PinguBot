@@ -19,9 +19,9 @@ import unittest
 from pyfakefs import fake_filesystem_unittest
 import six
 
-from clusterfuzz._internal.bot.webserver import http_server
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.webserver import http_server
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 
 class TestRequestHandler(http_server.RequestHandler):

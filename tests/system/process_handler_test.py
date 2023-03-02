@@ -17,8 +17,8 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.system import process_handler
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
+from src.bot.system import process_handler
+from src.bot.tests.test_libs import helpers as test_helpers
 
 
 class MockProcess(object):
@@ -40,7 +40,7 @@ class TerminateProcessesMatchingNameTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'clusterfuzz._internal.system.process_handler.terminate_process',
+        'src.bot.system.process_handler.terminate_process',
         'psutil.process_iter',
     ])
     self.mock.process_iter.return_value = [
@@ -102,7 +102,7 @@ class TerminateProcessesMatchingPathTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'clusterfuzz._internal.system.process_handler.terminate_process',
+        'src.bot.system.process_handler.terminate_process',
         'psutil.process_iter',
     ])
     self.mock.process_iter.return_value = [

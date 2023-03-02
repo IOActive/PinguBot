@@ -20,16 +20,16 @@ import unittest
 # pylint: disable=unused-argument
 import mock
 
-from clusterfuzz._internal.base import utils
-from clusterfuzz._internal.bot.fuzzers import init as fuzzers_init
-from clusterfuzz._internal.bot.tasks import minimize_task
-from clusterfuzz._internal.datastore import data_handler
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.google_cloud_utils import blobs
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
-from clusterfuzz._internal.tests.test_libs import untrusted_runner_helpers
+from src.bot.base import utils
+from src.bot.fuzzers import init as fuzzers_init
+from src.bot.tasks import minimize_task
+from src.bot.datastore import data_handler
+from src.bot.datastore import data_types
+from src.bot.google_cloud_utils import blobs
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
+from src.bot.tests.test_libs import untrusted_runner_helpers
 
 TEST_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), 'minimize_task_data')
@@ -42,8 +42,8 @@ class LibFuzzerMinimizeTaskTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.tasks.minimize_task._run_libfuzzer_testcase',
-        'clusterfuzz._internal.bot_working_directory.tasks.minimize_task._run_libfuzzer_tool',
+        'src.bot.bot_working_directory.tasks.minimize_task._run_libfuzzer_testcase',
+        'src.bot.bot_working_directory.tasks.minimize_task._run_libfuzzer_tool',
     ])
 
     test_utils.setup_pubsub(utils.get_application_id())
@@ -62,7 +62,7 @@ class LibFuzzerMinimizeTaskTest(unittest.TestCase):
   def test_libfuzzer_skip_minimization_initial_crash_state(self):
     """Test libFuzzer minimization skipping with a valid initial crash state."""
     # TODO(ochang): Fix circular import.
-    from clusterfuzz._internal.crash_analysis.crash_result import CrashResult
+    from src.bot.crash_analysis.crash_result import CrashResult
 
     data_types.Job(name='libfuzzer_asan_job').put()
     testcase = data_types.Testcase(
@@ -107,7 +107,7 @@ class MinimizeTaskTestUntrusted(
     environment.set_value('JOB_NAME', 'libfuzzer_asan_job')
 
     patcher = mock.patch(
-        'clusterfuzz._internal.bot_working_directory.fuzzers.libFuzzer.fuzzer.LibFuzzer.fuzzer_directory',
+        'src.bot.bot_working_directory.fuzzers.libFuzzer.fuzzer.LibFuzzer.fuzzer_directory',
         new_callable=mock.PropertyMock)
 
     mock_fuzzer_directory = patcher.start()
@@ -151,7 +151,7 @@ class MinimizeTaskTestUntrusted(
 
   def test_minimize(self):
     """Test minimize."""
-    helpers.patch(self, ['clusterfuzz._internal.base.utils.is_oss_fuzz'])
+    helpers.patch(self, ['src.bot.base.utils.is_oss_fuzz'])
     self.mock.is_oss_fuzz.return_value = True
 
     testcase_file_path = os.path.join(self.temp_dir, 'testcase')

@@ -21,13 +21,13 @@ import unittest
 
 import pyfakefs.fake_filesystem_unittest as fake_fs_unittest
 
-from clusterfuzz._internal.bot.fuzzers import engine_common
-from clusterfuzz._internal.bot.fuzzers import libfuzzer
-from clusterfuzz._internal.bot.fuzzers import strategy_selection
-from clusterfuzz._internal.fuzzing import strategy
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.fuzzers import engine_common
+from src.bot.fuzzers import libfuzzer
+from src.bot.fuzzers import strategy_selection
+from src.bot.fuzzing import strategy
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers as test_helpers
+from src.bot.tests.test_libs import test_utils
 
 TESTDATA_PATH = os.path.join(os.path.dirname(__file__), 'libfuzzer_test_data')
 
@@ -174,7 +174,7 @@ class RecommendedDictionaryTest(fake_fs_unittest.TestCase):
         os.path.join(dictionaries_directory, 'fake_gcs_dictionary.dict'))
 
     test_helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
+        'src.bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
         'download_recommended_dictionary_from_gcs',
         'os.getpid',
     ])
@@ -334,8 +334,8 @@ class SelectGeneratorTest(unittest.TestCase):
     self.pool = strategy_selection.generate_default_strategy_pool(
         strategy_list=strategy.LIBFUZZER_STRATEGY_LIST, use_generator=True)
     test_helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target',
-        'clusterfuzz._internal.bot_working_directory.fuzzers.strategy_selection.StrategyPool.do_strategy'
+        'src.bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target',
+        'src.bot.bot_working_directory.fuzzers.strategy_selection.StrategyPool.do_strategy'
     ])
     self.mock.do_strategy.return_value = True
     self.mock.is_lpm_fuzz_target.return_value = True

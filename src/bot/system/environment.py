@@ -367,7 +367,7 @@ def get_llvm_symbolizer_path():
 
 def get_root_directory():
     """Return root directory."""
-    return get_value('ROOT_DIR')
+    return os.getcwd() if get_value('ROOT_DIR') is None else get_value('ROOT_DIR')
 
 
 def get_config_directory():

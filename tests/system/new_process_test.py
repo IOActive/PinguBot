@@ -20,9 +20,9 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.system import new_process
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.system import new_process
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 
 class Signal(object):
@@ -91,8 +91,8 @@ class PosixProcessTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.system.environment.platform',
-        'clusterfuzz._internal.system.new_process.ChildProcess.kill'
+        'src.bot.system.environment.platform',
+        'src.bot.system.new_process.ChildProcess.kill'
     ])
     self.mock.platform.return_value = 'LINUX'
     self.mock.kill.side_effect = mock_kill
@@ -208,8 +208,8 @@ class WindowsProcessTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.system.environment.platform',
-        'clusterfuzz._internal.system.new_process.ChildProcess.kill'
+        'src.bot.system.environment.platform',
+        'src.bot.system.new_process.ChildProcess.kill'
     ])
     self.mock.kill.side_effect = mock_kill
     self.mock.platform.return_value = 'WINDOWS'

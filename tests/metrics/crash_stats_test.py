@@ -14,9 +14,9 @@
 """crash_stats tests."""
 import unittest
 
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.metrics import crash_stats
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.datastore import data_types
+from src.bot.metrics import crash_stats
+from src.bot.tests.test_libs import test_utils
 
 
 @test_utils.with_cloud_emulators('datastore')

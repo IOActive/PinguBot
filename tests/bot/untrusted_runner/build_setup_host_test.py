@@ -16,9 +16,9 @@
 import os
 import unittest
 
-from clusterfuzz._internal.bot.untrusted_runner import build_setup_host
-from clusterfuzz._internal.protos import untrusted_runner_pb2
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
+from src.bot.untrusted_runner import build_setup_host
+from src.bot.protos import untrusted_runner_pb2
+from src.bot.tests.test_libs import helpers as test_helpers
 
 
 def _mock_set_environment_vars(_):
@@ -32,8 +32,8 @@ class BuildSetupHostTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'clusterfuzz._internal.build_management.build_manager.set_environment_vars',
-        'clusterfuzz._internal.bot_working_directory.untrusted_runner.host.stub',
+        'src.bot.build_management.build_manager.set_environment_vars',
+        'src.bot.bot_working_directory.untrusted_runner.host.stub',
     ])
 
     test_helpers.patch_environ(self)

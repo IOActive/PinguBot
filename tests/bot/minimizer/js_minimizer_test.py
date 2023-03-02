@@ -15,11 +15,11 @@
 
 import unittest
 
-from clusterfuzz._internal.bot.minimizer import js_minimizer
-from clusterfuzz._internal.bot.tokenizer import antlr_tokenizer
-from clusterfuzz._internal.bot.tokenizer.grammars.JavaScriptLexer import \
+from src.bot.minimizer import js_minimizer
+from src.bot.tokenizer import antlr_tokenizer
+from src.bot.tokenizer.grammars.JavaScriptLexer import \
     JavaScriptLexer
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.tests.test_libs import helpers
 
 
 class JSMinimizerTest(unittest.TestCase):
@@ -30,7 +30,7 @@ class JSMinimizerTest(unittest.TestCase):
 
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.minimizer.minimizer.Testcase.prepare_test',
+        'src.bot.bot_working_directory.minimizer.minimizer.Testcase.prepare_test',
     ])
 
     self.mock.prepare_test.side_effect = self._mock_prepare_test

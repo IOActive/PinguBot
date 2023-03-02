@@ -18,8 +18,8 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.bot.fuzzers.syzkaller import runner
-from clusterfuzz._internal.bot.fuzzers.syzkaller.runner import \
+from src.bot.fuzzers.syzkaller import runner
+from src.bot.fuzzers.syzkaller.runner import \
     AndroidSyzkallerRunner
 
 EXECUTABLE_PATH = '/usr/local/google/home/username/syzkaller'
@@ -52,8 +52,8 @@ class RunnerTest(unittest.TestCase):
         'KASAN: null-ptr-deref in range [0x0000000000000088-0x000000000000008f]',
     )
 
-  @mock.patch('clusterfuzz._internal.system.environment.get_value')
-  @mock.patch('clusterfuzz._internal.bot.fuzzers.utils.get_temp_dir')
+  @mock.patch('src.bot.system.environment.get_value')
+  @mock.patch('src.bot.bot.fuzzers.utils.get_temp_dir')
   def test_get_config(self, mock_temp_dir, mock_get_value):
     """Test get_config generates syzkaller config correctly."""
     env = {

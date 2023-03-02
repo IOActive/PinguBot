@@ -17,12 +17,12 @@
 import json
 import unittest
 
-from clusterfuzz._internal.bot.tasks import blame_task
-from clusterfuzz._internal.datastore import data_handler
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.core.bot.tasks.component_revision_patching_test import \
+from src.bot.tasks import blame_task
+from src.bot.datastore import data_handler
+from src.bot.system import environment
+from src.bot.tests.core.bot.tasks.component_revision_patching_test import \
     ComponentRevisionPatchingTest
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.tests.test_libs import test_utils
 
 
 class ExtractUrlAndShaFromDepsEntryTest(unittest.TestCase):

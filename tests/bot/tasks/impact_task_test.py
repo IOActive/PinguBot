@@ -16,13 +16,13 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.bot.tasks import impact_task
-from clusterfuzz._internal.build_management import build_manager
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.tests.core.bot.tasks.component_revision_patching_test import \
+from src.bot.tasks import impact_task
+from src.bot.build_management import build_manager
+from src.bot.datastore import data_types
+from src.bot.tests.core.bot.tasks.component_revision_patching_test import \
     ComponentRevisionPatchingTest
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 
 @test_utils.with_cloud_emulators('datastore')
@@ -31,14 +31,14 @@ class ExecuteTaskTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.base.utils.is_chromium',
-        'clusterfuzz._internal.bot_working_directory.tasks.impact_task.get_impacts_from_url',
-        'clusterfuzz._internal.bot_working_directory.tasks.impact_task.get_impacts_on_prod_builds',
-        'clusterfuzz._internal.bot_working_directory.tasks.setup.setup_testcase',
-        'clusterfuzz._internal.build_management.build_manager.is_custom_binary',
-        'clusterfuzz._internal.build_management.build_manager.has_production_builds',
-        'clusterfuzz._internal.bot_working_directory.testcase_manager.get_command_line_for_application',
-        'clusterfuzz._internal.base.tasks.add_task',
+        'src.bot.base.utils.is_chromium',
+        'src.bot.bot_working_directory.tasks.impact_task.get_impacts_from_url',
+        'src.bot.bot_working_directory.tasks.impact_task.get_impacts_on_prod_builds',
+        'src.bot.bot_working_directory.tasks.setup.setup_testcase',
+        'src.bot.build_management.build_manager.is_custom_binary',
+        'src.bot.build_management.build_manager.has_production_builds',
+        'src.bot.bot_working_directory.testcase_manager.get_command_line_for_application',
+        'src.bot.base.tasks.add_task',
     ])
     impacts = impact_task.Impacts(
         stable=impact_task.Impact('stable', False, 'trace-stable'),
@@ -192,11 +192,11 @@ class GetImpactsFromUrlTest(ComponentRevisionPatchingTest):
     """Setup for get impacts from url test."""
     super().setUp()
     helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.tasks.impact_task.get_start_and_end_revision',
-        'clusterfuzz._internal.bot_working_directory.tasks.impact_task.get_impact',
-        'clusterfuzz._internal.chrome.build_info.get_build_to_revision_mappings',
-        'clusterfuzz._internal.build_management.revisions.revision_to_branched_from',
-        'clusterfuzz._internal.datastore.data_handler.get_component_name',
+        'src.bot.bot_working_directory.tasks.impact_task.get_start_and_end_revision',
+        'src.bot.bot_working_directory.tasks.impact_task.get_impact',
+        'src.bot.chrome.build_info.get_build_to_revision_mappings',
+        'src.bot.build_management.revisions.revision_to_branched_from',
+        'src.bot.datastore.data_handler.get_component_name',
     ])
     self.mock.get_component_name.return_value = None
     self.mock.revision_to_branched_from.side_effect = (
@@ -671,10 +671,10 @@ class GetImpactsOnProdBuilds(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.tasks.impact_task.get_impact_on_build',
-        'clusterfuzz._internal.bot_working_directory.tasks.impact_task.get_impacts_from_url',
-        'clusterfuzz._internal.bot_working_directory.testcase_manager.get_command_line_for_application',
-        'clusterfuzz._internal.chrome.build_info.get_build_to_revision_mappings',
+        'src.bot.bot_working_directory.tasks.impact_task.get_impact_on_build',
+        'src.bot.bot_working_directory.tasks.impact_task.get_impacts_from_url',
+        'src.bot.bot_working_directory.testcase_manager.get_command_line_for_application',
+        'src.bot.chrome.build_info.get_build_to_revision_mappings',
     ])
     self.mock.get_build_to_revision_mappings.return_value = {
         'stable': {
@@ -828,10 +828,10 @@ class GetImpactOnBuild(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.build_management.build_manager.setup_production_build',
-        'clusterfuzz._internal.system.environment.get_value',
-        'clusterfuzz._internal.bot_working_directory.testcase_manager.get_command_line_for_application',
-        'clusterfuzz._internal.bot_working_directory.testcase_manager.test_for_crash_with_retries',
+        'src.bot.build_management.build_manager.setup_production_build',
+        'src.bot.system.environment.get_value',
+        'src.bot.bot_working_directory.testcase_manager.get_command_line_for_application',
+        'src.bot.bot_working_directory.testcase_manager.test_for_crash_with_retries',
     ])
     self.env = {
         'APP_PATH': 'app',
@@ -896,10 +896,10 @@ class GetStartAndEndRevisionTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.build_management.revisions.get_start_and_end_revision',
-        'clusterfuzz._internal.build_management.revisions.get_component_range_list',
-        'clusterfuzz._internal.bot_working_directory.testcase_manager.get_command_line_for_application',
-        'clusterfuzz._internal.system.environment.is_android',
+        'src.bot.build_management.revisions.get_start_and_end_revision',
+        'src.bot.build_management.revisions.get_component_range_list',
+        'src.bot.bot_working_directory.testcase_manager.get_command_line_for_application',
+        'src.bot.system.environment.is_android',
     ])
 
   def test_normal(self):

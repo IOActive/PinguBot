@@ -24,19 +24,19 @@ import unittest
 import mock
 import six
 
-from clusterfuzz._internal.bot.fuzzers import options
-from clusterfuzz._internal.bot.fuzzers.libFuzzer import \
+from src.bot.fuzzers import options
+from src.bot.fuzzers.libFuzzer import \
     engine as libFuzzer_engine
-from clusterfuzz._internal.bot.tasks import commands
-from clusterfuzz._internal.bot.tasks import corpus_pruning_task
-from clusterfuzz._internal.datastore import data_handler
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.fuzzing import corpus_manager
-from clusterfuzz._internal.google_cloud_utils import gsutil
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
-from clusterfuzz._internal.tests.test_libs import untrusted_runner_helpers
+from src.bot.tasks import commands
+from src.bot.tasks import corpus_pruning_task
+from src.bot.datastore import data_handler
+from src.bot.datastore import data_types
+from src.bot.fuzzing import corpus_manager
+from src.bot.google_cloud_utils import gsutil
+from src.bot.system import environment
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
+from src.bot.tests.test_libs import untrusted_runner_helpers
 
 TEST_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), 'corpus_pruning_task_data')
@@ -53,16 +53,16 @@ class BaseTest(object):
     """Setup."""
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.fuzzers.engine_common.unpack_seed_corpus_if_needed',
-        'clusterfuzz._internal.bot_working_directory.tasks.corpus_pruning_task.'
+        'src.bot.bot_working_directory.fuzzers.engine_common.unpack_seed_corpus_if_needed',
+        'src.bot.bot_working_directory.tasks.corpus_pruning_task.'
         'choose_cross_pollination_strategy',
-        'clusterfuzz._internal.bot_working_directory.tasks.task_creation.create_tasks',
-        'clusterfuzz._internal.bot_working_directory.tasks.setup.update_fuzzer_and_data_bundles',
-        'clusterfuzz._internal.fuzzing.corpus_manager.backup_corpus',
-        'clusterfuzz._internal.fuzzing.corpus_manager.GcsCorpus.rsync_to_disk',
-        'clusterfuzz._internal.fuzzing.corpus_manager.FuzzTargetCorpus.rsync_from_disk',
-        'clusterfuzz._internal.google_cloud_utils.blobs.write_blob',
-        'clusterfuzz._internal.google_cloud_utils.storage.write_data',
+        'src.bot.bot_working_directory.tasks.task_creation.create_tasks',
+        'src.bot.bot_working_directory.tasks.setup.update_fuzzer_and_data_bundles',
+        'src.bot.fuzzing.corpus_manager.backup_corpus',
+        'src.bot.fuzzing.corpus_manager.GcsCorpus.rsync_to_disk',
+        'src.bot.fuzzing.corpus_manager.FuzzTargetCorpus.rsync_from_disk',
+        'src.bot.google_cloud_utils.blobs.write_blob',
+        'src.bot.google_cloud_utils.storage.write_data',
         'clusterfuzz.fuzz.engine.get',
     ])
     self.mock.get.return_value = libFuzzer_engine.Engine()
@@ -160,8 +160,8 @@ class CorpusPruningTest(unittest.TestCase, BaseTest):
   def setUp(self):
     BaseTest.setUp(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.build_management.build_manager.setup_build',
-        'clusterfuzz._internal.base.utils.get_application_id',
+        'src.bot.build_management.build_manager.setup_build',
+        'src.bot.base.utils.get_application_id',
     ])
     self.mock.setup_build.side_effect = self._mock_setup_build
     self.mock.get_application_id.return_value = 'project'
@@ -310,7 +310,7 @@ class CorpusPruningTestFuchsia(unittest.TestCase, BaseTest):
 
     environment.set_value('UNPACK_ALL_FUZZ_TARGETS_AND_FILES', True)
     helpers.patch(self, [
-        'clusterfuzz._internal.system.shell.clear_temp_directory',
+        'src.bot.system.shell.clear_temp_directory',
     ])
 
   def tearDown(self):
@@ -344,9 +344,9 @@ class CorpusPruningTestUntrusted(
     environment.set_value('JOB_NAME', 'libfuzzer_asan_job')
 
     helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.tasks.setup.get_fuzzer_directory',
-        'clusterfuzz._internal.base.tasks.add_task',
-        'clusterfuzz._internal.bot_working_directory.tasks.corpus_pruning_task.'
+        'src.bot.bot_working_directory.tasks.setup.get_fuzzer_directory',
+        'src.bot.base.tasks.add_task',
+        'src.bot.bot_working_directory.tasks.corpus_pruning_task.'
         '_record_cross_pollination_stats',
         'clusterfuzz.fuzz.engine.get',
     ])

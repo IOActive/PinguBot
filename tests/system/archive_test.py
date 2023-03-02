@@ -16,9 +16,9 @@ import os
 import tempfile
 import unittest
 
-from clusterfuzz._internal.system import archive
-from clusterfuzz._internal.system import shell
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.system import archive
+from src.bot.system import shell
+from src.bot.tests.test_libs import helpers
 
 TESTDATA_PATH = os.path.join(os.path.dirname(__file__), 'archive_data')
 
@@ -67,7 +67,7 @@ class IteratorTest(unittest.TestCase):
   def test_tar_xz_broken_links(self):
     """Test that a .tar file with broken links is handled properly by
     iterator()."""
-    helpers.patch(self, ['clusterfuzz._internal.metrics.logs.log_warn'])
+    helpers.patch(self, ['src.bot.metrics.logs.log_warn'])
 
     archive_name = 'broken-links.tar.xz'
     archive_path = os.path.join(TESTDATA_PATH, archive_name)

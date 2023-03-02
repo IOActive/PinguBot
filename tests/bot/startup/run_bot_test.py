@@ -18,9 +18,9 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.metrics import monitor
-from clusterfuzz._internal.metrics import monitoring_metrics
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.metrics import monitor
+from src.bot.metrics import monitoring_metrics
+from src.bot.tests.test_libs import helpers
 from python.bot.startup import run_bot
 
 
@@ -85,10 +85,10 @@ class TaskLoopTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'clusterfuzz._internal.base.tasks.get_task',
-        'clusterfuzz._internal.bot_working_directory.tasks.commands.process_command',
-        'clusterfuzz._internal.bot_working_directory.tasks.update_task.run',
-        'clusterfuzz._internal.bot_working_directory.tasks.update_task.track_revision',
+        'src.bot.base.tasks.get_task',
+        'src.bot.bot_working_directory.tasks.commands.process_command',
+        'src.bot.bot_working_directory.tasks.update_task.run',
+        'src.bot.bot_working_directory.tasks.update_task.track_revision',
     ])
 
     self.task = mock.MagicMock()

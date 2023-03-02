@@ -20,13 +20,13 @@ import unittest
 import mock
 import six
 
-from clusterfuzz._internal.bot.fuzzers import engine_common
-from clusterfuzz._internal.bot.fuzzers.afl import launcher
-from clusterfuzz._internal.bot.fuzzers.afl import stats
-from clusterfuzz._internal.fuzzing import strategy
-from clusterfuzz._internal.tests.core.bot.fuzzers.afl.afl_launcher_test import \
+from src.bot.fuzzers import engine_common
+from src.bot.fuzzers.afl import launcher
+from src.bot.fuzzers.afl import stats
+from src.bot.fuzzing import strategy
+from src.bot.tests.core.bot.fuzzers.afl.afl_launcher_test import \
     dont_use_strategies
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
+from src.bot.tests.test_libs import helpers as test_helpers
 
 
 def override_fail_retries(env_var, default_value=None):
@@ -43,7 +43,7 @@ class StatsGetterTests(unittest.TestCase):
   CORPUS_SIZE = 20
   ACTUAL_DURATION = 5
 
-  @mock.patch('clusterfuzz._internal.system.environment.get_value',
+  @mock.patch('src.bot.system.environment.get_value',
               override_fail_retries)
   def setUp(self):
 
@@ -65,7 +65,7 @@ class StatsGetterTests(unittest.TestCase):
     dont_use_strategies(self)
     test_helpers.patch(
         self,
-        ['clusterfuzz._internal.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
+        ['src.bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
     self.mock.is_lpm_fuzz_target.return_value = True
     self.strategies = launcher.FuzzingStrategies(None)
 
@@ -103,7 +103,7 @@ class StatsGetterTests(unittest.TestCase):
 
     self.assertEqual(self.stats_getter.afl_stats, expected_stats)
 
-  @mock.patch('clusterfuzz._internal.system.environment.get_value',
+  @mock.patch('src.bot.system.environment.get_value',
               override_fail_retries)
   def _set_stats(self):
     """Helper function that calls self.stats_getter.set_stats with default
@@ -218,7 +218,7 @@ class StatsGetterTests(unittest.TestCase):
     actual_stats = self._set_stats()
     self.assertEqual(actual_stats, expected_stats)
 
-  @mock.patch('clusterfuzz._internal.system.environment.get_value',
+  @mock.patch('src.bot.system.environment.get_value',
               override_fail_retries)
   def test_actual_duration_is_0(self):
     """Tests that average_exec_per_sec is set to 0 when actual_duration is 0."""
@@ -233,7 +233,7 @@ class StatsGetterTests(unittest.TestCase):
 
     self.assertEqual(self.stats_getter.stats['average_exec_per_sec'], 0)
 
-  @mock.patch('clusterfuzz._internal.system.environment.get_value',
+  @mock.patch('src.bot.system.environment.get_value',
               override_fail_retries)
   def test_log_lines_unwanted(self):
     """Tests that average_exec_per_sec is set to 0 when actual_duration is 0."""

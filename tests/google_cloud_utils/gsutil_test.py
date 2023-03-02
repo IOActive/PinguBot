@@ -18,9 +18,9 @@ import os
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from clusterfuzz._internal.google_cloud_utils import gsutil
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.google_cloud_utils import gsutil
+from src.bot.tests.test_libs import helpers as test_helpers
+from src.bot.tests.test_libs import test_utils
 
 
 class GSUtilRunnerTest(fake_filesystem_unittest.TestCase):
@@ -29,7 +29,7 @@ class GSUtilRunnerTest(fake_filesystem_unittest.TestCase):
   def setUp(self):
     test_helpers.patch_environ(self)
     test_helpers.patch(self, [
-        'clusterfuzz._internal.system.new_process.ProcessRunner.run_and_wait',
+        'src.bot.system.new_process.ProcessRunner.run_and_wait',
     ])
 
     test_utils.set_up_pyfakefs(self)

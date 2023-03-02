@@ -19,10 +19,10 @@ import unittest
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from clusterfuzz._internal.system import environment
-from clusterfuzz._internal.system import shell
-from clusterfuzz._internal.tests.test_libs import helpers as test_helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.system import environment
+from src.bot.system import shell
+from src.bot.tests.test_libs import helpers as test_helpers
+from src.bot.tests.test_libs import test_utils
 
 
 class RemoveEmptyFilesTest(fake_filesystem_unittest.TestCase):
@@ -74,9 +74,9 @@ class RemoveDirectoryTest(unittest.TestCase):
         'os.makedirs',
         'os.path.exists',
         'os.system',
-        'clusterfuzz._internal.system.environment.platform',
-        'clusterfuzz._internal.metrics.logs.log_error',
-        'clusterfuzz._internal.metrics.logs.log_warn',
+        'src.bot.system.environment.platform',
+        'src.bot.metrics.logs.log_error',
+        'src.bot.metrics.logs.log_warn',
         'shutil.rmtree',
     ])
 

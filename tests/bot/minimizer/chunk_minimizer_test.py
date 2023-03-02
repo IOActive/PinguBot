@@ -13,7 +13,7 @@
 # limitations under the License.
 """Tests for the Chunk minimizer."""
 
-from clusterfuzz._internal.bot.minimizer import chunk_minimizer
+from src.bot.minimizer import chunk_minimizer
 
 from . import base_minimizer_tester
 

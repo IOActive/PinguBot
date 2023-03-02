@@ -14,11 +14,11 @@
 """variant_task tests."""
 import unittest
 
-from clusterfuzz._internal.bot.tasks import variant_task
-from clusterfuzz._internal.datastore import data_handler
-from clusterfuzz._internal.datastore import data_types
-from clusterfuzz._internal.tests.test_libs import helpers
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.tasks import variant_task
+from src.bot.datastore import data_handler
+from src.bot.datastore import data_types
+from src.bot.tests.test_libs import helpers
+from src.bot.tests.test_libs import test_utils
 
 
 @test_utils.with_cloud_emulators('datastore')

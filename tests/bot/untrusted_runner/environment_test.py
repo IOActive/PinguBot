@@ -19,8 +19,8 @@ import unittest
 
 import mock
 
-from clusterfuzz._internal.bot.untrusted_runner import environment
-from clusterfuzz._internal.tests.test_libs import helpers
+from src.bot.untrusted_runner import environment
+from src.bot.tests.test_libs import helpers
 
 FORWARDED_ENVIRONMENT_VARIABLES = [
     re.compile(pattern) for pattern in (
@@ -36,17 +36,17 @@ REBASED_ENVIRONMENT_VARIABLES = set([
 ])
 
 
-@mock.patch('clusterfuzz._internal.bot.untrusted_runner.environment.'
+@mock.patch('src.bot.bot.untrusted_runner.environment.'
             'FORWARDED_ENVIRONMENT_VARIABLES', FORWARDED_ENVIRONMENT_VARIABLES)
 @mock.patch(
-    'clusterfuzz._internal.bot.untrusted_runner.environment.REBASED_ENVIRONMENT_VARIABLES',
+    'src.bot.bot.untrusted_runner.environment.REBASED_ENVIRONMENT_VARIABLES',
     REBASED_ENVIRONMENT_VARIABLES)
 class EnvironmentTest(unittest.TestCase):
   """Test environment."""
 
   def setUp(self):
     helpers.patch(self, [
-        'clusterfuzz._internal.bot_working_directory.untrusted_runner.host.stub',
+        'src.bot.bot_working_directory.untrusted_runner.host.stub',
     ])
 
     helpers.patch_environ(self)

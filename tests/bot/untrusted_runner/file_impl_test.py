@@ -18,10 +18,10 @@ import os
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from clusterfuzz._internal.bot.untrusted_runner import config
-from clusterfuzz._internal.bot.untrusted_runner import file_impl
-from clusterfuzz._internal.protos import untrusted_runner_pb2
-from clusterfuzz._internal.tests.test_libs import test_utils
+from src.bot.untrusted_runner import config
+from src.bot.untrusted_runner import file_impl
+from src.bot.protos import untrusted_runner_pb2
+from src.bot.tests.test_libs import test_utils
 
 
 class FileImplTest(fake_filesystem_unittest.TestCase):
