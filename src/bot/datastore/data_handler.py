@@ -35,7 +35,7 @@ GOMA_DIR_LINE_REGEX = re.compile(r'^\s*goma_dir\s*=')
 HEARTBEAT_LAST_UPDATE_KEY = 'heartbeat_update'
 INPUT_DIR = 'inputs'
 MEMCACHE_TTL_IN_SECONDS = 30 * 60
-
+DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 NUM_TESTCASE_QUALITY_BITS = 3
 MAX_TESTCASE_QUALITY = 2 ** NUM_TESTCASE_QUALITY_BITS - 1
 
@@ -102,7 +102,7 @@ def bot_run_timed_out():
 
 def api_headers():
     api_host = os.environ.get('API_HOST')
-    headers = {'Authorization': os.environ.get('API_KEY'),
+    headers = {'Authorization': f'Token {os.environ.get("API_KEY")}',
                'content-type': 'application/json'}
     return api_host, headers
 
@@ -113,13 +113,13 @@ def api_headers():
 def register_bot():
     api_host, headers = api_headers()
     payload = {'bot_name': environment.get_value('BOT_NAME'),
-               'current_time': datetime.now().strftime('%Y-%m-%d'),
+               'current_time': datetime.now().strftime(DATETIME_FORMAT),
                'task_payload': "",
                'task_end_time': None,
-               'last_beat_time': datetime.now().strftime('%Y-%m-%d'),
+               'last_beat_time': datetime.now().strftime(DATETIME_FORMAT),
                'platform': environment.get_platform()}
 
-    response = requests.put('http://%s/api/bot/register' % api_host, json=payload, headers=headers)
+    response = requests.post('http://%s/api/bot/' % api_host, json=payload, headers=headers)
     if response.status_code == 200:
         logs.log("Bot Registered")
     elif response.status_code == 500:
@@ -129,7 +129,7 @@ def register_bot():
 def get_bot(bot_name):
     """Return the Bot object with the given name."""
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/bot/%s' % (api_host, bot_name), headers=headers)
+    response = requests.get(f'http://{api_host}/api/bot/?bot_name={bot_name}', headers=headers)
     json_bot = json.loads(response.content.decode('utf-8'))
     return json_bot
 
@@ -139,7 +139,7 @@ def send_heartbeat(heartbeat, log_info=None):
     payload = heartbeat
     headers = {'Authorization': os.environ.get('API_KEY'),
                'content-type': 'application/json'}
-    response = requests.post('http://%s/api/bot/heartbeat' % api_host, json=payload, headers=headers)
+    response = requests.patch(f'http://{api_host}/api/bot/{bot_id}', json=payload, headers=headers)
     if response.status_code == 200:
         json_heratbeat = json.loads(response.content.decode('utf-8'))
 
@@ -188,7 +188,7 @@ def get_task_status(bot_name, task_name):
 
 def get_task(platform) -> Task:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/task?platform=%s' % (api_host, platform), headers=headers)
+    response = requests.get(f'http://{api_host}/api/task?platform={platform}', headers=headers)
     if response.status_code == 200:
         json_task = json.loads(response.content.decode('utf-8'))
         task = Task(command=json_task['command'], argument=json_task['argument'], job_id=json_task['job_id'])
