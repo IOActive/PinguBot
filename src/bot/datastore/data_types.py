@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field, PrivateAttr
 from src.bot.crash_analysis.stack_parsing.stack_parser import StackFrame
 from src.bot.system import environment
 from src.bot.utils import json_utils, utils
+from uuid import UUID, uuid4
 
 MISSING_VALUE_STRING = '---'
 
@@ -120,32 +121,10 @@ MISSING_VALUE_STRING = '---'
 COVERAGE_INFORMATION_DATE_FORMAT = '%Y-%m-%d'
 
 
-class PyObjectId(ObjectId):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if not ObjectId.is_valid(v):
-            raise ValueError("Invalid objectid")
-
-        return ObjectId(v)
-
-    @classmethod
-    def to_python(cls, value):
-        """convert type to a python type"""
-        return str(value)
-
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type="string")
-
-
 class Fuzzer(BaseModel):
     """Represents a fuzzer."""
 
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="_id")
 
     # Additionally allows '.' and '@' over NAME_CHECK_REGEX.
     VALID_NAME_REGEX: str = re.compile(r'^[a-zA-Z0-9_@.-]+$')
@@ -229,7 +208,7 @@ class Fuzzer(BaseModel):
 
 
 class JobTemplate(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="_id")
     # Job template name.
     name: str
     # Environment string.
@@ -246,16 +225,16 @@ class ArchiveStatus(object):
 
 class Job(BaseModel):
     """Definition of a job type used by the bots."""
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="_id")
     name: str
     project: str
     description: str
     date: datetime
     enabled: bool
     archived: bool
-    fuzzing_target: PyObjectId = Field(default_factory=PyObjectId, alias="fuzzing_target")
-    owner: PyObjectId = Field(default=None, alias="owner")
-    templates: PyObjectId = Field(default=None, alias="template")
+    fuzzing_target: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzing_target")
+    #owner: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default=None, alias="owner")
+    templates: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default=None, alias="template")
     environment_string: str
     platform: str
 
@@ -314,7 +293,7 @@ class FuzzStrategyProbability(BaseModel):
   should be selected."""
     strategy_name: str
     probability: float
-    engine: PyObjectId = Field(default_factory=PyObjectId, alias="fuzzer_id")
+    engine: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzer_id")
 
 
 class Status(str, Enum):
@@ -325,7 +304,7 @@ class Status(str, Enum):
 
 
 class Crash(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="_id")
     crash_signal: int = 1
     exploitability: str = ""
     crash_time: datetime
@@ -363,7 +342,7 @@ class Crash(BaseModel):
     crash_revision: int = 1
 
     # References
-    testcase_id: PyObjectId = Field(default_factory=PyObjectId, alias="testcase_id")
+    testcase_id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="testcase_id")
 
     class Config:
         allow_population_by_field_name = True
@@ -372,7 +351,7 @@ class Crash(BaseModel):
 
 
 class Testcase(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="_id")
     bug_information: str = ""
     # Testcase file
     test_case: bytes
@@ -423,8 +402,8 @@ class Testcase(BaseModel):
     redzone: int = 128
 
     # References
-    job_id: PyObjectId = Field(default_factory=PyObjectId, alias="job_id")
-    fuzzer_id: PyObjectId = Field(default_factory=PyObjectId, alias="fuzzer_id")
+    job_id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="job_id")
+    fuzzer_id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="fuzzer_id")
 
     __metadata_cache__: Dict[str, int] = PrivateAttr(default_factory=dict)
 
@@ -489,7 +468,7 @@ class TaskState(object):
 class FuzzTarget(BaseModel):
     """Mapping between fuzz target and jobs with additional metadata for
       selection."""
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="_id")
 
     # Selected Fuzzer
     fuzzer_engine: str
@@ -561,13 +540,13 @@ def fuzz_target_job_key(fuzz_target_name, job):
 class FuzzTargetJob(BaseModel):
     """Mapping between fuzz target and jobs with additional metadata for
       selection."""
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="_id")
 
     # Fully qualified fuzz target.
-    fuzzing_target: PyObjectId = Field(default_factory=PyObjectId, alias="fuzzing_target")
+    fuzzing_target: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzing_target")
 
     # Job this target ran as.
-    job: PyObjectId = Field(default_factory=PyObjectId, alias="job")
+    job:UUID = Field(default_factory=uuid4) # PyObjectId = Field(default_factory=PyObjectId, alias="job")
 
     # Engine this ran as.
     engine: str
@@ -585,10 +564,10 @@ class FuzzTargetJob(BaseModel):
 
 
 class BuildMetadata(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="_id")
     """Metadata associated with a particular archived build."""
     # Job type that this build belongs to.
-    job: PyObjectId = Field(default_factory=PyObjectId, alias="job")
+    job: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="job")
 
     # Revision of the build.
     revision: int
@@ -618,7 +597,7 @@ class BuildState(object):
 
 class DataBundle(BaseModel):
     """Represents a data bundle associated with a fuzzer."""
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="_id")
 
     VALID_NAME_REGEX: str
 
@@ -659,16 +638,16 @@ class TestcaseVariantStatus(int, Enum):
 
 class TestcaseVariant(BaseModel):
     """Represent a testcase variant on another job (another platform / sanitizer / config)."""
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="_id")
 
     # Testcase ID of the testcase for which the variant is being evaluated.
-    testcase_id: PyObjectId = Field(default_factory=PyObjectId, alias="testcase_id")
+    testcase_id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="testcase_id")
 
     # Status of the testcase variant (pending, reproducible, unreproducible, etc).
     status: TestcaseVariantStatus = TestcaseVariantStatus.PENDING
 
     # Job type for the testcase variant.
-    job_id: PyObjectId = Field(default_factory=PyObjectId, alias="job_id")
+    job_id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="job_id")
 
     # Revision that the testcase variant was tried against.
     revision: int = 0
@@ -734,13 +713,13 @@ class ReportMetadata(BaseModel):
     serialized_crash_stack_frames: str = ''
 
     # Id of the associated testcase.
-    testcase_id: PyObjectId = Field(default_factory=PyObjectId, alias="testcase_id")
+    testcase_id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="testcase_id")
 
     # Id of the associated bot.
-    bot_id: PyObjectId = Field(default_factory=PyObjectId, alias="bot_id")
+    bot_id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="bot_id")
 
     # Optional upload params, stored as a JSON object.
     optional_params: str = ''
 
     # Report id from crash/.
-    crash_report_id: PyObjectId = Field(default_factory=PyObjectId, alias="crash_id")
+    crash_report_id: UUID = Field(default_factory=uuid4) # = Field(default_factory=PyObjectId, alias="crash_id")
