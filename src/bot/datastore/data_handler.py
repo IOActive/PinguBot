@@ -154,7 +154,7 @@ def update_heartbeat(force_update=False, task_status='NA'):
         return 0
 
     bot_name = environment.get_value('BOT_NAME')
-    current_time = datetime.utcnow().strftime('%Y-%m-%d')
+    current_time = datetime.utcnow().strftime(DATETIME_FORMAT)
     task_payload = tasks.get_task_payload()
     task_end_time = tasks.get_task_end_time()
     if task_end_time is not None:
