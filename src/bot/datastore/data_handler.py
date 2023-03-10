@@ -21,7 +21,7 @@ from src.bot.fuzzing import leak_blacklist
 from src.bot.system import memoize, errors
 from src.bot.datastore import data_types
 from src.bot.datastore.data_types import Job, JobTemplate, Fuzzer, FuzzTargetJob, FuzzTarget, BuildMetadata, \
-    DataBundle, Testcase, Crash, TestcaseVariant, Trial
+    DataBundle, Testcase, Crash, TestcaseVariant, Trial, Bot
 from src.bot.metrics import logs
 from src.bot.system import persistent_cache, environment, tasks, shell
 from src.bot.system.tasks import Task
@@ -35,7 +35,7 @@ GOMA_DIR_LINE_REGEX = re.compile(r'^\s*goma_dir\s*=')
 HEARTBEAT_LAST_UPDATE_KEY = 'heartbeat_update'
 INPUT_DIR = 'inputs'
 MEMCACHE_TTL_IN_SECONDS = 30 * 60
-
+DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
 NUM_TESTCASE_QUALITY_BITS = 3
 MAX_TESTCASE_QUALITY = 2 ** NUM_TESTCASE_QUALITY_BITS - 1
 
@@ -102,44 +102,49 @@ def bot_run_timed_out():
 
 def api_headers():
     api_host = os.environ.get('API_HOST')
-    headers = {'Authorization': os.environ.get('API_KEY'),
+    headers = {'Authorization': f'Token {os.environ.get("API_KEY")}',
                'content-type': 'application/json'}
     return api_host, headers
 
 
 # ------------------------------------------------------------------------------
 # Bot API  Functions
-# ---
+# ------------------------------------------------------------------------------
 def register_bot():
     api_host, headers = api_headers()
     payload = {'bot_name': environment.get_value('BOT_NAME'),
-               'current_time': datetime.now().strftime('%Y-%m-%d'),
+               'current_time': datetime.now().strftime(DATETIME_FORMAT),
                'task_payload': "",
                'task_end_time': None,
-               'last_beat_time': datetime.now().strftime('%Y-%m-%d'),
+               'last_beat_time': datetime.now().strftime(DATETIME_FORMAT),
                'platform': environment.get_platform()}
 
-    response = requests.put('http://%s/api/bot/register' % api_host, json=payload, headers=headers)
+    response = requests.post(f'{api_host}/api/bot/', json=payload, headers=headers)
     if response.status_code == 200:
         logs.log("Bot Registered")
     elif response.status_code == 500:
         logs.log("Bot already Registered")
 
 
-def get_bot(bot_name):
+def get_bot(bot_name) -> Bot:
     """Return the Bot object with the given name."""
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/bot/%s' % (api_host, bot_name), headers=headers)
-    json_bot = json.loads(response.content.decode('utf-8'))
-    return json_bot
+    response = requests.get(f'{api_host}/api/bot/?bot_name={bot_name}', headers=headers)
+    result = json.loads(response.content.decode('utf-8'))
+    if response.status_code == 200 and len(result) > 0:
+        json_bot = result[0]
+        try:
+            return Bot(**json_bot)
+        except ValidationError as e:
+            logs.log_error(e)
 
 
-def send_heartbeat(heartbeat, log_info=None):
+def send_heartbeat(heartbeat, bot,  log_info=None):
     api_host = os.environ.get('API_HOST')
     payload = heartbeat
     headers = {'Authorization': os.environ.get('API_KEY'),
                'content-type': 'application/json'}
-    response = requests.post('http://%s/api/bot/heartbeat' % api_host, json=payload, headers=headers)
+    response = requests.patch(f'{api_host}/api/bot/{bot.id}', json=payload, headers=headers)
     if response.status_code == 200:
         json_heratbeat = json.loads(response.content.decode('utf-8'))
 
@@ -154,7 +159,7 @@ def update_heartbeat(force_update=False, task_status='NA'):
         return 0
 
     bot_name = environment.get_value('BOT_NAME')
-    current_time = datetime.utcnow().strftime('%Y-%m-%d')
+    current_time = datetime.utcnow().strftime(DATETIME_FORMAT)
     task_payload = tasks.get_task_payload()
     task_end_time = tasks.get_task_end_time()
     if task_end_time is not None:
@@ -172,7 +177,8 @@ def update_heartbeat(force_update=False, task_status='NA'):
                  'last_beat_time': last_beat_time,
                  'platform': platform}
 
-    send_heartbeat(heartbeat)
+    bot = get_bot(bot_name)
+    send_heartbeat(heartbeat, bot)
 
     persistent_cache.set_value(
         HEARTBEAT_LAST_UPDATE_KEY, time.time(), persist_across_reboots=True)
@@ -181,14 +187,14 @@ def update_heartbeat(force_update=False, task_status='NA'):
 def get_task_status(bot_name, task_name):
     """Return the status with the given name."""
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/bot/%s' % (api_host, bot_name), headers=headers)
+    response = requests.get(f'http://{api_host}/api/bot/?bot_name={bot_name}', headers=headers)
     json_bot = json.loads(response.content.decode('utf-8'))
     return json_bot['task_status'], json_bot['last_beat_time']
 
 
 def get_task(platform) -> Task:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/task?platform=%s' % (api_host, platform), headers=headers)
+    response = requests.get(f'{api_host}/api/task?platform={platform}', headers=headers)
     if response.status_code == 200:
         json_task = json.loads(response.content.decode('utf-8'))
         task = Task(command=json_task['command'], argument=json_task['argument'], job_id=json_task['job_id'])
@@ -205,7 +211,7 @@ def add_task(task: Task, queue):
                'command': task.command,
                'argument': task.argument,
                }
-    response = requests.put('http://%s//api/task' % api_host, json=payload, headers=headers)
+    response = requests.post(f'{api_host}//api/task', json=payload, headers=headers)
     if response.status_code == 200:
         logs.log(f"{response.text}")
     else:
@@ -265,9 +271,10 @@ def get_all_project_names():
 
 def get_job(job_id) -> Job:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/job/%s' % (api_host, job_id), headers=headers)
-    if response.status_code == 200:
-        json_job = json.loads(response.content.decode('utf-8'))
+    response = requests.get(f'{api_host}/api/job/?id={job_id}', headers=headers)
+    result = json.loads(response.content.decode('utf-8'))
+    if response.status_code == 200 and len(result) > 0:
+        json_job = result[0]
         try:
             return Job(**json_job)
         except ValidationError as e:
@@ -278,7 +285,7 @@ def get_job(job_id) -> Job:
 
 def get_jobs() -> list[Job]:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/jobs' % api_host, headers=headers)
+    response = requests.get(f'{api_host}/api/job/', headers=headers)
     jobs = []
     if response.status_code == 200:
         json_jobs = json.loads(response.content.decode('utf-8'))
@@ -294,10 +301,12 @@ def get_jobs() -> list[Job]:
 
 def get_template(template_name) -> JobTemplate:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/template?name=%s' % (api_host, template_name), headers=headers)
-    json_template = json.loads(response.content.decode('utf-8'))
+    response = requests.get(f'{api_host}/api/jobtemplate/?name={template_name}', headers=headers)
     try:
-        return JobTemplate(**json_template)
+        result = json.loads(response.content.decode('utf-8'))
+        if response.status_code == 200 and len(result) > 0:
+            json_template = result[0]
+            return JobTemplate(**json_template)
     except ValidationError as e:
         logs.log_error(e)
 
@@ -327,10 +336,11 @@ def get_project_name(job_type):
 
 def get_fuzzer(fuzzer_name) -> Fuzzer:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/fuzzer?name=%s' % (api_host, fuzzer_name), headers=headers)
-    json_fuzzer = json.loads(response.content.decode('utf-8'))
+    response = requests.get(f'{api_host}/api/fuzzer/?name={fuzzer_name}', headers=headers)
+    result = json.loads(response.content.decode('utf-8'))
     try:
-        if response.status_code == 200:
+        if response.status_code == 200 and len(result) > 0:
+            json_fuzzer = result[0]
             return Fuzzer(**json_fuzzer)
     except ValidationError as e:
         logs.log_error(e)
@@ -338,10 +348,12 @@ def get_fuzzer(fuzzer_name) -> Fuzzer:
 
 def get_fuzzer_by_id(fuzzer_id) -> Fuzzer:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/fuzzer?id=%s' % (api_host, fuzzer_id), headers=headers)
-    json_fuzzer = json.loads(response.content.decode('utf-8'))
+    response = requests.get(f'{api_host}/api/fuzzer/?id={fuzzer_id}', headers=headers)
     try:
-        return Fuzzer(**json_fuzzer)
+        result = json.loads(response.content.decode('utf-8'))
+        if response.status_code == 200 and len(result) > 0:
+            json_fuzzer = result[0]
+            return Fuzzer(**json_fuzzer)
     except ValidationError as e:
         logs.log_error(e)
 
@@ -352,7 +364,7 @@ def get_fuzzer_by_id(fuzzer_id) -> Fuzzer:
 
 def get_fuzz_target_job_by_job(job_id) -> list[FuzzTargetJob]:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/fuzzTargetJob?job_id=%s' % (api_host, job_id), headers=headers)
+    response = requests.get(f'{api_host}/api/fuzztargetjob/?job={job_id}', headers=headers)
     json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))
 
     try:
@@ -365,7 +377,7 @@ def get_fuzz_target_job_by_job(job_id) -> list[FuzzTargetJob]:
 def get_fuzz_target_job_by_job_fuzztarget(job_id, fuzzTarget_id) -> list[FuzzTargetJob]:
     api_host, headers = api_headers()
     response = requests.get(
-        'http://%s/api/fuzzTargetJob?job_id=%s&fuzzing_target_id=%s' % (api_host, job_id, fuzzTarget_id),
+        f'{api_host}/api/fuzztargetjob/?job={job_id}&fuzzing_target={fuzzTarget_id}',
         headers=headers)
     json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))
 
@@ -378,7 +390,7 @@ def get_fuzz_target_job_by_job_fuzztarget(job_id, fuzzTarget_id) -> list[FuzzTar
 
 def get_fuzz_target_job_by_engine(engine) -> list[FuzzTargetJob]:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/fuzzTargetJob?engine=%s' % (api_host, engine), headers=headers)
+    response = requests.get(f'{api_host}/api/fuzztargetjob/?engine={engine}', headers=headers)
     json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))
 
     try:
@@ -391,7 +403,7 @@ def get_fuzz_target_job_by_engine(engine) -> list[FuzzTargetJob]:
 def add_fuzz_target_job(fuzz_target_job):
     api_host, headers = api_headers()
     payload = json.loads(fuzz_target_job.json())
-    response = requests.put(f'http://{api_host}/api/fuzzTargetJob', json=payload, headers=headers)
+    response = requests.post(f'{api_host}/api/fuzztargetjob', json=payload, headers=headers)
     if response.status_code == 200:
         logs.log("Fuzz Target JOb Registered")
     elif response.status_code == 500:
@@ -404,10 +416,11 @@ def add_fuzz_target_job(fuzz_target_job):
 
 def get_trial_by_id(trial_id) -> Trial:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/trial?id=%s' % (api_host, trial_id), headers=headers)
-    json_trial = json.loads(response.content.decode('utf-8'))
+    response = requests.get(f'{api_host}/api/trial/?id={trial_id}', headers=headers)
     try:
-        if response.status_code == 200:
+        result = json.loads(response.content.decode('utf-8'))
+        if response.status_code == 200 and len(result) > 0:
+            json_trial = result[0]
             return Trial(**json_trial)
     except ValidationError as e:
         logs.log_error(e)
@@ -415,7 +428,7 @@ def get_trial_by_id(trial_id) -> Trial:
 
 def get_trial_by_appname(app_name) -> list[Trial]:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/trial?app_name=%s' % (api_host, app_name), headers=headers)
+    response = requests.get(f'{api_host}/api/trial/?app_name={app_name}', headers=headers)
     json_trial = json.loads(response.content.decode('utf-8'))
     try:
         if response.status_code == 200:
@@ -434,7 +447,7 @@ def add_trial(app_name, probability=1.0, app_args=""):
         "app_args": app_args
     }
     api_host, headers = api_headers()
-    response = requests.put('http://%s/api/trial', headers=headers, json=payload)
+    response = requests.post(f'{api_host}/api/trial', headers=headers, json=payload)
     json_trial = json.loads(response.content.decode('utf-8'))
     try:
         if response.status_code == 201:
@@ -449,26 +462,29 @@ def add_trial(app_name, probability=1.0, app_args=""):
 
 def get_fuzz_target_by_id(fuzz_target_id) -> FuzzTarget:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/fuzztarget?id=%s' % (api_host, fuzz_target_id), headers=headers)
-    json_fuzzTarget = json.loads(response.content.decode('utf-8'))
+    response = requests.get(f'{api_host}/api/fuzztarget/?id={fuzz_target_id}', headers=headers)
     try:
-        return FuzzTarget(**json_fuzzTarget)
+        result = json.loads(response.content.decode('utf-8'))
+        if response.status_code == 200 and len(result) > 0:
+            json_fuzzTarget = result[0]
+            return FuzzTarget(**json_fuzzTarget)
     except ValidationError as e:
         logs.log_error(e)
 
 
 def get_fuzz_target_by_keyName(keyname) -> FuzzTarget:
-    api_host = os.environ.get('API_HOST')
     split = keyname.split('_')
     fuzzer_engine = split[0]
-    binary = split[2]
-    headers = {'Authorization': os.environ.get('API_KEY'),
-               'content-type': 'application/json'}
-    response = requests.get(f'http://{api_host}/api/fuzztarget?fuzzer_engine={fuzzer_engine}&binary={binary}',
+    binary = split[-1]
+    fuzzer = get_fuzzer(fuzzer_engine)
+    api_host, headers = api_headers()
+    response = requests.get(f'{api_host}/api/fuzztarget/?fuzzer_engine={fuzzer.id}&binary={binary}',
                             headers=headers)
     try:
-        json_fuzzTarget = json.loads(response.content.decode('utf-8'))
-        return FuzzTarget(**json_fuzzTarget)
+        result = json.loads(response.content.decode('utf-8'))
+        if response.status_code == 200 and len(result) > 0:
+            json_fuzzTarget = result[0]
+            return FuzzTarget(**json_fuzzTarget)
     except ValidationError as e:
         logs.log_error(e)
 
@@ -476,7 +492,7 @@ def get_fuzz_target_by_keyName(keyname) -> FuzzTarget:
 def add_fuzz_target(fuzz_target):
     api_host, headers = api_headers()
     payload = json.loads(fuzz_target.json())
-    response = requests.put(f'http://{api_host}/api/fuzztarget', json=payload, headers=headers)
+    response = requests.post(f'{api_host}/api/fuzztarget', json=payload, headers=headers)
     if response.status_code == 200:
         logs.log("Fuzz Target Registered")
     elif response.status_code == 500:
@@ -493,12 +509,12 @@ def record_fuzz_target(engine_name, binary_name, job_type) -> FuzzTarget:
     key_name = data_types.fuzz_target_fully_qualified_name(
         engine_name, project, binary_name)
 
+    
     fuzz_target = get_fuzz_target_by_keyName(key_name)  # ndb.Key(data_types.FuzzTarget, key_name).get()
     if not fuzz_target:
         fuzz_target = data_types.FuzzTarget(
             fuzzer_engine=engine_name, project=project, binary=binary_name)
         add_fuzz_target(fuzz_target)
-    fuzz_target = get_fuzz_target_by_keyName(key_name)
 
     # job_mapping_key = data_types.fuzz_target_job_key(key_name, job_type)
     job_mapping = get_fuzz_target_job_by_job_fuzztarget(job_type, fuzz_target.id)
@@ -526,19 +542,19 @@ def record_fuzz_target(engine_name, binary_name, job_type) -> FuzzTarget:
 # Testcase, TestcaseUploadMetadata database related functions
 # ------------------------------------------------------------------------------
 
-def find_testcase(project_name, crash_type, crash_state, security_flag) -> Testcase:
+def find_testcase(project_name, crash_type, crash_state, security_flag):
     api_host, headers = api_headers()
     response = requests.get(
-        f'http://{api_host}/api/testcase?project_name={project_name}&crash_type={crash_type}&crash_state={crash_state}&security_flag={security_flag}',
-        headers=headers)
+        f'{api_host}/api/testcase/?job_id__project={project_name}&crash_testcase__crash_type={crash_type}&crash_testcase__crash_state={crash_state}',
+        headers=headers) #&security_flag={security_flag} There is a bug in Djongo with filtering Bool values for now lest avoid it
     try:
-        json_testcase = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200:
+        result = json.loads(response.content.decode('utf-8'))
+        if response.status_code == 200 and len(result) > 0:
+            json_testcase = result[0]
             logs.log("Main Testcase Identified")
             return Testcase(**json_testcase)
         else:
             logs.log("Testcase Not Found")
-            return None
     except ValidationError as e:
         logs.log_error(e)
 
@@ -550,11 +566,13 @@ def get_testcase_by_id(testcase_id) -> Testcase:
 
     api_host, headers = api_headers()
     response = requests.get(
-        f'http://{api_host}/api/testcase/{testcase_id}', headers=headers)
+        f'{api_host}/api/testcase/?id={testcase_id}', headers=headers)
     try:
-        json_testcase = json.loads(response.content.decode('utf-8'))
-        logs.log("Main Testcase Identified")
-        return Testcase(**json_testcase)
+        result = json.loads(response.content.decode('utf-8'))
+        if response.status_code == 200 and len(result) > 0:
+            json_testcase = result[0]
+            logs.log("Main Testcase Identified")
+            return Testcase(**json_testcase)
     except ValidationError as e:
         logs.log_error(errors.InvalidTestcaseError)
 
@@ -608,8 +626,8 @@ def store_testcase(crash, fuzzed_keys, minimized_keys, regression, fixed,
 def add_testcase(testcase: Testcase, crash: Crash):
     api_host, headers = api_headers()
     payload = json.loads(testcase.json())
-    response = requests.put(f'http://{api_host}/api/testcase', json=payload, headers=headers)
-    if response.status_code == 200:
+    response = requests.post(f'{api_host}/api/testcase/', json=payload, headers=headers)
+    if response.status_code == 201:
         logs.log("Testcase Registered")
         # Get testcase id from newly created testcase.
         json_testcase = json.loads(response.content.decode('utf-8'))
@@ -632,7 +650,7 @@ def add_testcase(testcase: Testcase, crash: Crash):
 def update_testcase(testcase):
     api_host, headers = api_headers()
     payload = json.loads(testcase.json())
-    response = requests.post(f'http://{api_host}/api/testcase/{testcase.id}', json=payload,
+    response = requests.patch(f'{api_host}/api/testcase/{testcase.id}/', json=payload,
                              headers=headers)
     try:
         if response.status_code == 200:
@@ -717,11 +735,12 @@ def get_testcase_variant(testcase_id, job_type):
     """Get a testcase variant entity, and create if needed."""
     api_host, headers = api_headers()
     response = requests.get(
-        f'http://{api_host}/api/testcase_variant?testcase_id={testcase_id}&job_id={job_type}',
+        f'{api_host}/api/testcasevariant/?testcase_id={testcase_id}&job_id={job_type}',
         headers=headers)
     try:
-        json_testcase_variant = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200:
+        result = json.loads(response.content.decode('utf-8'))
+        if response.status_code == 200 and len(result) > 0:
+            json_testcase_variant = result[0]
             return TestcaseVariant(**json_testcase_variant)
         else:
             logs.log("Testcase Variant Not Found, Creating a new one")
@@ -734,7 +753,7 @@ def add_testcase_variant(testcase_id, job_type):
     api_host, headers = api_headers()
     variant = TestcaseVariant(testcase_id=testcase_id, job_id=job_type)
     payload = json.loads(variant.json())
-    response = requests.put(f'http://{api_host}/api/testcase_variant', json=payload, headers=headers)
+    response = requests.psot(f'{api_host}/api/testcasevariant/', json=payload, headers=headers)
     if response.status_code == 201:
         logs.log("TestCase Variant Registered")
     elif response.status_code == 500:
@@ -744,7 +763,7 @@ def add_testcase_variant(testcase_id, job_type):
 def update_testcase_variant(testcase_variant):
     api_host, headers = api_headers()
     payload = json.loads(testcase_variant.json())
-    response = requests.post(f'http://{api_host}/api/testcase_variant/{testcase_variant.id}', json=payload,
+    response = requests.patch(f'{api_host}/api/testcasevariant/{testcase_variant.id}/', json=payload,
                              headers=headers)
     try:
         if response.status_code == 200:
@@ -758,12 +777,12 @@ def update_testcase_variant(testcase_variant):
 # ------------------------------------------------------------------------------
 def get_crash_by_testcase(testcase_id) -> Crash:
     api_host, headers = api_headers()
-    response = requests.get(f'http://{api_host}/api/crash?testcase_id={testcase_id}', headers=headers)
+    response = requests.get(f'{api_host}/api/crash/?testcase_id={testcase_id}', headers=headers)
     try:
-        json_crash = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200:
-            if len(json_crash) > 0:
-                return Crash(**json_crash)
+        result = json.loads(response.content.decode('utf-8'))
+        if response.status_code == 200 and len(result) > 0:
+            json_crash = result[0]
+            return Crash(**json_crash)
     except ValidationError as e:
         logs.log_error(e)
 
@@ -814,7 +833,7 @@ def store_crash(crash_obj, job_type, testcase_id, one_time_crasher_flag, crash_r
 
     api_host, headers = api_headers()
     payload = json.loads(crash.json())
-    response = requests.put(f'http://{api_host}/api/crash', json=payload, headers=headers)
+    response = requests.post(f'{api_host}/api/crash/', json=payload, headers=headers)
     if response.status_code == 200:
         logs.log("Crash Registered")
     elif response.status_code == 500:
@@ -1175,20 +1194,23 @@ def get_build_state(job_id, crash_revision):
     """Return whether a build is unmarked, good or bad."""
     api_host, headers = api_headers()
 
-    response = requests.get(f'http://{api_host}/api/buildMetada?job_id={job_id}&revision={crash_revision}',
+    response = requests.get(f'{api_host}/api/buildmetadata/?job={job_id}&revision={crash_revision}',
                             headers=headers)
     try:
-        json_BuildMetadatas = json.loads(response.content.decode('utf-8'))
-        builds = [BuildMetadata(**json_BuildMetadata) for json_BuildMetadata in json_BuildMetadatas]
+        if response.status_code == 200:
+            json_BuildMetadatas = json.loads(response.content.decode('utf-8'))
+            builds = [BuildMetadata(**json_BuildMetadata) for json_BuildMetadata in json_BuildMetadatas]
+            for build in builds:
+                if not build:
+                    return data_types.BuildState.UNMARKED
 
-        for build in builds:
-            if not build:
-                return data_types.BuildState.UNMARKED
+                if build.bad_build:
+                    return data_types.BuildState.BAD
 
-            if build.bad_build:
-                return data_types.BuildState.BAD
-
-            return data_types.BuildState.GOOD
+                return data_types.BuildState.GOOD
+            return data_types.BuildState.UNMARKED
+        else:
+            return data_types.BuildState.UNMARKED
     except ValidationError as e:
         logs.log_error(e)
 
@@ -1198,19 +1220,18 @@ def add_build_metadata(job,
                        is_bad_build,
                        console_output=None):
     """Add build metadata."""
-    build = data_types.BuildMetadata()
-    build.bad_build = is_bad_build
-    build.bot_name = environment.get_value('BOT_NAME')
-    build.console_output = filter_stacktrace(console_output)
-    build.job_type = job
-    build.revision = crash_revision
-    build.timestamp = datetime.utcnow()
-
-    json_build = build.json()
+    build = data_types.BuildMetadata(bad_build=is_bad_build,
+                                     bot_name=environment.get_value('BOT_NAME'),
+                                     console_output=filter_stacktrace(console_output),
+                                     job=job,
+                                     revision=crash_revision,
+                                     timestamp=datetime.utcnow()
+                                     )
+    json_build = json.loads(build.json())
 
     api_host, headers = api_headers()
 
-    response = requests.put(f'http://{api_host}/api/buildMetada',
+    response = requests.post(f'{api_host}/api/buildmetadata/',
                             headers=headers, json=json_build)
 
     if is_bad_build:
@@ -1233,12 +1254,14 @@ def get_data_bundle(bundle_name):
     """Return data bundle object"""
     api_host, headers = api_headers()
 
-    response = requests.get(f'http://{api_host}/api/dataBundle?name={bundle_name}',
+    response = requests.get(f'{api_host}/api/databundle/?name={bundle_name}',
                             headers=headers)
     try:
-        json_data_bundle = json.loads(response.content.decode('utf-8'))
-        data_bundle = DataBundle(**json_data_bundle)
-        return data_bundle
+        result = json.loads(response.content.decode('utf-8'))
+        if response.status_code == 200 and len(result) > 0:
+            json_data_bundle = result[0]
+            data_bundle = DataBundle(**json_data_bundle)
+            return data_bundle
     except ValidationError as e:
         logs.log_error(e)
 

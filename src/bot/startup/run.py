@@ -150,7 +150,13 @@ def set_start_time():
 
 def main():
     set_start_time()
-    os.environ['ROOT_DIR'] = '/home/roboboy/Projects/LuckyCAT/test-bot/' #Only for testing
+    root_directory = environment.get_value('ROOT_DIR')
+    if not root_directory:
+        print('Please set ROOT_DIR environment variable to the root of the source '
+            'checkout before running. Exiting.')
+        print('For an example, check init.bash in the local directory.')
+        return
+    
     environment.set_bot_environment()
 
     # Python buffering can otherwise cause exception logs in the child run_*.py
@@ -160,7 +166,7 @@ def main():
     # Create command strings to launch bot and heartbeat.
     log_directory = environment.get_value('LOG_DIR')
     bot_log = os.path.join(log_directory, 'bot.log')
-    base_directory = environment.get_value('BASE_DIR')
+    base_directory = environment.get_value('ROOT_DIR')
 
     bot_script_path = os.path.join(base_directory, BOT_SCRIPT)
     bot_interpreter = shell.get_interpreter(BOT_SCRIPT)

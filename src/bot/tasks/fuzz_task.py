@@ -1047,7 +1047,7 @@ def write_crashes_to_big_query(group, context):
         if result is None:
             # Happens in case the big query function is disabled (local development).
             return
-        errors = result.get('insertErrors', [])
+        errors = []
         failed_count = len(errors)
 
         monitoring_metrics.BIG_QUERY_WRITE_COUNT.increment_by(
@@ -1055,11 +1055,11 @@ def write_crashes_to_big_query(group, context):
         monitoring_metrics.BIG_QUERY_WRITE_COUNT.increment_by(
             failed_count, {'success': False})
 
-        for error in errors:
-            logs.log_error(
-                ('Ignoring error writing the crash (%s) to BigQuery.' %
-                 group.crashes[error['index']].crash_type),
-                exception=Exception(error))
+        #for error in errors:
+        #    logs.log_error(
+        #        ('Ignoring error writing the crash (%s) to BigQuery.' %
+        #         group.crashes[error['index']].crash_type),
+        #        exception=Exception(error))
     except Exception:
         logs.log_error('Ignoring error writing a group of crashes to BigQuery')
         monitoring_metrics.BIG_QUERY_WRITE_COUNT.increment_by(
