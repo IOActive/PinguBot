@@ -109,7 +109,7 @@ def api_headers():
 
 # ------------------------------------------------------------------------------
 # Bot API  Functions
-# ---
+# ------------------------------------------------------------------------------
 def register_bot():
     api_host, headers = api_headers()
     payload = {'bot_name': environment.get_value('BOT_NAME'),
@@ -129,7 +129,7 @@ def register_bot():
 def get_bot(bot_name):
     """Return the Bot object with the given name."""
     api_host, headers = api_headers()
-    response = requests.get(f'http://{api_host}/api/bot/?bot_name={bot_name}', headers=headers)
+    response = requests.get(f'{api_host}/api/bot/?bot_name={bot_name}', headers=headers)
     json_bot = json.loads(response.content.decode('utf-8'))
     return json_bot
 
@@ -139,7 +139,7 @@ def send_heartbeat(heartbeat, log_info=None):
     payload = heartbeat
     headers = {'Authorization': os.environ.get('API_KEY'),
                'content-type': 'application/json'}
-    response = requests.patch(f'http://{api_host}/api/bot/{bot_id}', json=payload, headers=headers)
+    response = requests.patch(f'{api_host}/api/bot/{bot_id}', json=payload, headers=headers)
     if response.status_code == 200:
         json_heratbeat = json.loads(response.content.decode('utf-8'))
 
@@ -188,7 +188,7 @@ def get_task_status(bot_name, task_name):
 
 def get_task(platform) -> Task:
     api_host, headers = api_headers()
-    response = requests.get(f'http://{api_host}/api/task?platform={platform}', headers=headers)
+    response = requests.get(f'{api_host}/api/task?platform={platform}', headers=headers)
     if response.status_code == 200:
         json_task = json.loads(response.content.decode('utf-8'))
         task = Task(command=json_task['command'], argument=json_task['argument'], job_id=json_task['job_id'])
@@ -205,7 +205,7 @@ def add_task(task: Task, queue):
                'command': task.command,
                'argument': task.argument,
                }
-    response = requests.put('http://%s//api/task' % api_host, json=payload, headers=headers)
+    response = requests.post(f'{api_host}//api/task', json=payload, headers=headers)
     if response.status_code == 200:
         logs.log(f"{response.text}")
     else:
@@ -265,7 +265,7 @@ def get_all_project_names():
 
 def get_job(job_id) -> Job:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/job/%s' % (api_host, job_id), headers=headers)
+    response = requests.get(f'{api_host}/api/job/?id={job_id}', headers=headers)
     if response.status_code == 200:
         json_job = json.loads(response.content.decode('utf-8'))
         try:
@@ -278,7 +278,7 @@ def get_job(job_id) -> Job:
 
 def get_jobs() -> list[Job]:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/jobs' % api_host, headers=headers)
+    response = requests.get(f'{api_host}/api/job/', headers=headers)
     jobs = []
     if response.status_code == 200:
         json_jobs = json.loads(response.content.decode('utf-8'))
@@ -294,7 +294,7 @@ def get_jobs() -> list[Job]:
 
 def get_template(template_name) -> JobTemplate:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/template?name=%s' % (api_host, template_name), headers=headers)
+    response = requests.get(f'{api_host}/api/jobtemplate/?name={template_name}', headers=headers)
     json_template = json.loads(response.content.decode('utf-8'))
     try:
         return JobTemplate(**json_template)
@@ -327,7 +327,7 @@ def get_project_name(job_type):
 
 def get_fuzzer(fuzzer_name) -> Fuzzer:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/fuzzer?name=%s' % (api_host, fuzzer_name), headers=headers)
+    response = requests.get(f'{api_host}/api/fuzzer/?name={fuzzer_name}', headers=headers)
     json_fuzzer = json.loads(response.content.decode('utf-8'))
     try:
         if response.status_code == 200:
@@ -352,7 +352,7 @@ def get_fuzzer_by_id(fuzzer_id) -> Fuzzer:
 
 def get_fuzz_target_job_by_job(job_id) -> list[FuzzTargetJob]:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/fuzzTargetJob?job_id=%s' % (api_host, job_id), headers=headers)
+    response = requests.get(f'{api_host}/api/fuzztargetjob/?job={job_id}', headers=headers)
     json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))
 
     try:
@@ -365,7 +365,7 @@ def get_fuzz_target_job_by_job(job_id) -> list[FuzzTargetJob]:
 def get_fuzz_target_job_by_job_fuzztarget(job_id, fuzzTarget_id) -> list[FuzzTargetJob]:
     api_host, headers = api_headers()
     response = requests.get(
-        'http://%s/api/fuzzTargetJob?job_id=%s&fuzzing_target_id=%s' % (api_host, job_id, fuzzTarget_id),
+        f'{api_host}/api/fuzztargetjob/?job={job_id}&fuzzing_target={fuzzTarget_id}',
         headers=headers)
     json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))
 
@@ -378,7 +378,7 @@ def get_fuzz_target_job_by_job_fuzztarget(job_id, fuzzTarget_id) -> list[FuzzTar
 
 def get_fuzz_target_job_by_engine(engine) -> list[FuzzTargetJob]:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/fuzzTargetJob?engine=%s' % (api_host, engine), headers=headers)
+    response = requests.get(f'{api_host}/api/fuzztargetjob/?engine={engine}' % (api_host, engine), headers=headers)
     json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))
 
     try:
@@ -391,7 +391,7 @@ def get_fuzz_target_job_by_engine(engine) -> list[FuzzTargetJob]:
 def add_fuzz_target_job(fuzz_target_job):
     api_host, headers = api_headers()
     payload = json.loads(fuzz_target_job.json())
-    response = requests.put(f'http://{api_host}/api/fuzzTargetJob', json=payload, headers=headers)
+    response = requests.post(f'{api_host}/api/fuzztargetjob', json=payload, headers=headers)
     if response.status_code == 200:
         logs.log("Fuzz Target JOb Registered")
     elif response.status_code == 500:
@@ -404,7 +404,7 @@ def add_fuzz_target_job(fuzz_target_job):
 
 def get_trial_by_id(trial_id) -> Trial:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/trial?id=%s' % (api_host, trial_id), headers=headers)
+    response = requests.get(f'{api_host}/api/trial/?id={trial_id}', headers=headers)
     json_trial = json.loads(response.content.decode('utf-8'))
     try:
         if response.status_code == 200:
@@ -415,7 +415,7 @@ def get_trial_by_id(trial_id) -> Trial:
 
 def get_trial_by_appname(app_name) -> list[Trial]:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/trial?app_name=%s' % (api_host, app_name), headers=headers)
+    response = requests.get(f'{api_host}/api/trial/?app_name={app_name}', headers=headers)
     json_trial = json.loads(response.content.decode('utf-8'))
     try:
         if response.status_code == 200:
@@ -434,7 +434,7 @@ def add_trial(app_name, probability=1.0, app_args=""):
         "app_args": app_args
     }
     api_host, headers = api_headers()
-    response = requests.put('http://%s/api/trial', headers=headers, json=payload)
+    response = requests.post(f'{api_host}/api/trial', headers=headers, json=payload)
     json_trial = json.loads(response.content.decode('utf-8'))
     try:
         if response.status_code == 201:
@@ -449,7 +449,7 @@ def add_trial(app_name, probability=1.0, app_args=""):
 
 def get_fuzz_target_by_id(fuzz_target_id) -> FuzzTarget:
     api_host, headers = api_headers()
-    response = requests.get('http://%s/api/fuzztarget?id=%s' % (api_host, fuzz_target_id), headers=headers)
+    response = requests.get(f'{api_host}/api/fuzztarget/?id={fuzz_target_id}', headers=headers)
     json_fuzzTarget = json.loads(response.content.decode('utf-8'))
     try:
         return FuzzTarget(**json_fuzzTarget)
@@ -464,7 +464,7 @@ def get_fuzz_target_by_keyName(keyname) -> FuzzTarget:
     binary = split[2]
     headers = {'Authorization': os.environ.get('API_KEY'),
                'content-type': 'application/json'}
-    response = requests.get(f'http://{api_host}/api/fuzztarget?fuzzer_engine={fuzzer_engine}&binary={binary}',
+    response = requests.get(f'{api_host}/api/fuzztarget/?fuzzer_engine={fuzzer_engine}&binary={binary}',
                             headers=headers)
     try:
         json_fuzzTarget = json.loads(response.content.decode('utf-8'))
@@ -476,7 +476,7 @@ def get_fuzz_target_by_keyName(keyname) -> FuzzTarget:
 def add_fuzz_target(fuzz_target):
     api_host, headers = api_headers()
     payload = json.loads(fuzz_target.json())
-    response = requests.put(f'http://{api_host}/api/fuzztarget', json=payload, headers=headers)
+    response = requests.post(f'{api_host}/api/fuzztarget', json=payload, headers=headers)
     if response.status_code == 200:
         logs.log("Fuzz Target Registered")
     elif response.status_code == 500:
@@ -529,8 +529,8 @@ def record_fuzz_target(engine_name, binary_name, job_type) -> FuzzTarget:
 def find_testcase(project_name, crash_type, crash_state, security_flag) -> Testcase:
     api_host, headers = api_headers()
     response = requests.get(
-        f'http://{api_host}/api/testcase?project_name={project_name}&crash_type={crash_type}&crash_state={crash_state}&security_flag={security_flag}',
-        headers=headers)
+        f'{api_host}/api/testcase/?job_id__project={project_name}&crash_testcase__crash_type={crash_type}&crash_testcase__crash_state={crash_state}',
+        headers=headers) #&security_flag={security_flag} There is a bug in Djongo with filtering Bool values for now lest avoid it
     try:
         json_testcase = json.loads(response.content.decode('utf-8'))
         if response.status_code == 200:
@@ -550,7 +550,7 @@ def get_testcase_by_id(testcase_id) -> Testcase:
 
     api_host, headers = api_headers()
     response = requests.get(
-        f'http://{api_host}/api/testcase/{testcase_id}', headers=headers)
+        f'{api_host}/api/testcase/?id={testcase_id}', headers=headers)
     try:
         json_testcase = json.loads(response.content.decode('utf-8'))
         logs.log("Main Testcase Identified")
@@ -608,7 +608,7 @@ def store_testcase(crash, fuzzed_keys, minimized_keys, regression, fixed,
 def add_testcase(testcase: Testcase, crash: Crash):
     api_host, headers = api_headers()
     payload = json.loads(testcase.json())
-    response = requests.put(f'http://{api_host}/api/testcase', json=payload, headers=headers)
+    response = requests.post(f'{api_host}/api/testcase/', json=payload, headers=headers)
     if response.status_code == 200:
         logs.log("Testcase Registered")
         # Get testcase id from newly created testcase.
@@ -632,7 +632,7 @@ def add_testcase(testcase: Testcase, crash: Crash):
 def update_testcase(testcase):
     api_host, headers = api_headers()
     payload = json.loads(testcase.json())
-    response = requests.post(f'http://{api_host}/api/testcase/{testcase.id}', json=payload,
+    response = requests.patch(f'{api_host}/api/testcase/{testcase.id}/', json=payload,
                              headers=headers)
     try:
         if response.status_code == 200:
@@ -717,7 +717,7 @@ def get_testcase_variant(testcase_id, job_type):
     """Get a testcase variant entity, and create if needed."""
     api_host, headers = api_headers()
     response = requests.get(
-        f'http://{api_host}/api/testcase_variant?testcase_id={testcase_id}&job_id={job_type}',
+        f'{api_host}/api/testcasevariant/?testcase_id={testcase_id}&job_id={job_type}',
         headers=headers)
     try:
         json_testcase_variant = json.loads(response.content.decode('utf-8'))
@@ -734,7 +734,7 @@ def add_testcase_variant(testcase_id, job_type):
     api_host, headers = api_headers()
     variant = TestcaseVariant(testcase_id=testcase_id, job_id=job_type)
     payload = json.loads(variant.json())
-    response = requests.put(f'http://{api_host}/api/testcase_variant', json=payload, headers=headers)
+    response = requests.psot(f'{api_host}/api/testcasevariant/', json=payload, headers=headers)
     if response.status_code == 201:
         logs.log("TestCase Variant Registered")
     elif response.status_code == 500:
@@ -744,7 +744,7 @@ def add_testcase_variant(testcase_id, job_type):
 def update_testcase_variant(testcase_variant):
     api_host, headers = api_headers()
     payload = json.loads(testcase_variant.json())
-    response = requests.post(f'http://{api_host}/api/testcase_variant/{testcase_variant.id}', json=payload,
+    response = requests.patch(f'{api_host}/api/testcasevariant/{testcase_variant.id}/', json=payload,
                              headers=headers)
     try:
         if response.status_code == 200:
@@ -758,7 +758,7 @@ def update_testcase_variant(testcase_variant):
 # ------------------------------------------------------------------------------
 def get_crash_by_testcase(testcase_id) -> Crash:
     api_host, headers = api_headers()
-    response = requests.get(f'http://{api_host}/api/crash?testcase_id={testcase_id}', headers=headers)
+    response = requests.get(f'{api_host}/api/crash/?testcase_id={testcase_id}', headers=headers)
     try:
         json_crash = json.loads(response.content.decode('utf-8'))
         if response.status_code == 200:
@@ -814,7 +814,7 @@ def store_crash(crash_obj, job_type, testcase_id, one_time_crasher_flag, crash_r
 
     api_host, headers = api_headers()
     payload = json.loads(crash.json())
-    response = requests.put(f'http://{api_host}/api/crash', json=payload, headers=headers)
+    response = requests.post(f'{api_host}/api/crash/', json=payload, headers=headers)
     if response.status_code == 200:
         logs.log("Crash Registered")
     elif response.status_code == 500:
@@ -1175,7 +1175,7 @@ def get_build_state(job_id, crash_revision):
     """Return whether a build is unmarked, good or bad."""
     api_host, headers = api_headers()
 
-    response = requests.get(f'http://{api_host}/api/buildMetada?job_id={job_id}&revision={crash_revision}',
+    response = requests.get(f'{api_host}/api/buildmetada/?job={job_id}&revision={crash_revision}',
                             headers=headers)
     try:
         json_BuildMetadatas = json.loads(response.content.decode('utf-8'))
@@ -1210,7 +1210,7 @@ def add_build_metadata(job,
 
     api_host, headers = api_headers()
 
-    response = requests.put(f'http://{api_host}/api/buildMetada',
+    response = requests.post(f'{api_host}/api/buildmetada/',
                             headers=headers, json=json_build)
 
     if is_bad_build:
@@ -1233,7 +1233,7 @@ def get_data_bundle(bundle_name):
     """Return data bundle object"""
     api_host, headers = api_headers()
 
-    response = requests.get(f'http://{api_host}/api/dataBundle?name={bundle_name}',
+    response = requests.get(f'{api_host}/api/databundle/?name={bundle_name}',
                             headers=headers)
     try:
         json_data_bundle = json.loads(response.content.decode('utf-8'))
