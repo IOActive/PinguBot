@@ -566,11 +566,13 @@ def get_testcase_by_id(testcase_id) -> Testcase:
 
     api_host, headers = api_headers()
     response = requests.get(
-        f'{api_host}/api/testcase/?id={testcase_id}', headers=headers)[0]
+        f'{api_host}/api/testcase/?id={testcase_id}', headers=headers)
     try:
-        json_testcase = json.loads(response.content.decode('utf-8'))
-        logs.log("Main Testcase Identified")
-        return Testcase(**json_testcase)
+        result = json.loads(response.content.decode('utf-8'))
+        if response.status_code == 200 and len(result) > 0:
+            json_testcase = result[0]
+            logs.log("Main Testcase Identified")
+            return Testcase(**json_testcase)
     except ValidationError as e:
         logs.log_error(errors.InvalidTestcaseError)
 
@@ -625,7 +627,7 @@ def add_testcase(testcase: Testcase, crash: Crash):
     api_host, headers = api_headers()
     payload = json.loads(testcase.json())
     response = requests.post(f'{api_host}/api/testcase/', json=payload, headers=headers)
-    if response.status_code == 200:
+    if response.status_code == 201:
         logs.log("Testcase Registered")
         # Get testcase id from newly created testcase.
         json_testcase = json.loads(response.content.decode('utf-8'))

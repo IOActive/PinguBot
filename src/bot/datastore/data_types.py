@@ -361,7 +361,7 @@ class Crash(BaseModel):
 
 class Testcase(BaseModel):
     id: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    bug_information: str = ""
+    bug_information: str = None
     # Testcase file
     test_case: bytes
     fixed: str = 'NA'
