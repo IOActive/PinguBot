@@ -364,7 +364,7 @@ class Testcase(BaseModel):
     bug_information: str = ""
     # Testcase file
     test_case: bytes
-    fixed: bool = False
+    fixed: str = 'NA'
     # Did the bug only reproduced once ?
     one_time_crasher_flag: bool
     comments: str = ""
@@ -591,7 +591,7 @@ class BuildMetadata(BaseModel):
     bot_name: str
 
     # Symbol data.
-    symbols: str
+    symbols: str = ""
 
     # Creation timestamp.
     timestamp: datetime

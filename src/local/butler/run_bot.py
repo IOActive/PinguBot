@@ -82,6 +82,8 @@ def _setup_environment_and_configs(args):
        os.getenv('PYTHONPATH', '')
     ])
 
+    os.environ['ROOT_DIR'] = os.path.abspath(os.path.join(args.directory))
+    
     os.environ['BOT_DIR'] = bot_dir
     if not os.getenv('BOT_NAME'):
         os.environ['BOT_NAME'] = args.name
