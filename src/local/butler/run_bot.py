@@ -71,7 +71,10 @@ def _setup_bot_directory(args):
 def _setup_environment_and_configs(args):
     """Set up environment variables and configuration files."""
     bot_dir = os.path.abspath(os.path.join(args.directory, 'bot_working_directory'))
-    root_source = os.path.abspath(os.path.join(args.directory))
+    if args.testing:
+        root_source = os.path.abspath(os.path.join('.'))
+    else:
+        root_source = os.path.abspath(os.path.join(args.directory))
     # Matches startup scripts.
     os.environ['PYTHONPATH'] = ':'.join([
         root_source,
@@ -120,14 +123,15 @@ def execute(args):
     os.environ['CONFIG_DIR_OVERRIDE'] = args.config_dir
     local_config.ProjectConfig().set_environment()
 
-    _setup_bot_directory(args)
-    _setup_environment_and_configs(args)
-
     # try:
     if args.testing:
-        test_bot_path = os.path.join(os.getcwd(), 'src/bot') #os.path.join(args.directory, 'src/')
+        test_bot_path = os.path.join(os.getcwd(), 'src/bot')
     else:
         test_bot_path = os.path.join(args.directory, 'src/bot')
+        
+    _setup_bot_directory(args)
+    _setup_environment_and_configs(args)
+        
     os.chdir(os.path.join(test_bot_path))
     run_interpreter = sys.executable
 
