@@ -480,7 +480,7 @@ class FuzzTarget(BaseModel):
     id: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="_id")
 
     # Selected Fuzzer
-    fuzzer_engine: str
+    fuzzer_engine: UUID
 
     # Project name.
     project: str
@@ -508,7 +508,7 @@ class FuzzTarget(BaseModel):
 
 def fuzz_target_fully_qualified_name(engine, project, binary):
     """Get a fuzz target's fully qualified name."""
-    return engine + '_' + fuzz_target_project_qualified_name(project, binary)
+    return str(engine) + '_' + fuzz_target_project_qualified_name(str(project), binary)
 
 
 def normalized_name(name):
@@ -558,7 +558,7 @@ class FuzzTargetJob(BaseModel):
     job: UUID #PyObjectId = Field(default_factory=PyObjectId, alias="job")
 
     # Engine this ran as.
-    engine: str
+    engine: UUID
 
     # Relative frequency with which to select this fuzzer.
     weight: float = 1.0
