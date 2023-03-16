@@ -144,7 +144,7 @@ def send_heartbeat(heartbeat, bot,  log_info=None):
     payload = heartbeat
     headers = {'Authorization': os.environ.get('API_KEY'),
                'content-type': 'application/json'}
-    response = requests.patch(f'{api_host}/api/bot/{bot.id}', json=payload, headers=headers)
+    response = requests.patch(f'{api_host}/api/bot/{bot.id}/', json=payload, headers=headers)
     if response.status_code == 200:
         json_heratbeat = json.loads(response.content.decode('utf-8'))
 
@@ -403,8 +403,8 @@ def get_fuzz_target_job_by_engine(engine) -> list[FuzzTargetJob]:
 def add_fuzz_target_job(fuzz_target_job):
     api_host, headers = api_headers()
     payload = json.loads(fuzz_target_job.json())
-    response = requests.post(f'{api_host}/api/fuzztargetjob', json=payload, headers=headers)
-    if response.status_code == 200:
+    response = requests.post(f'{api_host}/api/fuzztargetjob/', json=payload, headers=headers)
+    if response.status_code == 201:
         logs.log("Fuzz Target JOb Registered")
     elif response.status_code == 500:
         logs.log("Fuzz Target Job already Registered")
@@ -472,10 +472,10 @@ def get_fuzz_target_by_id(fuzz_target_id) -> FuzzTarget:
         logs.log_error(e)
 
 
-def get_fuzz_target_by_keyName(keyname) -> FuzzTarget:
-    split = keyname.split('_')
-    fuzzer_engine = split[0]
-    binary = split[-1]
+def get_fuzz_target_by_keyName(fuzzer_engine, binary) -> FuzzTarget:
+    #split = keyname.split('_')
+    #fuzzer_engine = split[0]
+    #binary = split[-1]
     fuzzer = get_fuzzer(fuzzer_engine)
     api_host, headers = api_headers()
     response = requests.get(f'{api_host}/api/fuzztarget/?fuzzer_engine={fuzzer.id}&binary={binary}',
@@ -492,8 +492,8 @@ def get_fuzz_target_by_keyName(keyname) -> FuzzTarget:
 def add_fuzz_target(fuzz_target):
     api_host, headers = api_headers()
     payload = json.loads(fuzz_target.json())
-    response = requests.post(f'{api_host}/api/fuzztarget', json=payload, headers=headers)
-    if response.status_code == 200:
+    response = requests.post(f'{api_host}/api/fuzztarget/', json=payload, headers=headers)
+    if response.status_code == 201:
         logs.log("Fuzz Target Registered")
     elif response.status_code == 500:
         logs.log("Fuzz Target already Registered")
@@ -509,11 +509,11 @@ def record_fuzz_target(engine_name, binary_name, job_type) -> FuzzTarget:
     key_name = data_types.fuzz_target_fully_qualified_name(
         engine_name, project, binary_name)
 
-    
-    fuzz_target = get_fuzz_target_by_keyName(key_name)  # ndb.Key(data_types.FuzzTarget, key_name).get()
+    fuzzer = get_fuzzer(engine_name)
+    fuzz_target = get_fuzz_target_by_keyName(engine_name, binary_name)  # ndb.Key(data_types.FuzzTarget, key_name).get()
     if not fuzz_target:
         fuzz_target = data_types.FuzzTarget(
-            fuzzer_engine=engine_name, project=project, binary=binary_name)
+            fuzzer_engine=fuzzer.id, project=project, binary=binary_name)
         add_fuzz_target(fuzz_target)
 
     # job_mapping_key = data_types.fuzz_target_job_key(key_name, job_type)
@@ -525,7 +525,7 @@ def record_fuzz_target(engine_name, binary_name, job_type) -> FuzzTarget:
         job_mapping = data_types.FuzzTargetJob(
             fuzzing_target=fuzz_target.id,
             job=job_type,
-            engine=engine_name,
+            engine=fuzzer.id,
             last_run=utils.utcnow())
         add_fuzz_target_job(job_mapping)
 
@@ -818,7 +818,7 @@ def store_crash(crash_obj, job_type, testcase_id, one_time_crasher_flag, crash_r
     crash = Crash(exploitability='', verified=False, additional="", crash_signal=crash_obj.return_code,
                   crash_time=crash_obj.crash_time, crash_hash=crash_hash, iteration=iteration,
                   crash_type=crash_obj.crash_type, crash_address=crash_obj.crash_address,
-                  crash_state=utils.decode_to_unicode(crash_obj.crash_state), crash_stacktrace=crash_stacktrace,
+                  crash_state=crash_obj.crash_state, crash_stacktrace=crash_stacktrace,
                   regression=regression,
                   security_severity=_get_security_severity(crash_obj, job_type, crash_obj.gestures),
                   absolute_path=crash_obj.file_path, security_flag=crash_obj.security_flag,
@@ -834,7 +834,7 @@ def store_crash(crash_obj, job_type, testcase_id, one_time_crasher_flag, crash_r
     api_host, headers = api_headers()
     payload = json.loads(crash.json())
     response = requests.post(f'{api_host}/api/crash/', json=payload, headers=headers)
-    if response.status_code == 200:
+    if response.status_code == 201:
         logs.log("Crash Registered")
     elif response.status_code == 500:
         logs.log("Crash already Registered")
