@@ -508,7 +508,7 @@ class FuzzTarget(BaseModel):
 
 def fuzz_target_fully_qualified_name(engine, project, binary):
     """Get a fuzz target's fully qualified name."""
-    return str(engine) + '_' + fuzz_target_project_qualified_name(str(project), binary)
+    return str(engine) #+ '_' + fuzz_target_project_qualified_name(str(project), binary)
 
 
 def normalized_name(name):
