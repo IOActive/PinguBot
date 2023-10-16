@@ -7,7 +7,7 @@ oauth2client
 pandas
 pika
 psutil
-pydantic
+pydantic=1.9.2
 PyYAML
 redis
 requests
@@ -15,10 +15,11 @@ urllib3
 twisted
 six
 protobuf
-antlr4-python3-runtime
+antlr4-python3-runtime==4.7.2
 pyfakefs
 mock
 parameterized
 Werkzeug==2.2.2
 bson
 mockupdb
+grpcio-tools

@@ -128,6 +128,7 @@ def execute(args):
     # try:
     if args.testing:
         test_bot_path = os.path.join(os.getcwd(), 'src/bot')
+
     else:
         test_bot_path = os.path.join(args.directory, 'src/bot')
         
@@ -135,6 +136,8 @@ def execute(args):
     _setup_environment_and_configs(args)
         
     os.chdir(os.path.join(test_bot_path))
+    os.environ['BASE_DIR'] = test_bot_path
+
     run_interpreter = sys.executable
 
     assert run_interpreter

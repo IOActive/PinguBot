@@ -123,7 +123,7 @@ COVERAGE_INFORMATION_DATE_FORMAT = '%Y-%m-%d'
 
 class Bot(BaseModel):
     id : UUID = Field(default_factory=uuid4)
-    bot_name: str
+    name: str
     last_beat_time: datetime
     task_payload: str = "",
     task_end_time: Optional[datetime] = None,
@@ -175,10 +175,10 @@ class Fuzzer(BaseModel):
     additional_environment_string: str
 
     # Column specification for stats.
-    stats_columns: str = None
+    stats_columns: dict = {}
 
     # Helpful descriptions for the stats_columns. In a yaml format.
-    stats_column_descriptions: str = None
+    stats_column_descriptions: dict = {}
     # Whether this is a builtin fuzzer.
     builtin: bool
 
@@ -244,8 +244,16 @@ class Job(BaseModel):
     #fuzzing_target: UUID  #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzing_target")
     #owner: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default=None, alias="owner")
     templates: UUID = None #PyObjectId = Field(default=None, alias="template")
-    environment_string: str
+    environment_string: str = "CUSTOM_BINARY=true"
     platform: str
+    # Blobstore key of the custom binary for this job.
+    custom_binary_key: str = ''
+    # Blobstore path of the custom binary for this job.
+    custom_binary_path: str = ''
+    # Filename for the custom binary.
+    custom_binary_filename: str = ''
+    # Revision of the custom binary.
+    custom_binary_revision: int = 0
 
     class Config:
         allow_population_by_field_name = True

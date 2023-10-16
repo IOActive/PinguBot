@@ -32,8 +32,8 @@ from src.bot.system import environment, shell
 
 # modules.fix_module_search_paths()
 
-BOT_SCRIPT = 'src/bot/startup/run_bot.py'
-HEARTBEAT_SCRIPT = 'src/bot/startup/run_heartbeat.py'
+BOT_SCRIPT = 'startup/run_bot.py'
+HEARTBEAT_SCRIPT = 'startup/run_heartbeat.py'
 HEARTBEAT_START_WAIT_TIME = 60
 LOOP_SLEEP_INTERVAL = 3
 MAX_SUBPROCESS_TIMEOUT = 2 ** 31 // 1000  # https://bugs.python.org/issue20493
@@ -166,7 +166,7 @@ def main():
     # Create command strings to launch bot and heartbeat.
     log_directory = environment.get_value('LOG_DIR')
     bot_log = os.path.join(log_directory, 'bot.log')
-    base_directory = environment.get_value('ROOT_DIR')
+    base_directory = environment.get_value('BASE_DIR')
 
     bot_script_path = os.path.join(base_directory, BOT_SCRIPT)
     bot_interpreter = shell.get_interpreter(BOT_SCRIPT)

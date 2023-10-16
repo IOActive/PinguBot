@@ -467,14 +467,14 @@ def get_platform():
     """Return a platform id as a lowercase string."""
     bot_platform = platform()
     if is_android_cuttlefish() or is_android_emulator():
-        return bot_platform.lower()
+        return bot_platform.title()
     if is_android(bot_platform):
         # FIXME: Handle this import in a cleaner way.
         from src.bot.platforms import android
         platform_id = get_value('PLATFORM_ID', android.settings.get_platform_id())
-        return platform_id.lower()
-
-    return bot_platform.lower()
+        return platform_id.title()
+    
+    return bot_platform.title()
 
 
 def get_platform_group():

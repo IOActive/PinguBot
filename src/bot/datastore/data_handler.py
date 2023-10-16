@@ -112,7 +112,7 @@ def api_headers():
 # ------------------------------------------------------------------------------
 def register_bot():
     api_host, headers = api_headers()
-    payload = {'bot_name': environment.get_value('BOT_NAME'),
+    payload = {'name': environment.get_value('BOT_NAME'),
                'current_time': datetime.now().strftime(DATETIME_FORMAT),
                'task_payload': "",
                'task_end_time': None,
@@ -129,10 +129,10 @@ def register_bot():
 def get_bot(bot_name) -> Bot:
     """Return the Bot object with the given name."""
     api_host, headers = api_headers()
-    response = requests.get(f'{api_host}/api/bot/?bot_name={bot_name}', headers=headers)
+    response = requests.get(f'{api_host}/api/bot/?name={bot_name}', headers=headers)
     result = json.loads(response.content.decode('utf-8'))
-    if response.status_code == 200 and len(result) > 0:
-        json_bot = result[0]
+    if response.status_code == 200 and len(result["results"]) > 0:
+        json_bot = result["results"][0]
         try:
             return Bot(**json_bot)
         except ValidationError as e:
@@ -187,8 +187,8 @@ def update_heartbeat(force_update=False, task_status='NA'):
 def get_task_status(bot_name, task_name):
     """Return the status with the given name."""
     api_host, headers = api_headers()
-    response = requests.get(f'http://{api_host}/api/bot/?bot_name={bot_name}', headers=headers)
-    json_bot = json.loads(response.content.decode('utf-8'))
+    response = requests.get(f'http://{api_host}/api/bot/?name={bot_name}', headers=headers)
+    json_bot = json.loads(response.content.decode('utf-8')["results"][0])
     return json_bot['task_status'], json_bot['last_beat_time']
 
 
@@ -273,8 +273,8 @@ def get_job(job_id) -> Job:
     api_host, headers = api_headers()
     response = requests.get(f'{api_host}/api/job/?id={job_id}', headers=headers)
     result = json.loads(response.content.decode('utf-8'))
-    if response.status_code == 200 and len(result) > 0:
-        json_job = result[0]
+    if response.status_code == 200 and len(result['results']) > 0:
+        json_job = result['results'][0]
         try:
             return Job(**json_job)
         except ValidationError as e:
@@ -288,7 +288,7 @@ def get_jobs() -> list[Job]:
     response = requests.get(f'{api_host}/api/job/', headers=headers)
     jobs = []
     if response.status_code == 200:
-        json_jobs = json.loads(response.content.decode('utf-8'))
+        json_jobs = json.loads(response.content.decode('utf-8'))['results']
         try:
             for json_job in json_jobs:
                 jobs.append(Job(**json_job))
@@ -304,8 +304,8 @@ def get_template(template_name) -> JobTemplate:
     response = requests.get(f'{api_host}/api/jobtemplate/?name={template_name}', headers=headers)
     try:
         result = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200 and len(result) > 0:
-            json_template = result[0]
+        if response.status_code == 200 and len(result['results']) > 0:
+            json_template = result['results'][0]
             return JobTemplate(**json_template)
     except ValidationError as e:
         logs.log_error(e)
@@ -339,8 +339,8 @@ def get_fuzzer(fuzzer_name) -> Fuzzer:
     response = requests.get(f'{api_host}/api/fuzzer/?name={fuzzer_name}', headers=headers)
     result = json.loads(response.content.decode('utf-8'))
     try:
-        if response.status_code == 200 and len(result) > 0:
-            json_fuzzer = result[0]
+        if response.status_code == 200 and len(result['results']) > 0:
+            json_fuzzer = result['results']
             return Fuzzer(**json_fuzzer)
     except ValidationError as e:
         logs.log_error(e)
@@ -351,8 +351,8 @@ def get_fuzzer_by_id(fuzzer_id) -> Fuzzer:
     response = requests.get(f'{api_host}/api/fuzzer/?id={fuzzer_id}', headers=headers)
     try:
         result = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200 and len(result) > 0:
-            json_fuzzer = result[0]
+        if response.status_code == 200 and len(result['results']) > 0:
+            json_fuzzer = result['results'][0]
             return Fuzzer(**json_fuzzer)
     except ValidationError as e:
         logs.log_error(e)
@@ -365,7 +365,7 @@ def get_fuzzer_by_id(fuzzer_id) -> Fuzzer:
 def get_fuzz_target_job_by_job(job_id) -> list[FuzzTargetJob]:
     api_host, headers = api_headers()
     response = requests.get(f'{api_host}/api/fuzztargetjob/?job={job_id}', headers=headers)
-    json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))
+    json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))['results']
 
     try:
         fuzzTargetJobs = [FuzzTargetJob(**json_fuzzTargetJob) for json_fuzzTargetJob in json_fuzzTargetJobs]
@@ -379,7 +379,7 @@ def get_fuzz_target_job_by_job_fuzztarget(job_id, fuzzTarget_id) -> list[FuzzTar
     response = requests.get(
         f'{api_host}/api/fuzztargetjob/?job={job_id}&fuzzing_target={fuzzTarget_id}',
         headers=headers)
-    json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))
+    json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))['results']
 
     try:
         fuzzTargetJobs = [FuzzTargetJob(**json_fuzzTargetJob) for json_fuzzTargetJob in json_fuzzTargetJobs]
@@ -391,7 +391,7 @@ def get_fuzz_target_job_by_job_fuzztarget(job_id, fuzzTarget_id) -> list[FuzzTar
 def get_fuzz_target_job_by_engine(engine) -> list[FuzzTargetJob]:
     api_host, headers = api_headers()
     response = requests.get(f'{api_host}/api/fuzztargetjob/?engine={engine}', headers=headers)
-    json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))
+    json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))['results']
 
     try:
         fuzzTargetJobs = [FuzzTargetJob(**json_fuzzTargetJob) for json_fuzzTargetJob in json_fuzzTargetJobs]
@@ -419,8 +419,8 @@ def get_trial_by_id(trial_id) -> Trial:
     response = requests.get(f'{api_host}/api/trial/?id={trial_id}', headers=headers)
     try:
         result = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200 and len(result) > 0:
-            json_trial = result[0]
+        if response.status_code == 200 and len(result['results']) > 0:
+            json_trial = result['results'][0]
             return Trial(**json_trial)
     except ValidationError as e:
         logs.log_error(e)
@@ -429,7 +429,7 @@ def get_trial_by_id(trial_id) -> Trial:
 def get_trial_by_appname(app_name) -> list[Trial]:
     api_host, headers = api_headers()
     response = requests.get(f'{api_host}/api/trial/?app_name={app_name}', headers=headers)
-    json_trial = json.loads(response.content.decode('utf-8'))
+    json_trial = json.loads(response.content.decode('utf-8'))['results']
     try:
         if response.status_code == 200:
             trials = []
@@ -465,8 +465,8 @@ def get_fuzz_target_by_id(fuzz_target_id) -> FuzzTarget:
     response = requests.get(f'{api_host}/api/fuzztarget/?id={fuzz_target_id}', headers=headers)
     try:
         result = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200 and len(result) > 0:
-            json_fuzzTarget = result[0]
+        if response.status_code == 200 and len(result['results']) > 0:
+            json_fuzzTarget = result['results'][0]
             return FuzzTarget(**json_fuzzTarget)
     except ValidationError as e:
         logs.log_error(e)
@@ -482,8 +482,8 @@ def get_fuzz_target_by_keyName(fuzzer_engine, binary) -> FuzzTarget:
                             headers=headers)
     try:
         result = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200 and len(result) > 0:
-            json_fuzzTarget = result[0]
+        if response.status_code == 200 and len(result['results']) > 0:
+            json_fuzzTarget = result['results'][0]
             return FuzzTarget(**json_fuzzTarget)
     except ValidationError as e:
         logs.log_error(e)
@@ -549,8 +549,8 @@ def find_testcase(project_name, crash_type, crash_state, security_flag):
         headers=headers) #&security_flag={security_flag} There is a bug in Djongo with filtering Bool values for now lest avoid it
     try:
         result = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200 and len(result) > 0:
-            json_testcase = result[0]
+        if response.status_code == 200 and len(result['results']) > 0:
+            json_testcase = result['results'][0]
             logs.log("Main Testcase Identified")
             return Testcase(**json_testcase)
         else:
@@ -569,8 +569,8 @@ def get_testcase_by_id(testcase_id) -> Testcase:
         f'{api_host}/api/testcase/?id={testcase_id}', headers=headers)
     try:
         result = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200 and len(result) > 0:
-            json_testcase = result[0]
+        if response.status_code == 200 and len(result['results']) > 0:
+            json_testcase = result['results'][0]
             logs.log("Main Testcase Identified")
             return Testcase(**json_testcase)
     except ValidationError as e:
@@ -739,8 +739,8 @@ def get_testcase_variant(testcase_id, job_type):
         headers=headers)
     try:
         result = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200 and len(result) > 0:
-            json_testcase_variant = result[0]
+        if response.status_code == 200 and len(result['results']) > 0:
+            json_testcase_variant = result['results'][0]
             return TestcaseVariant(**json_testcase_variant)
         else:
             logs.log("Testcase Variant Not Found, Creating a new one")
@@ -780,8 +780,8 @@ def get_crash_by_testcase(testcase_id) -> Crash:
     response = requests.get(f'{api_host}/api/crash/?testcase_id={testcase_id}', headers=headers)
     try:
         result = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200 and len(result) > 0:
-            json_crash = result[0]
+        if response.status_code == 200 and len(result['results']) > 0:
+            json_crash = result['results'][0]
             return Crash(**json_crash)
     except ValidationError as e:
         logs.log_error(e)
@@ -1198,7 +1198,7 @@ def get_build_state(job_id, crash_revision):
                             headers=headers)
     try:
         if response.status_code == 200:
-            json_BuildMetadatas = json.loads(response.content.decode('utf-8'))
+            json_BuildMetadatas = json.loads(response.content.decode('utf-8'))['results']
             builds = [BuildMetadata(**json_BuildMetadata) for json_BuildMetadata in json_BuildMetadatas]
             for build in builds:
                 if not build:
@@ -1258,8 +1258,8 @@ def get_data_bundle(bundle_name):
                             headers=headers)
     try:
         result = json.loads(response.content.decode('utf-8'))
-        if response.status_code == 200 and len(result) > 0:
-            json_data_bundle = result[0]
+        if response.status_code == 200 and len(result['results']) > 0:
+            json_data_bundle = result['results'][0]
             data_bundle = DataBundle(**json_data_bundle)
             return data_bundle
     except ValidationError as e:
