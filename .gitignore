@@ -1,6 +1,6 @@
 .vscode/*
 .idea/*
-test-bot/
+test-bot*/
 .vscode-copy/*
 .vscode copy/launch.json
 .vscode copy/settings.json

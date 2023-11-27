@@ -18,9 +18,8 @@
 """Generated protocol buffer code."""
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import descriptor_pool as _descriptor_pool
-from google.protobuf import message as _message
-from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
+from google.protobuf.internal import builder as _builder
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
@@ -30,33 +29,16 @@ _sym_db = _symbol_database.Default()
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1esrc/bot/protos/heartbeat.proto\"\x12\n\x10HeartbeatRequest\"\x13\n\x11HeartbeatResponse2:\n\tHeartbeat\x12-\n\x04\x42\x65\x61t\x12\x11.HeartbeatRequest\x1a\x12.HeartbeatResponseB%Z#clusterfuzz/protos/untrusted_runner')
 
-
-
-_HEARTBEATREQUEST = DESCRIPTOR.message_types_by_name['HeartbeatRequest']
-_HEARTBEATRESPONSE = DESCRIPTOR.message_types_by_name['HeartbeatResponse']
-HeartbeatRequest = _reflection.GeneratedProtocolMessageType('HeartbeatRequest', (_message.Message,), {
-  'DESCRIPTOR' : _HEARTBEATREQUEST,
-  '__module__' : 'src.bot.protos.heartbeat_pb2'
-  # @@protoc_insertion_point(class_scope:HeartbeatRequest)
-  })
-_sym_db.RegisterMessage(HeartbeatRequest)
-
-HeartbeatResponse = _reflection.GeneratedProtocolMessageType('HeartbeatResponse', (_message.Message,), {
-  'DESCRIPTOR' : _HEARTBEATRESPONSE,
-  '__module__' : 'src.bot.protos.heartbeat_pb2'
-  # @@protoc_insertion_point(class_scope:HeartbeatResponse)
-  })
-_sym_db.RegisterMessage(HeartbeatResponse)
-
-_HEARTBEAT = DESCRIPTOR.services_by_name['Heartbeat']
+_globals = globals()
+_builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'src.bot.protos.heartbeat_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
-
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z#clusterfuzz/protos/untrusted_runner'
-  _HEARTBEATREQUEST._serialized_start=34
-  _HEARTBEATREQUEST._serialized_end=52
-  _HEARTBEATRESPONSE._serialized_start=54
-  _HEARTBEATRESPONSE._serialized_end=73
-  _HEARTBEAT._serialized_start=75
-  _HEARTBEAT._serialized_end=133
+  _globals['_HEARTBEATREQUEST']._serialized_start=34
+  _globals['_HEARTBEATREQUEST']._serialized_end=52
+  _globals['_HEARTBEATRESPONSE']._serialized_start=54
+  _globals['_HEARTBEATRESPONSE']._serialized_end=73
+  _globals['_HEARTBEAT']._serialized_start=75
+  _globals['_HEARTBEAT']._serialized_end=133
 # @@protoc_insertion_point(module_scope)

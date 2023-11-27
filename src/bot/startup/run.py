@@ -32,8 +32,8 @@ from src.bot.system import environment, shell
 
 # modules.fix_module_search_paths()
 
-BOT_SCRIPT = 'src/bot/startup/run_bot.py'
-HEARTBEAT_SCRIPT = 'src/bot/startup/run_heartbeat.py'
+BOT_SCRIPT = 'startup/run_bot.py'
+HEARTBEAT_SCRIPT = 'startup/run_heartbeat.py'
 HEARTBEAT_START_WAIT_TIME = 60
 LOOP_SLEEP_INTERVAL = 3
 MAX_SUBPROCESS_TIMEOUT = 2 ** 31 // 1000  # https://bugs.python.org/issue20493
@@ -150,7 +150,13 @@ def set_start_time():
 
 def main():
     set_start_time()
-    os.environ['ROOT_DIR'] = '/home/roboboy/Projects/LuckyCAT/test-bot/' #Only for testing
+    root_directory = environment.get_value('ROOT_DIR')
+    if not root_directory:
+        print('Please set ROOT_DIR environment variable to the root of the source '
+            'checkout before running. Exiting.')
+        print('For an example, check init.bash in the local directory.')
+        return
+    
     environment.set_bot_environment()
 
     # Python buffering can otherwise cause exception logs in the child run_*.py
