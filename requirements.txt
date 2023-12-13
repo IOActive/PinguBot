@@ -7,7 +7,7 @@ oauth2client
 pandas
 pika
 psutil
-pydantic=1.9.2
+pydantic==1.9.2
 PyYAML
 redis
 requests

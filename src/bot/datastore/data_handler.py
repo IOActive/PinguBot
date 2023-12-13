@@ -140,10 +140,8 @@ def get_bot(bot_name) -> Bot:
 
 
 def send_heartbeat(heartbeat, bot,  log_info=None):
-    api_host = os.environ.get('API_HOST')
+    api_host, headers = api_headers()
     payload = heartbeat
-    headers = {'Authorization': os.environ.get('API_KEY'),
-               'content-type': 'application/json'}
     response = requests.patch(f'{api_host}/api/bot/{bot.id}/', json=payload, headers=headers)
     if response.status_code == 200:
         json_heratbeat = json.loads(response.content.decode('utf-8'))
@@ -753,7 +751,7 @@ def add_testcase_variant(testcase_id, job_type):
     api_host, headers = api_headers()
     variant = TestcaseVariant(testcase_id=testcase_id, job_id=job_type)
     payload = json.loads(variant.json())
-    response = requests.psot(f'{api_host}/api/testcasevariant/', json=payload, headers=headers)
+    response = requests.post(f'{api_host}/api/testcasevariant/', json=payload, headers=headers)
     if response.status_code == 201:
         logs.log("TestCase Variant Registered")
     elif response.status_code == 500:
