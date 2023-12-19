@@ -97,7 +97,7 @@ def start_heartbeat(heartbeat_command):
 
     try:
         command = shell.get_command(heartbeat_command)
-        process_handle = subprocess.run(command)  # pylint: disable=consider-using-with
+        process_handle = subprocess.Popen(command)  # pylint: disable=consider-using-with
     except Exception:
         logs.log_error(
             'Unable to start heartbeat process (%s).' % heartbeat_command)

@@ -133,7 +133,7 @@ def get_bot(bot_name) -> Bot:
     response = requests.get(f'{api_host}/api/bot/?name={bot_name}', headers=headers)
     result = json.loads(response.content.decode('utf-8'))
     if response.status_code == 200 and len(result["results"]) > 0:
-        json_bot = result["results"][0]
+        json_bot = result["results"]
         try:
             return Bot(**json_bot)
         except ValidationError as e:
@@ -180,9 +180,10 @@ def update_heartbeat(log_filename=None, force_update=False, task_status='NA'):
     send_heartbeat(heartbeat, bot)
 
 
-    with open(log_filename, "rb") as log:
-        bucket_file_path = storage.get_cloud_storage_file_path(environment.get_value("BOT_LOGS_BUCKET"), str(bot.id) + "/" + log_filename.split('/')[-1])
-        storage.write_data(log.read(), bucket_file_path)
+    if log_filename:
+        with open(log_filename, "rb") as log:
+            bucket_file_path = storage.get_cloud_storage_file_path(environment.get_value("BOT_LOGS_BUCKET"), str(bot.id) + "/" + log_filename.split('/')[-1])
+            storage.write_data(log.read(), bucket_file_path)
 
     persistent_cache.set_value(
         HEARTBEAT_LAST_UPDATE_KEY, time.time(), persist_across_reboots=True)
@@ -245,7 +246,9 @@ def update_task_status(task_name, status, expiry_interval=None):
                     task_status_time, seconds=expiry_interval - 1)):
             return False
 
-        update_heartbeat(force_update=True, task_status=status)
+        log_directory = environment.get_value('LOG_DIR')
+        bot_log = os.path.join(log_directory, 'bot.log')
+        update_heartbeat(log_filename=bot_log, force_update=True, task_status=status)
         return True
 
     # It is important that we do not continue until the metadata is updated.
