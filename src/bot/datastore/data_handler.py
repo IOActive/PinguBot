@@ -359,7 +359,7 @@ def get_fuzzer_by_id(fuzzer_id) -> Fuzzer:
     try:
         result = json.loads(response.content.decode('utf-8'))
         if response.status_code == 200 and len(result['results']) > 0:
-            json_fuzzer = result['results'][0]
+            json_fuzzer = result['results']
             return Fuzzer(**json_fuzzer)
     except ValidationError as e:
         logs.log_error(e)
