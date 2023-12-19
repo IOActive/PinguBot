@@ -746,7 +746,7 @@ _initial_environment = None
 
 def get_startup_scripts_directory():
     """Return path to startup scripts."""
-    return os.path.join(get_value('BASE_DIR'), 'src',  'bot', 'startup')
+    return os.path.join(get_value('BASE_DIR'), 'startup')
 
 
 def reset_environment():

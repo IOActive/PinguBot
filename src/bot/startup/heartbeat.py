@@ -80,7 +80,7 @@ def beat(previous_state, log_filename):
     if current_state and current_state != previous_state:
         # Try updating the heartbeat. If an error occurs, just
         # wait and return None.
-        if not data_handler.update_heartbeat():
+        if not data_handler.update_heartbeat(log_filename):
             return None
         # Heartbeat is successfully updated.
 
@@ -101,7 +101,7 @@ def main():
 
     try:
         sys.stdout.write(str(beat(previous_state, log_filename)))
-    except Exception:
+    except Exception as e:
         logs.log_error('Failed to beat.')
 
     time.sleep(HEARTBEAT_WAIT_INTERVAL)

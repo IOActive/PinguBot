@@ -27,6 +27,7 @@ from src.bot.system import persistent_cache, environment, tasks, shell
 from src.bot.system.tasks import Task
 from src.bot.utils import dates, utils
 from src.bot.config import db_config
+from src.bot.datastore import storage
 
 DATA_BUNDLE_DEFAULT_BUCKET_IAM_ROLE = 'roles/storage.objectAdmin'
 DEFAULT_FAIL_RETRIES = 3
@@ -147,7 +148,7 @@ def send_heartbeat(heartbeat, bot,  log_info=None):
         json_heratbeat = json.loads(response.content.decode('utf-8'))
 
 
-def update_heartbeat(force_update=False, task_status='NA'):
+def update_heartbeat(log_filename=None, force_update=False, task_status='NA'):
     """Updates heartbeat with current timestamp and log data."""
     # Check if the heartbeat was recently updated. If yes, bail out.
     last_modified_time = persistent_cache.get_value(
@@ -177,6 +178,11 @@ def update_heartbeat(force_update=False, task_status='NA'):
 
     bot = get_bot(bot_name)
     send_heartbeat(heartbeat, bot)
+
+
+    with open(log_filename, "rb") as log:
+        bucket_file_path = storage.get_cloud_storage_file_path(environment.get_value("BOT_LOGS_BUCKET"), str(bot.id) + "/" + log_filename.split('/')[-1])
+        storage.write_data(log.read(), bucket_file_path)
 
     persistent_cache.set_value(
         HEARTBEAT_LAST_UPDATE_KEY, time.time(), persist_across_reboots=True)

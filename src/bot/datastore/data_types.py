@@ -125,7 +125,7 @@ class Bot(BaseModel):
     id : UUID = Field(default_factory=uuid4)
     name: str
     last_beat_time: datetime
-    task_payload: str = "",
+    task_payload: Optional[str] = "",
     task_end_time: Optional[datetime] = None,
     platform: str
     task_status: str
