@@ -199,7 +199,7 @@ def get_task_status(bot_name, task_name):
 
 def get_task(platform) -> Task:
     api_host, headers = api_headers()
-    response = requests.get(f'{api_host}/api/task?platform={platform}', headers=headers)
+    response = requests.get(f'{api_host}/api/task/?platform={platform}', headers=headers)
     if response.status_code == 200:
         json_task = json.loads(response.content.decode('utf-8'))
         task = Task(command=json_task['command'], argument=json_task['argument'], job_id=json_task['job_id'])
@@ -216,8 +216,8 @@ def add_task(task: Task, queue):
                'command': task.command,
                'argument': task.argument,
                }
-    response = requests.post(f'{api_host}/api/task', json=payload, headers=headers)
-    if response.status_code == 200:
+    response = requests.post(f'{api_host}/api/task/', json=payload, headers=headers)
+    if response.status_code == 201:
         logs.log(f"Task {payload} succesfully submited")
     else:
         logs.log(f"Unable to submit task {payload}")
