@@ -216,11 +216,11 @@ def add_task(task: Task, queue):
                'command': task.command,
                'argument': task.argument,
                }
-    response = requests.post(f'{api_host}//api/task', json=payload, headers=headers)
+    response = requests.post(f'{api_host}/api/task', json=payload, headers=headers)
     if response.status_code == 200:
-        logs.log(f"{response.text}")
+        logs.log(f"Task {payload} succesfully submited")
     else:
-        logs.log(f"{response.text}")
+        logs.log(f"Unable to submit task {payload}")
 
 
 def update_task_status(task_name, status, expiry_interval=None):
