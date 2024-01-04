@@ -130,7 +130,7 @@ def run_loop(bot_command, heartbeat_command):
     atexit.register(stop_heartbeat)
 
     while True:
-        #start_heartbeat(heartbeat_command)
+        start_heartbeat(heartbeat_command)
         start_bot(bot_command)
 
         # See if our run timed out, if yes bail out.

@@ -18,6 +18,7 @@ import datetime
 import json
 import random
 import time
+import os
 
 # Task queue prefixes for various job types.
 from src.bot.datastore import data_types, data_handler
@@ -373,4 +374,6 @@ def track_task_end():
     # Don't wait on |run_heartbeat|, remove task information as soon as it ends.
 
     from src.bot.datastore import data_handler
-    data_handler.update_heartbeat(force_update=True)
+    log_directory = environment.get_value('LOG_DIR')
+    bot_log = os.path.join(log_directory, 'bot.log')
+    data_handler.update_heartbeat(log_filename=bot_log, force_update=True)

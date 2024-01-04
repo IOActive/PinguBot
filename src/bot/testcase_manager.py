@@ -690,7 +690,8 @@ class TestcaseRunner(object):
         self._needs_http = needs_http
 
         if fuzz_target:
-            engine_impl = engine.PythonFuzzerEngine.get(fuzz_target.fuzzer_engine)
+            fuzzer = data_handler.get_fuzzer_by_id(str(fuzz_target.fuzzer_engine))
+            engine_impl = engine.PythonFuzzerEngine.get(fuzzer.name)
         else:
             engine_impl = None
 

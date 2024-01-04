@@ -56,7 +56,7 @@ def main():
                 beat_command, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             logs.log_error('Failed to beat.', output=e.output)
-        except Exception:
+        except Exception as e:
             logs.log_error('Failed to beat.')
 
         # See if our run timed out, if yes bail out.

@@ -179,7 +179,7 @@ def run_process(cmdline,
                 onFinish=[process_status],
                 ignore_children=ignore_children)
             start_process(process_handle)
-        except:
+        except Exception as e:
             logs.log_error('Exception occurred when running command: %s.' % cmdline)
             return None, None, ''
 

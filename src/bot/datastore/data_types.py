@@ -125,7 +125,7 @@ class Bot(BaseModel):
     id : UUID = Field(default_factory=uuid4)
     name: str
     last_beat_time: datetime
-    task_payload: str = "",
+    task_payload: Optional[str] = "",
     task_end_time: Optional[datetime] = None,
     platform: str
     task_status: str
@@ -324,7 +324,7 @@ class Crash(BaseModel):
     id: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     crash_signal: int = 1
     exploitability: str = ""
-    crash_time: datetime
+    crash_time: int = 0
     crash_hash: str = ""
     verified: bool = False
     additional: str = ""

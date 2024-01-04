@@ -37,6 +37,8 @@ logs:
   fuzzer:
     # Bucket to store logs for fuzzer runs.
     bucket: test-fuzzer-logs-bucket
+  bots:
+    bucket: test-bots-logs-bucket
 
 monitoring:
   # Flag to indicate if Stackdriver monitoring is enabled or not (disabled by default).
@@ -90,6 +92,9 @@ env:
   # above which logs the fuzzer run that generates the testcases, whereas this one logs the run of
   # the testcases against the target application.
   FUZZ_LOGS_BUCKET: test-fuzz-logs-bucket
+
+  # Default bucket to store bot execution logs
+  BOT_LOGS_BUCKET: test-bots-logs-bucket
 
   # Default bucket to store mutator plugins.
   MUTATOR_PLUGINS_BUCKET: test-mutator-plugins-bucket

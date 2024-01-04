@@ -27,6 +27,7 @@ from src.bot.system import persistent_cache, environment, tasks, shell
 from src.bot.system.tasks import Task
 from src.bot.utils import dates, utils
 from src.bot.config import db_config
+from src.bot.datastore import storage
 
 DATA_BUNDLE_DEFAULT_BUCKET_IAM_ROLE = 'roles/storage.objectAdmin'
 DEFAULT_FAIL_RETRIES = 3
@@ -132,7 +133,7 @@ def get_bot(bot_name) -> Bot:
     response = requests.get(f'{api_host}/api/bot/?name={bot_name}', headers=headers)
     result = json.loads(response.content.decode('utf-8'))
     if response.status_code == 200 and len(result["results"]) > 0:
-        json_bot = result["results"][0]
+        json_bot = result["results"]
         try:
             return Bot(**json_bot)
         except ValidationError as e:
@@ -140,16 +141,14 @@ def get_bot(bot_name) -> Bot:
 
 
 def send_heartbeat(heartbeat, bot,  log_info=None):
-    api_host = os.environ.get('API_HOST')
+    api_host, headers = api_headers()
     payload = heartbeat
-    headers = {'Authorization': os.environ.get('API_KEY'),
-               'content-type': 'application/json'}
     response = requests.patch(f'{api_host}/api/bot/{bot.id}/', json=payload, headers=headers)
     if response.status_code == 200:
         json_heratbeat = json.loads(response.content.decode('utf-8'))
 
 
-def update_heartbeat(force_update=False, task_status='NA'):
+def update_heartbeat(log_filename=None, force_update=False, task_status='NA'):
     """Updates heartbeat with current timestamp and log data."""
     # Check if the heartbeat was recently updated. If yes, bail out.
     last_modified_time = persistent_cache.get_value(
@@ -180,6 +179,12 @@ def update_heartbeat(force_update=False, task_status='NA'):
     bot = get_bot(bot_name)
     send_heartbeat(heartbeat, bot)
 
+
+    if log_filename:
+        with open(log_filename, "rb") as log:
+            bucket_file_path = storage.get_cloud_storage_file_path(environment.get_value("BOT_LOGS_BUCKET"), str(bot.id) + "/" + log_filename.split('/')[-1])
+            storage.write_data(log.read(), bucket_file_path)
+
     persistent_cache.set_value(
         HEARTBEAT_LAST_UPDATE_KEY, time.time(), persist_across_reboots=True)
 
@@ -194,7 +199,7 @@ def get_task_status(bot_name, task_name):
 
 def get_task(platform) -> Task:
     api_host, headers = api_headers()
-    response = requests.get(f'{api_host}/api/task?platform={platform}', headers=headers)
+    response = requests.get(f'{api_host}/api/task/?platform={platform}', headers=headers)
     if response.status_code == 200:
         json_task = json.loads(response.content.decode('utf-8'))
         task = Task(command=json_task['command'], argument=json_task['argument'], job_id=json_task['job_id'])
@@ -211,11 +216,11 @@ def add_task(task: Task, queue):
                'command': task.command,
                'argument': task.argument,
                }
-    response = requests.post(f'{api_host}//api/task', json=payload, headers=headers)
-    if response.status_code == 200:
-        logs.log(f"{response.text}")
+    response = requests.post(f'{api_host}/api/task/', json=payload, headers=headers)
+    if response.status_code == 201:
+        logs.log(f"Task {payload} succesfully submited")
     else:
-        logs.log(f"{response.text}")
+        logs.log(f"Unable to submit task {payload}")
 
 
 def update_task_status(task_name, status, expiry_interval=None):
@@ -241,7 +246,9 @@ def update_task_status(task_name, status, expiry_interval=None):
                     task_status_time, seconds=expiry_interval - 1)):
             return False
 
-        update_heartbeat(force_update=True, task_status=status)
+        log_directory = environment.get_value('LOG_DIR')
+        bot_log = os.path.join(log_directory, 'bot.log')
+        update_heartbeat(log_filename=bot_log, force_update=True, task_status=status)
         return True
 
     # It is important that we do not continue until the metadata is updated.
@@ -352,7 +359,7 @@ def get_fuzzer_by_id(fuzzer_id) -> Fuzzer:
     try:
         result = json.loads(response.content.decode('utf-8'))
         if response.status_code == 200 and len(result['results']) > 0:
-            json_fuzzer = result['results'][0]
+            json_fuzzer = result['results']
             return Fuzzer(**json_fuzzer)
     except ValidationError as e:
         logs.log_error(e)
@@ -753,7 +760,7 @@ def add_testcase_variant(testcase_id, job_type):
     api_host, headers = api_headers()
     variant = TestcaseVariant(testcase_id=testcase_id, job_id=job_type)
     payload = json.loads(variant.json())
-    response = requests.psot(f'{api_host}/api/testcasevariant/', json=payload, headers=headers)
+    response = requests.post(f'{api_host}/api/testcasevariant/', json=payload, headers=headers)
     if response.status_code == 201:
         logs.log("TestCase Variant Registered")
     elif response.status_code == 500:
