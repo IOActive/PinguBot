@@ -29,7 +29,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 # guard needs to be at the top because it checks Python dependecies.
-from local.butler import guard
+from src.local.butler import guard
 
 guard.check()
 
