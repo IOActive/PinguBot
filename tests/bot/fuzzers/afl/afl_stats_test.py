@@ -20,13 +20,13 @@ import unittest
 import mock
 import six
 
-from src.bot.fuzzers import engine_common
-from src.bot.fuzzers.afl import launcher
-from src.bot.fuzzers.afl import stats
-from src.bot.fuzzing import strategy
-from src.bot.tests.core.bot.fuzzers.afl.afl_launcher_test import \
+from bot.fuzzers import engine_common
+from bot.fuzzers.afl import launcher
+from bot.fuzzers.afl import stats
+from bot.fuzzing import strategy
+from bot.tests.core.bot.fuzzers.afl.afl_launcher_test import \
     dont_use_strategies
-from src.bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import helpers as test_helpers
 
 
 def override_fail_retries(env_var, default_value=None):

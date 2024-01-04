@@ -17,9 +17,9 @@ import unittest
 
 import mock
 
-from src.bot.init_scripts import windows
-from src.bot.system import environment
-from src.bot.tests.test_libs import helpers
+from bot.init_scripts import windows
+from bot.system import environment
+from bot.tests.test_libs import helpers
 
 
 class CleanTempDirectoriesTest(unittest.TestCase):

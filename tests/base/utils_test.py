@@ -22,7 +22,7 @@ import unittest
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from src.bot.system import utils
+from bot.system import utils
 from test_libs import test_utils, helpers
 
 

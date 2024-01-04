@@ -16,10 +16,10 @@
 import os
 import unittest
 
-from src.bot.fuzzers.libFuzzer import fuzzer
-from src.bot.system import environment
-from src.bot.tests.core.bot.fuzzers import builtin_test
-from src.bot.tests.test_libs import helpers as test_helpers
+from bot.fuzzers.libFuzzer import fuzzer
+from bot.system import environment
+from bot.tests.core.bot.fuzzers import builtin_test
+from bot.tests.test_libs import helpers as test_helpers
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 

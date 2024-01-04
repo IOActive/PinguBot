@@ -22,24 +22,24 @@ import tempfile
 
 import six
 
-from src.bot.base import utils
-from src.bot.bot import testcase_manager
-from src.bot.tasks import setup
-from src.bot.untrusted_runner import \
+from bot.base import utils
+from bot.bot import testcase_manager
+from bot.tasks import setup
+from bot.untrusted_runner import \
     environment as untrusted_env
-from src.bot.untrusted_runner import config
-from src.bot.untrusted_runner import corpus_manager
-from src.bot.untrusted_runner import file_host
-from src.bot.untrusted_runner import host
-from src.bot.untrusted_runner import remote_process_host
-from src.bot.untrusted_runner import symbolize_host
-from src.bot.build_management import build_manager
-from src.bot.datastore import data_types
-from src.bot.google_cloud_utils import blobs
-from src.bot.system import environment
-from src.bot.system import process_handler
-from src.bot.system import shell
-from src.bot.tests.test_libs import untrusted_runner_helpers
+from bot.untrusted_runner import config
+from bot.untrusted_runner import corpus_manager
+from bot.untrusted_runner import file_host
+from bot.untrusted_runner import host
+from bot.untrusted_runner import remote_process_host
+from bot.untrusted_runner import symbolize_host
+from bot.build_management import build_manager
+from bot.datastore import data_types
+from bot.google_cloud_utils import blobs
+from bot.system import environment
+from bot.system import process_handler
+from bot.system import shell
+from bot.tests.test_libs import untrusted_runner_helpers
 
 TEST_FILE_CONTENTS = (b'A' * config.FILE_TRANSFER_CHUNK_SIZE +
                       b'B' * config.FILE_TRANSFER_CHUNK_SIZE +

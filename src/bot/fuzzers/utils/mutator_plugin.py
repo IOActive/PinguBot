@@ -15,10 +15,10 @@
 
 import os
 
-from src.bot.datastore import storage
-from src.bot.metrics import logs
-from src.bot.system import environment, archive, shell
-from src.bot.utils import utils
+from bot.datastore import storage
+from bot.metrics import logs
+from bot.system import environment, archive, shell
+from bot.utils import utils
 
 MUTATOR_SHARED_OBJECT_FILENAME = 'mutator-plugin.so'
 ARCHIVES_SUBDIR_NAME = 'archives'

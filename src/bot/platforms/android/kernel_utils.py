@@ -18,10 +18,10 @@ import re
 
 # Linux version 3.18.0-g(8de8e79)-ab(1234567) where 8de8e79 is the hash and
 # 1234567 optional is the kernel build id.
-from src.bot.metrics import logs
-from src.bot.platforms.android import settings, constants, symbols_downloader
-from src.bot.system import environment
-from src.bot.utils import utils
+from bot.metrics import logs
+from bot.platforms.android import settings, constants, symbols_downloader
+from bot.system import environment
+from bot.utils import utils
 
 LINUX_VERSION_REGEX = re.compile(
     r'Linux version .+-g([0-9a-f]+)[\s\-](ab([0-9a-f]+)\s)')

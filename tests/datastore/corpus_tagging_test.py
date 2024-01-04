@@ -15,10 +15,10 @@
 
 import unittest
 
-from src.bot.datastore import corpus_tagging
-from src.bot.datastore import data_types
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.datastore import corpus_tagging
+from bot.datastore import data_types
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 
 @test_utils.with_cloud_emulators('datastore')

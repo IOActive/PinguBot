@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Stack analyzer module."""
-from src.bot import stacktraces
-from src.bot.config import local_config
-from src.bot.crash_analysis.stack_parsing import stack_symbolizer
-from src.bot.platforms.android import \
+from bot import stacktraces
+from bot.config import local_config
+from bot.crash_analysis.stack_parsing import stack_symbolizer
+from bot.platforms.android import \
     kernel_utils as android_kernel
-from src.bot.platforms.linux.lkl import kernel_utils as lkl_kernel
-from src.bot.system import environment
+from bot.platforms.linux.lkl import kernel_utils as lkl_kernel
+from bot.system import environment
 
 MAX_REDZONE_SIZE_FOR_OOMS_AND_HANGS = 64
 

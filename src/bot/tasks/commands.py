@@ -17,24 +17,24 @@ import sys
 
 import six
 
-from src.bot.datastore import data_handler
-from src.bot.datastore import data_types
-from src.bot.datastore.data_handler import get_job
-from src.bot.metrics import logs
-from src.bot.system import environment, tasks, errors
-from src.bot.system import process_handler
-from src.bot.system import shell
-from src.bot.tasks import analyze_task
-from src.bot.tasks import corpus_pruning_task
-from src.bot.tasks import fuzz_task
-from src.bot.tasks import minimize_task
-from src.bot.tasks import progression_task
-from src.bot.tasks import regression_task
-from src.bot.tasks import symbolize_task
-from src.bot.tasks import train_rnn_generator_task
-from src.bot.tasks import unpack_task
-from src.bot.tasks import upload_reports_task
-from src.bot.utils import utils
+from bot.datastore import data_handler
+from bot.datastore import data_types
+from bot.datastore.data_handler import get_job
+from bot.metrics import logs
+from bot.system import environment, tasks, errors
+from bot.system import process_handler
+from bot.system import shell
+from bot.tasks import analyze_task
+from bot.tasks import corpus_pruning_task
+from bot.tasks import fuzz_task
+from bot.tasks import minimize_task
+from bot.tasks import progression_task
+from bot.tasks import regression_task
+from bot.tasks import symbolize_task
+from bot.tasks import train_rnn_generator_task
+from bot.tasks import unpack_task
+from bot.tasks import upload_reports_task
+from bot.utils import utils
 
 COMMAND_MAP = {
     'analyze': analyze_task,

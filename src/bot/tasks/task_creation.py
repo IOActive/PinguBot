@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Common functions for task creation for test cases."""
-from src.bot.datastore.data_handler import get_fuzz_target_job_by_job
-from src.bot.datastore.data_types import Testcase
-from src.bot.build_management import build_manager
-from src.bot.datastore import data_handler, data_types
-from src.bot.system import environment, tasks
-from src.bot.utils import utils
+from bot.datastore.data_handler import get_fuzz_target_job_by_job
+from bot.datastore.data_types import Testcase
+from bot.build_management import build_manager
+from bot.datastore import data_handler, data_types
+from bot.system import environment, tasks
+from bot.utils import utils
 
 
 def mark_unreproducible_if_flaky(testcase, potentially_flaky):

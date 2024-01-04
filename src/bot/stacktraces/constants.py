@@ -15,7 +15,7 @@
 
 import re
 
-from src.bot.crash_analysis.stack_parsing import stack_parser
+from bot.crash_analysis.stack_parsing import stack_parser
 
 C_CPP_EXTENSIONS = ['c', 'cc', 'cpp', 'cxx', 'h', 'hh', 'hpp', 'hxx']
 

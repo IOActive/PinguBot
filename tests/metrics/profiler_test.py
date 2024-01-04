@@ -16,9 +16,9 @@
 import time
 import unittest
 
-from src.bot.metrics import profiler
-from src.bot.system import environment
-from src.bot.tests.test_libs import helpers
+from bot.metrics import profiler
+from bot.system import environment
+from bot.tests.test_libs import helpers
 
 
 class ProfilerTest(unittest.TestCase):

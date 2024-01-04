@@ -26,16 +26,16 @@ import sys
 import tempfile
 
 # Maximum length of a random chosen length for `-max_len`.
-from src.bot.utils import utils
-from src.bot.datastore import data_types
+from bot.utils import utils
+from bot.datastore import data_types
 
-from src.bot.fuzzers.libFuzzer import constants
-from src.bot.fuzzers.libFuzzer.peach import pits
-from src.bot.fuzzers.utils import engine_common, fuzzer_utils, dictionary_manager, mutator_plugin
-from src.bot.fuzzing import strategy
-from src.bot.metrics import logs
-from src.bot.platforms import android
-from src.bot.system import new_process, minijail, environment, shell, archive
+from bot.fuzzers.libFuzzer import constants
+from bot.fuzzers.libFuzzer.peach import pits
+from bot.fuzzers.utils import engine_common, fuzzer_utils, dictionary_manager, mutator_plugin
+from bot.fuzzing import strategy
+from bot.metrics import logs
+from bot.platforms import android
+from bot.system import new_process, minijail, environment, shell, archive
 
 MAX_VALUE_FOR_MAX_LENGTH = 10000
 

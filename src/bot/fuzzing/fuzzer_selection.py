@@ -16,10 +16,10 @@
 import collections
 
 # Used to prepare targets to be passed to utils.random_weighted_choice.
-from src.bot.datastore import data_types, fuzz_target_utils
-from src.bot.metrics import logs
-from src.bot.system import environment
-from src.bot.utils import utils
+from bot.datastore import data_types, fuzz_target_utils
+from bot.metrics import logs
+from bot.system import environment
+from bot.utils import utils
 
 WeightedTarget = collections.namedtuple('WeightedTarget', ['target', 'weight'])
 

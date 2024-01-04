@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Linux Kernel Library specific modules."""
-from src.bot.system import environment
+from bot.system import environment
 from . import constants
 
 

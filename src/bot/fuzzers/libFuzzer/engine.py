@@ -17,13 +17,13 @@ import os
 import re
 import tempfile
 
-from src.bot.fuzzers.utils import strategy_selection, engine_common, fuzzer_utils, dictionary_manager
-from src.bot.fuzzers.libFuzzer import fuzzer, libfuzzer, constants, stats
-from src.bot.fuzzing import strategy
-from src.bot.metrics import logs, profiler
-from src.bot.system import shell, environment
+from bot.fuzzers.utils import strategy_selection, engine_common, fuzzer_utils, dictionary_manager
+from bot.fuzzers.libFuzzer import fuzzer, libfuzzer, constants, stats
+from bot.fuzzing import strategy
+from bot.metrics import logs, profiler
+from bot.system import shell, environment
 import src.bot.fuzzers.templates.python.PythonTemplateEngine as engine
-from src.bot.utils import utils
+from bot.utils import utils
 
 ENGINE_ERROR_MESSAGE = 'libFuzzer: engine encountered an error'
 DICT_PARSING_FAILED_REGEX = re.compile(

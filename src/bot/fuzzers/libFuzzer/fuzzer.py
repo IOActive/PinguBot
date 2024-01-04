@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """libFuzzer fuzzer."""
-from src.bot.fuzzers.libFuzzer import constants
-from src.bot.fuzzers.utils import options, builtin
+from bot.fuzzers.libFuzzer import constants
+from bot.fuzzers.utils import options, builtin
 
 
 def get_grammar(fuzzer_path):

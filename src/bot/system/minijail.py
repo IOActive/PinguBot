@@ -20,8 +20,8 @@ import signal
 import subprocess
 import tempfile
 
-from src.bot.metrics import logs
-from src.bot.system import environment, shell, new_process
+from bot.metrics import logs
+from bot.system import environment, shell, new_process
 
 
 def _get_minijail_path():
@@ -343,7 +343,7 @@ class MinijailProcessRunner(new_process.ProcessRunner):
         command.insert(2, pid_file.name)
 
         passed_env = popen_args.pop('env', None)
-        #from src.bot._internal.bot.untrusted_runner import \
+        #from bot._internal.bot.untrusted_runner import \
         #    environment as untrusted_environment
         env = os.environ #untrusted_environment.get_env_for_untrusted_process(passed_env)
         if extra_env is not None:

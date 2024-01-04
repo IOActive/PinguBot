@@ -27,12 +27,12 @@ import time
 import six
 
 # Maximum allowed size of a corpus file.
-from src.bot.datastore import data_types
-from src.bot.fuzzers.utils import fuzzer_utils, options
-from src.bot.fuzzing import strategy
-from src.bot.metrics import logs, fuzzer_stats
-from src.bot.system import environment, shell, new_process, archive, minijail
-from src.bot.utils import utils
+from bot.datastore import data_types
+from bot.fuzzers.utils import fuzzer_utils, options
+from bot.fuzzing import strategy
+from bot.metrics import logs, fuzzer_stats
+from bot.system import environment, shell, new_process, archive, minijail
+from bot.utils import utils
 
 CORPUS_INPUT_SIZE_LIMIT = 5 * 1024 * 1024
 
@@ -209,7 +209,7 @@ def generate_new_testcase_mutations_using_ml_rnn(
     # Defer import to prevent issues with tensorflow causing hangs with
     # multiprocessing.
     try:
-        from src.bot.fuzzers.ml.rnn import \
+        from bot.fuzzers.ml.rnn import \
             generator as ml_rnn_generator
     except Exception:
         logs.log_warn('Failed to import ml_rnn generator, skipping.')

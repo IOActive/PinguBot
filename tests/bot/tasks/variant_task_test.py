@@ -14,11 +14,11 @@
 """variant_task tests."""
 import unittest
 
-from src.bot.tasks import variant_task
-from src.bot.datastore import data_handler
-from src.bot.datastore import data_types
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.tasks import variant_task
+from bot.datastore import data_handler
+from bot.datastore import data_types
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 
 @test_utils.with_cloud_emulators('datastore')

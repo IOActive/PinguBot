@@ -16,10 +16,10 @@
 import os
 import unittest
 
-from src.bot.crash_analysis import crash_analyzer
-from src.bot.crash_analysis.stack_parsing import stack_analyzer
-from src.bot.system import environment
-from src.bot.tests.test_libs import helpers
+from bot.crash_analysis import crash_analyzer
+from bot.crash_analysis.stack_parsing import stack_analyzer
+from bot.system import environment
+from bot.tests.test_libs import helpers
 
 DATA_DIRECTORY = os.path.join(os.path.dirname(__file__), 'stack_analyzer_data')
 TEST_JOB_NAME = 'test'

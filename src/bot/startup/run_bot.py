@@ -22,13 +22,13 @@ import sys
 import time
 import traceback
 
-from src.bot.datastore import data_handler
-from src.bot.datastore.data_handler import register_bot
-from src.bot.metrics import logs, monitoring_metrics
-from src.bot.system import environment, errors, tasks
-from src.bot.tasks import update_task
-from src.bot.utils import dates, utils
-from src.bot.fuzzers import init as fuzzers_init
+from bot.datastore import data_handler
+from bot.datastore.data_handler import register_bot
+from bot.metrics import logs, monitoring_metrics
+from bot.system import environment, errors, tasks
+from bot.tasks import update_task
+from bot.utils import dates, utils
+from bot.fuzzers import init as fuzzers_init
 
 
 class _Monitor(object):
@@ -53,7 +53,7 @@ class _Monitor(object):
 def task_loop():
     """Executes tasks indefinitely."""
     # Defer heavy task imports to prevent issues with multiprocessing.Process
-    from src.bot.tasks import commands
+    from bot.tasks import commands
     # Register Bot
     register_bot()
     clean_exit = False

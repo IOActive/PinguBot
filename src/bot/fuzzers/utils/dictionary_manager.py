@@ -16,11 +16,11 @@
 import os
 import re
 
-from src.bot.datastore import storage
-from src.bot.fuzzers.utils import fuzzer_utils
-from src.bot.metrics import logs
-from src.bot.system import environment, errors
-from src.bot.utils import utils
+from bot.datastore import storage
+from bot.fuzzers.utils import fuzzer_utils
+from bot.metrics import logs
+from bot.system import environment, errors
+from bot.utils import utils
 
 DICTIONARY_FILE_EXTENSION = '.dict'
 

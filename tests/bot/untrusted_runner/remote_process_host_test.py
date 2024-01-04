@@ -15,11 +15,11 @@
 
 import unittest
 
-from src.bot.untrusted_runner import remote_process
-from src.bot.untrusted_runner import remote_process_host
-from src.bot.protos import untrusted_runner_pb2
-from src.bot.system import new_process
-from src.bot.tests.test_libs import helpers as test_helpers
+from bot.untrusted_runner import remote_process
+from bot.untrusted_runner import remote_process_host
+from bot.protos import untrusted_runner_pb2
+from bot.system import new_process
+from bot.tests.test_libs import helpers as test_helpers
 
 
 class RemoteProcessHostTest(unittest.TestCase):

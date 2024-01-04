@@ -17,8 +17,8 @@ import unittest
 
 import mock
 
-from src.bot.system import process_handler
-from src.bot.tests.test_libs import helpers as test_helpers
+from bot.system import process_handler
+from bot.tests.test_libs import helpers as test_helpers
 
 
 class MockProcess(object):

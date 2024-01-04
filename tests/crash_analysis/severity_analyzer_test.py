@@ -16,8 +16,8 @@
 import os
 import unittest
 
-from src.bot.crash_analysis import severity_analyzer
-from src.bot.datastore.data_types import SecuritySeverity
+from bot.crash_analysis import severity_analyzer
+from bot.datastore.data_types import SecuritySeverity
 
 DATA_DIRECTORY = os.path.join(
     os.path.dirname(__file__), 'stack_parsing', 'stack_analyzer_data')

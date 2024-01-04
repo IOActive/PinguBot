@@ -14,7 +14,7 @@
 """source_mapper tests."""
 import unittest
 
-from src.bot.build_management import source_mapper
+from bot.build_management import source_mapper
 
 
 class GetComponentSourceAndRelativePathTest(unittest.TestCase):

@@ -24,10 +24,10 @@ import time
 
 # FIXME: Find a better way to handle this case. These imports
 # will fail and are not needed from App Engine.
-from src.bot.crash_analysis import crash_analyzer
-from src.bot.metrics import logs
-from src.bot.platforms import android, linux, windows
-from src.bot.system import environment, shell
+from bot.crash_analysis import crash_analyzer
+from bot.metrics import logs
+from bot.platforms import android, linux, windows
+from bot.system import environment, shell
 
 import multiprocessing
 import mozprocess
@@ -36,7 +36,7 @@ import psutil
 # On Android, we need to wait a little after a crash occurred to get the full
 # logcat output. This makes sure we get all the stack frames since there is no
 # effective end marker.
-from src.bot.utils import utils
+from bot.utils import utils
 
 ANDROID_CRASH_LOGCAT_WAIT_TIME = 0.3
 

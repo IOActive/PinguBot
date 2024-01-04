@@ -21,11 +21,11 @@ import os
 import random
 import re
 
-from src.bot.fuzzing.stats_uploader import StatsStorage
-from src.bot.datastore import data_types, data_handler, fuzz_target_utils, storage
-from src.bot.metrics import logs, fuzzer_logs
-from src.bot.system import environment, shell
-from src.bot.utils import utils
+from bot.fuzzing.stats_uploader import StatsStorage
+from bot.datastore import data_types, data_handler, fuzz_target_utils, storage
+from bot.metrics import logs, fuzzer_logs
+from bot.system import environment, shell
+from bot.utils import utils
 
 STATS_FILE_EXTENSION = '.stats2'
 

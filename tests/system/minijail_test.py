@@ -18,9 +18,9 @@ import os
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from src.bot.system import environment
-from src.bot.system import minijail
-from src.bot.tests.test_libs import helpers as test_helpers
+from bot.system import environment
+from bot.system import minijail
+from bot.tests.test_libs import helpers as test_helpers
 
 
 class MinijailTest(fake_filesystem_unittest.TestCase):

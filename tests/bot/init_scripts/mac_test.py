@@ -17,8 +17,8 @@ import unittest
 
 import mock
 
-from src.bot.init_scripts import mac
-from src.bot.tests.test_libs import helpers
+from bot.init_scripts import mac
+from bot.tests.test_libs import helpers
 
 
 class RunTest(unittest.TestCase):

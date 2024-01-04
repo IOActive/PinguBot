@@ -15,13 +15,13 @@
 
 import os
 
-from src.bot.datastore import storage
-from src.bot.platforms.android import kernel_utils
-from src.bot.system import archive
-from src.bot.metrics import logs
-from src.bot.platforms.android import settings, fetch_artifact, adb
-from src.bot.system import environment, shell
-from src.bot.utils import utils
+from bot.datastore import storage
+from bot.platforms.android import kernel_utils
+from bot.system import archive
+from bot.metrics import logs
+from bot.platforms.android import settings, fetch_artifact, adb
+from bot.system import environment, shell
+from bot.utils import utils
 
 
 def get_repo_prop_archive_filename(build_id, target):

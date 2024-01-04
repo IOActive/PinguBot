@@ -16,7 +16,7 @@
 # TODO(ochang): Support other sanitizers.
 
 import re
-from src.bot.system import environment
+from bot.system import environment
 
 MISSING_VALUE_STRING = '---'
 

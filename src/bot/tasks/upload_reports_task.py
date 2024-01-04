@@ -15,9 +15,9 @@
 
 import time
 
-from src.bot.datastore import data_types, crash_uploader, data_handler
-from src.bot.metrics import logs
-from src.bot.system import environment, errors
+from bot.datastore import data_types, crash_uploader, data_handler
+from bot.metrics import logs
+from bot.system import environment, errors
 
 
 def execute_task(*_):

@@ -23,12 +23,12 @@ import urllib.parse
 
 import six
 
-from src.bot.build_management import source_mapper, overrides
-from src.bot.config import local_config
-from src.bot.datastore import storage, data_handler
-from src.bot.metrics import logs
-from src.bot.system import environment
-from src.bot.utils import utils
+from bot.build_management import source_mapper, overrides
+from bot.config import local_config
+from bot.datastore import storage, data_handler
+from bot.metrics import logs
+from bot.system import environment
+from bot.utils import utils
 
 CHROMIUM_GIT_ROOT_URL = 'https://chromium.googlesource.com'
 CRREV_NUMBERING_URL = (

@@ -457,7 +457,7 @@ def update_build(apk_path, force_update=True, should_initialize_device=True):
     # times.
     # TODO(mbarbella): Platforms code should not depend on bot.
 
-    from src.bot import testcase_manager
+    from bot import testcase_manager
     testcase_manager.get_command_line_for_application(
         write_command_line_file=True)
 

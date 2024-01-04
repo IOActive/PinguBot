@@ -16,9 +16,9 @@
 import os
 import unittest
 
-from src.bot.untrusted_runner import build_setup_host
-from src.bot.protos import untrusted_runner_pb2
-from src.bot.tests.test_libs import helpers as test_helpers
+from bot.untrusted_runner import build_setup_host
+from bot.protos import untrusted_runner_pb2
+from bot.tests.test_libs import helpers as test_helpers
 
 
 def _mock_set_environment_vars(_):

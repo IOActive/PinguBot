@@ -17,7 +17,7 @@ import datetime
 
 from pyfakefs import fake_filesystem_unittest
 
-from src.bot.system import environment, persistent_cache
+from bot.system import environment, persistent_cache
 from test_libs import test_utils
 from tests.test_libs import helpers as test_helpers
 

@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from src.bot.datastore.storage import MinioProvider
-from src.bot.system import environment
+from bot.datastore.storage import MinioProvider
+from bot.system import environment
 
 
 class TestMinioProvider(TestCase):

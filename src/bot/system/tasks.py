@@ -21,10 +21,10 @@ import time
 import os
 
 # Task queue prefixes for various job types.
-from src.bot.datastore import data_types, data_handler
-from src.bot.fuzzing import fuzzer_selection
-from src.bot.system import environment, persistent_cache
-from src.bot.utils import utils
+from bot.datastore import data_types, data_handler
+from bot.fuzzing import fuzzer_selection
+from bot.system import environment, persistent_cache
+from bot.utils import utils
 
 JOBS_PREFIX = 'tasks'
 HIGH_END_JOBS_PREFIX = 'high-end-jobs'
@@ -362,7 +362,7 @@ def track_task_start(task, task_duration):
 
     # Don't wait on |run_heartbeat|, update task information as soon as it starts.
 
-    from src.bot.datastore import data_handler
+    from bot.datastore import data_handler
     data_handler.update_heartbeat(force_update=True)
 
 
@@ -373,7 +373,7 @@ def track_task_end():
 
     # Don't wait on |run_heartbeat|, remove task information as soon as it ends.
 
-    from src.bot.datastore import data_handler
+    from bot.datastore import data_handler
     log_directory = environment.get_value('LOG_DIR')
     bot_log = os.path.join(log_directory, 'bot.log')
     data_handler.update_heartbeat(log_filename=bot_log, force_update=True)

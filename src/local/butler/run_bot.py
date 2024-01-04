@@ -17,9 +17,9 @@ import shlex
 import signal
 import sys
 
-from src.bot.config import local_config
-from src.local.butler import common
-from src.local.butler import constants
+from bot.config import local_config
+from local.butler import common
+from local.butler import constants
 
 _fuzzBot_handle = None
 
@@ -27,7 +27,7 @@ _fuzzBot_handle = None
 def _setup_bot_directory(args):
     """Set up the bot directory."""
     
-    src_root_dir = os.path.abspath('.')
+    src_root_dir = os.environ['ROOT_DIR'] #os.path.abspath('.')
     if os.path.exists(args.directory):
         print('Bot directory already exists. Re-using...')
     else:
@@ -127,7 +127,7 @@ def execute(args):
 
     # try:
     if args.testing:
-        test_bot_path = os.path.join(os.getcwd(), 'src/bot')
+        test_bot_path = os.path.join(os.environ['ROOT_DIR'], 'src/bot')
 
     else:
         test_bot_path = os.path.join(args.directory, 'src/bot')

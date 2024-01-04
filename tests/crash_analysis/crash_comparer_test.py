@@ -14,7 +14,7 @@
 """crash_comparer tests."""
 import unittest
 
-from src.bot.crash_analysis import crash_comparer
+from bot.crash_analysis import crash_comparer
 
 
 class CrashComparerTest(unittest.TestCase):

@@ -18,15 +18,15 @@ import time
 
 import six
 
-from src.bot import testcase_manager
-from src.bot.build_management import build_manager, revisions
-from src.bot.datastore import data_handler, data_types, storage, crash_uploader
-from src.bot.fuzzers.utils import engine_common
-from src.bot.fuzzing import corpus_manager
-from src.bot.metrics import logs
-from src.bot.system import environment, tasks, errors
-from src.bot.tasks import setup, task_creation
-from src.bot.utils import utils
+from bot import testcase_manager
+from bot.build_management import build_manager, revisions
+from bot.datastore import data_handler, data_types, storage, crash_uploader
+from bot.fuzzers.utils import engine_common
+from bot.fuzzing import corpus_manager
+from bot.metrics import logs
+from bot.system import environment, tasks, errors
+from bot.tasks import setup, task_creation
+from bot.utils import utils
 
 
 def _log_output(revision, crash_result):

@@ -19,7 +19,7 @@ import unittest
 
 from pyfakefs import fake_filesystem_unittest
 
-from src.bot.fuzzers.utils import mutator_plugin
+from bot.fuzzers.utils import mutator_plugin
 from tests.test_libs import helpers, test_utils
 
 

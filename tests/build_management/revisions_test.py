@@ -20,11 +20,11 @@ import unittest
 
 import mock
 
-from src.bot.build_management import revisions
-from src.bot.datastore import data_types
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import mock_config
-from src.bot.tests.test_libs import test_utils
+from bot.build_management import revisions
+from bot.datastore import data_types
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import mock_config
+from bot.tests.test_libs import test_utils
 
 ANDROID_JOB_TYPE = 'android_asan_chrome'
 BASIC_JOB_TYPE = 'linux_asan_chrome_mp'

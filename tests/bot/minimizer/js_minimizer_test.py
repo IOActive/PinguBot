@@ -15,11 +15,11 @@
 
 import unittest
 
-from src.bot.minimizer import js_minimizer
-from src.bot.tokenizer import antlr_tokenizer
-from src.bot.tokenizer.grammars.JavaScriptLexer import \
+from bot.minimizer import js_minimizer
+from bot.tokenizer import antlr_tokenizer
+from bot.tokenizer.grammars.JavaScriptLexer import \
     JavaScriptLexer
-from src.bot.tests.test_libs import helpers
+from bot.tests.test_libs import helpers
 
 
 class JSMinimizerTest(unittest.TestCase):

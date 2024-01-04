@@ -18,11 +18,11 @@ import unittest
 
 import parameterized
 
-from src.bot.datastore import data_types
-from src.bot.datastore import ndb_utils
-from src.bot.fuzzing import fuzzer_selection
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.datastore import data_types
+from bot.datastore import ndb_utils
+from bot.fuzzing import fuzzer_selection
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 
 def _get_job_list_for_fuzzer(fuzzer):

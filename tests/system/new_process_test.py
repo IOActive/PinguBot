@@ -20,9 +20,9 @@ import unittest
 
 import mock
 
-from src.bot.system import new_process
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.system import new_process
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 
 class Signal(object):

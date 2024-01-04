@@ -19,11 +19,11 @@ generated here may be modified in the launcher before being launched."""
 
 from collections import namedtuple
 
-from src.bot.fuzzers.utils import engine_common
-from src.bot.fuzzing import strategy
-from src.bot.metrics import logs
-from src.bot.system import environment
-from src.bot.utils import utils
+from bot.fuzzers.utils import engine_common
+from bot.fuzzing import strategy
+from bot.metrics import logs
+from bot.system import environment
+from bot.utils import utils
 
 GENERATORS = [
     strategy.CORPUS_MUTATION_RADAMSA_STRATEGY,

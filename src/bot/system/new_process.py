@@ -20,9 +20,9 @@ import tempfile
 import threading
 import time
 
-from src.bot.metrics import logs
-from src.bot.system import environment
-from src.bot.utils import utils
+from bot.metrics import logs
+from bot.system import environment
+from bot.utils import utils
 
 try:
     import psutil

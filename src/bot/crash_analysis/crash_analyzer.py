@@ -15,7 +15,7 @@
 
 import re
 
-from src.bot.system import environment
+from bot.system import environment
 
 ASSERT_CRASH_ADDRESSES = [
     0x0000bbadbeef,

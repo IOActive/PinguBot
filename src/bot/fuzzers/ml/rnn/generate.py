@@ -23,7 +23,7 @@ import numpy as np
 import tensorflow as tf
 
 # Reset batch_size for generation: generate multiple inputs in each run.
-from src.bot.fuzzers.ml.rnn import constants, utils
+from bot.fuzzers.ml.rnn import constants, utils
 
 BATCH_SIZE = 100
 

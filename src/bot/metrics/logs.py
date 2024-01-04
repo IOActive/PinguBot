@@ -103,7 +103,7 @@ def get_logging_config_dict(name):
         'handlers': {
             'handler': logging_handler[name],
             'fluentd': {
-                'class': 'src.bot.metrics.logs.JsonSocketHandler',
+                'class': 'bot.metrics.logs.JsonSocketHandler',
                 'level': logging.INFO,
                 'host': '127.0.0.1',
                 'port': 5170,

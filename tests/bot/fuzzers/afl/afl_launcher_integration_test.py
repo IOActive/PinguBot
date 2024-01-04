@@ -20,15 +20,15 @@ import unittest
 
 import mock
 
-from src.bot.fuzzers import engine_common
-from src.bot.fuzzers.afl import fuzzer
-from src.bot.fuzzers.afl import launcher
-from src.bot.system import environment
-from src.bot.system import new_process
-from src.bot.tests.core.bot.fuzzers.afl.afl_launcher_test import \
+from bot.fuzzers import engine_common
+from bot.fuzzers.afl import fuzzer
+from bot.fuzzers.afl import launcher
+from bot.system import environment
+from bot.system import new_process
+from bot.tests.core.bot.fuzzers.afl.afl_launcher_test import \
     dont_use_strategies
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 TEST_PATH = os.path.abspath(os.path.dirname(__file__))
 TEMP_DIRECTORY = os.path.join(TEST_PATH, 'temp')

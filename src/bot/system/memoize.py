@@ -21,9 +21,9 @@ import threading
 import six
 
 # Thead local globals.
-from src.bot.metrics import logs
-from src.bot.system import environment, persistent_cache
-from src.bot.system.environment import appengine_noop, local_noop, bot_noop
+from bot.metrics import logs
+from bot.system import environment, persistent_cache
+from bot.system.environment import appengine_noop, local_noop, bot_noop
 
 _local = threading.local()
 

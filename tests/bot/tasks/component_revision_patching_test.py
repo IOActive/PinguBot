@@ -17,8 +17,8 @@ import ast
 import os
 import unittest
 
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 DATA_DIRECTORY = os.path.join(
     os.path.dirname(__file__), 'component_related_test_data')

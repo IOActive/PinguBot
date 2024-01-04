@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Helper functions for managing corpus tags."""
-from src.bot.datastore import data_types
+from bot.datastore import data_types
 
 
 def get_fuzz_target_tags(fully_qualified_fuzz_target_name):

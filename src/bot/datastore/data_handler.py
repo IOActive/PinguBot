@@ -14,20 +14,20 @@ import requests
 import six
 from pydantic import ValidationError
 
-from src.bot.crash_analysis import severity_analyzer
-from src.bot.datastore import blobs_manager
-from src.bot.datastore.data_types import Trial
-from src.bot.fuzzing import leak_blacklist
-from src.bot.system import memoize, errors
-from src.bot.datastore import data_types
-from src.bot.datastore.data_types import Job, JobTemplate, Fuzzer, FuzzTargetJob, FuzzTarget, BuildMetadata, \
+from bot.crash_analysis import severity_analyzer
+from bot.datastore import blobs_manager
+from bot.datastore.data_types import Trial
+from bot.fuzzing import leak_blacklist
+from bot.system import memoize, errors
+from bot.datastore import data_types
+from bot.datastore.data_types import Job, JobTemplate, Fuzzer, FuzzTargetJob, FuzzTarget, BuildMetadata, \
     DataBundle, Testcase, Crash, TestcaseVariant, Trial, Bot
-from src.bot.metrics import logs
-from src.bot.system import persistent_cache, environment, tasks, shell
-from src.bot.system.tasks import Task
-from src.bot.utils import dates, utils
-from src.bot.config import db_config
-from src.bot.datastore import storage
+from bot.metrics import logs
+from bot.system import persistent_cache, environment, tasks, shell
+from bot.system.tasks import Task
+from bot.utils import dates, utils
+from bot.config import db_config
+from bot.datastore import storage
 
 DATA_BUNDLE_DEFAULT_BUCKET_IAM_ROLE = 'roles/storage.objectAdmin'
 DEFAULT_FAIL_RETRIES = 3

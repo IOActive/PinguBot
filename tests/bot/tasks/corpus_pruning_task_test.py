@@ -24,19 +24,19 @@ import unittest
 import mock
 import six
 
-from src.bot.fuzzers import options
-from src.bot.fuzzers.libFuzzer import \
+from bot.fuzzers import options
+from bot.fuzzers.libFuzzer import \
     engine as libFuzzer_engine
-from src.bot.tasks import commands
-from src.bot.tasks import corpus_pruning_task
-from src.bot.datastore import data_handler
-from src.bot.datastore import data_types
-from src.bot.fuzzing import corpus_manager
-from src.bot.google_cloud_utils import gsutil
-from src.bot.system import environment
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
-from src.bot.tests.test_libs import untrusted_runner_helpers
+from bot.tasks import commands
+from bot.tasks import corpus_pruning_task
+from bot.datastore import data_handler
+from bot.datastore import data_types
+from bot.fuzzing import corpus_manager
+from bot.google_cloud_utils import gsutil
+from bot.system import environment
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
+from bot.tests.test_libs import untrusted_runner_helpers
 
 TEST_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), 'corpus_pruning_task_data')

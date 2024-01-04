@@ -16,11 +16,11 @@
 import re
 
 # Regular expressions to detect different types of crashes.
-from src.bot.fuzzers.libFuzzer import constants
-from src.bot.fuzzers.utils import fuzzer_utils, dictionary_manager
-from src.bot.fuzzing import strategy
-from src.bot.metrics import logs
-from src.bot.system import environment
+from bot.fuzzers.libFuzzer import constants
+from bot.fuzzers.utils import fuzzer_utils, dictionary_manager
+from bot.fuzzing import strategy
+from bot.metrics import logs
+from bot.system import environment
 import src.bot.stacktraces.constants as stacktrace_constants
 
 LEAK_TESTCASE_REGEX = re.compile(r'.*ERROR: LeakSanitizer.*')

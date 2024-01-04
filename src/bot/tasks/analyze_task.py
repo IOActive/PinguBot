@@ -17,16 +17,16 @@ import datetime
 
 import six
 
-from src.bot import testcase_manager
-from src.bot.build_management import revisions, build_manager
-from src.bot.crash_analysis import crash_analyzer, severity_analyzer
-from src.bot.datastore import data_handler, data_types, crash_uploader
-from src.bot.fuzzers.utils import engine_common
-from src.bot.fuzzing import leak_blacklist
-from src.bot.metrics import logs
-from src.bot.system import environment, errors, tasks
-from src.bot.tasks import setup, task_creation
-from src.bot.utils import utils
+from bot import testcase_manager
+from bot.build_management import revisions, build_manager
+from bot.crash_analysis import crash_analyzer, severity_analyzer
+from bot.datastore import data_handler, data_types, crash_uploader
+from bot.fuzzers.utils import engine_common
+from bot.fuzzing import leak_blacklist
+from bot.metrics import logs
+from bot.system import environment, errors, tasks
+from bot.tasks import setup, task_creation
+from bot.utils import utils
 
 
 def _add_default_issue_metadata(testcase):

@@ -1,6 +1,6 @@
-from src.bot.datastore.storage import MinioProvider
-from src.bot.fuzzing.corpus_manager import CORPUS_FILES_SYNC_TIMEOUT, legalize_corpus_files, legalize_filenames
-from src.bot.system import environment, shell
+from bot.datastore.storage import MinioProvider
+from bot.fuzzing.corpus_manager import CORPUS_FILES_SYNC_TIMEOUT, legalize_corpus_files, legalize_filenames
+from bot.system import environment, shell
 
 
 class StatsStorage(object):

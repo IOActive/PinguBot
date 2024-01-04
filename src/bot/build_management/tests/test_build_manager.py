@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from src.bot.build_management.build_manager import Build
-from src.bot.system import environment
+from bot.build_management.build_manager import Build
+from bot.system import environment
 
 
 class TestBuild(TestCase):

@@ -16,9 +16,9 @@
 import os
 import unittest
 
-from src.bot.bot.fuzzers.utils import dictionary_manager
-from src.bot.bot.system import environment
-from src.bot.bot.utils import utils
+from bot.bot.fuzzers.utils import dictionary_manager
+from bot.bot.system import environment
+from bot.bot.utils import utils
 from test_libs import helpers as test_helpers
 
 DATA_DIRECTORY = os.path.join(

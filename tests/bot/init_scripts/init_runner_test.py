@@ -15,8 +15,8 @@
 
 import unittest
 
-from src.bot.init_scripts import init_runner
-from src.bot.tests.test_libs import helpers
+from bot.init_scripts import init_runner
+from bot.tests.test_libs import helpers
 
 
 class InitRunnerTest(unittest.TestCase):

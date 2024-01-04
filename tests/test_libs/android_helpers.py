@@ -15,8 +15,8 @@
 
 import unittest
 
-from src.bot.platforms.android import adb
-from src.bot.system import environment
+from bot.platforms.android import adb
+from bot.system import environment
 from test_libs import helpers, test_utils
 
 

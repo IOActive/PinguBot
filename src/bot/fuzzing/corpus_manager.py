@@ -17,11 +17,11 @@ import os
 import re
 import shutil
 
-from src.bot.datastore.storage import MinioProvider
-from src.bot.datastore import storage
-from src.bot.metrics import logs
-from src.bot.system import shell, environment
-from src.bot.utils import utils
+from bot.datastore.storage import MinioProvider
+from bot.datastore import storage
+from bot.metrics import logs
+from bot.system import shell, environment
+from bot.utils import utils
 
 BACKUP_ARCHIVE_FORMAT = 'zip'
 CORPUS_FILES_SYNC_TIMEOUT = 60 * 60

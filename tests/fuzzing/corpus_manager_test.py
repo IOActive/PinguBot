@@ -20,11 +20,11 @@ import unittest
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from src.bot.base import utils
-from src.bot.fuzzing import corpus_manager
-from src.bot.system import new_process
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.base import utils
+from bot.fuzzing import corpus_manager
+from bot.system import new_process
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 
 class GcsCorpusTest(unittest.TestCase):

@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Profiling functions."""
-from src.bot.metrics import logs
-from src.bot.system import environment
-from src.bot.utils import utils
+from bot.metrics import logs
+from bot.system import environment
+from bot.utils import utils
 
 
 def start_if_needed(service):

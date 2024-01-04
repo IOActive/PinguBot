@@ -19,12 +19,12 @@ import unittest
 from google.cloud import ndb
 import mock
 
-from src.bot.base import errors
-from src.bot.tasks import commands
-from src.bot.datastore import data_types
-from src.bot.system import environment
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.base import errors
+from bot.tasks import commands
+from bot.datastore import data_types
+from bot.system import environment
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 
 @commands.set_task_payload

@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Gestures handler."""
-from src.bot.platforms import android, linux, windows
-from src.bot.system import environment
+from bot.platforms import android, linux, windows
+from bot.system import environment
 
 
 def get_gestures(gesture_count):

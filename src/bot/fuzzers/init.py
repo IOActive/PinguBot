@@ -15,8 +15,8 @@
 
 import importlib
 
-from src.bot import fuzzing
-from src.bot.fuzzers.templates.python.PythonTemplateEngine import PythonFuzzerEngine as engine
+from bot import fuzzing
+from bot.fuzzers.templates.python.PythonTemplateEngine import PythonFuzzerEngine as engine
 
 
 def run(include_private=True, include_lowercase=False):

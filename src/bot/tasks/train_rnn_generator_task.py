@@ -18,12 +18,12 @@ import os
 import sys
 
 # Model script directory.
-from src.bot.datastore import storage, data_handler
-from src.bot.fuzzers.ml.rnn import constants
-from src.bot.metrics import logs
-from src.bot.system import new_process, environment, shell
-from src.bot.tasks import ml_train_utils
-from src.bot.utils import utils
+from bot.datastore import storage, data_handler
+from bot.fuzzers.ml.rnn import constants
+from bot.metrics import logs
+from bot.system import new_process, environment, shell
+from bot.tasks import ml_train_utils
+from bot.utils import utils
 
 ML_RNN_SCRIPT_DIR = os.path.join(
     os.path.dirname(__file__), os.pardir, 'fuzzers', 'ml', 'rnn')

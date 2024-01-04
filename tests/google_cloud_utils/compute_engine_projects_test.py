@@ -15,7 +15,7 @@
 
 import unittest
 
-from src.bot.google_cloud_utils import compute_engine_projects
+from bot.google_cloud_utils import compute_engine_projects
 
 
 class LoadProjectTest(unittest.TestCase):

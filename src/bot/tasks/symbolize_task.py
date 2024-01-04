@@ -16,15 +16,15 @@
 
 import os
 
-from src.bot import testcase_manager
-from src.bot.build_management import build_manager
-from src.bot.crash_analysis import crash_analyzer
-from src.bot.crash_analysis.crash_result import CrashResult
-from src.bot.datastore import data_handler, data_types
-from src.bot.metrics import logs
-from src.bot.system import environment, tasks, process_handler
-from src.bot.tasks import setup, task_creation
-from src.bot.utils import utils
+from bot import testcase_manager
+from bot.build_management import build_manager
+from bot.crash_analysis import crash_analyzer
+from bot.crash_analysis.crash_result import CrashResult
+from bot.datastore import data_handler, data_types
+from bot.metrics import logs
+from bot.system import environment, tasks, process_handler
+from bot.tasks import setup, task_creation
+from bot.utils import utils
 
 DEFAULT_REDZONE = 128
 MAX_REDZONE = 1024
