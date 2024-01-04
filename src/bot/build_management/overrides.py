@@ -16,8 +16,8 @@
 import json
 import os
 
-from src.bot.datastore import storage
-from src.bot.system import environment
+from bot.datastore import storage
+from bot.system import environment
 
 PLATFORM_ID_URLS_FILENAME = 'config.json'
 PLATFORM_ID_TO_BUILD_PATH_KEY = 'build_paths'

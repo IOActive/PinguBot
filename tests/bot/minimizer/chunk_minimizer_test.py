@@ -13,7 +13,7 @@
 # limitations under the License.
 """Tests for the Chunk minimizer."""
 
-from src.bot.minimizer import chunk_minimizer
+from bot.minimizer import chunk_minimizer
 
 from . import base_minimizer_tester
 

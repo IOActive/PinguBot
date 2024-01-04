@@ -14,8 +14,8 @@
 """Linux Kernel Library kernel utils functions."""
 import os
 
-from src.bot.system import environment
-from src.bot.utils import utils
+from bot.system import environment
+from bot.utils import utils
 from . import constants
 
 

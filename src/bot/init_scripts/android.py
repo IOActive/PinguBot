@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Android init scripts."""
-from src.bot.init_scripts import init_runner
-from src.bot.platforms import android
-from src.bot.system import environment
+from bot.init_scripts import init_runner
+from bot.platforms import android
+from bot.system import environment
 
 TIME_SINCE_REBOOT_MIN_THRESHOLD = 30 * 60  # 30 minutes.
 

@@ -28,9 +28,9 @@ import time
 
 import six
 
-from src.bot.metrics import logs
-from src.bot.system import environment
-from src.bot.utils import utils
+from bot.metrics import logs
+from bot.system import environment
+from bot.utils import utils
 
 CUSTOM_METRIC_PREFIX = 'bot'
 FLUSH_INTERVAL_SECONDS = 10 * 60  # 10 minutes.

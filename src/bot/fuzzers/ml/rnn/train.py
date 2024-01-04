@@ -36,7 +36,7 @@ import tensorflow as tf
 #     A good choice of parameters ensures that the testing and validation
 #     curves stay close. To see the curves drift apart ("overfitting") try
 #     to use an insufficient amount of training data.
-from src.bot.fuzzers.ml.rnn import constants, utils
+from bot.fuzzers.ml.rnn import constants, utils
 
 
 @tf.function

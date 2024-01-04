@@ -24,13 +24,13 @@ import time
 # The default environment variables for specifying build bucket paths.
 from sys import stdin, stdout, stderr
 
-from src.bot.build_management import overrides, revisions
-from src.bot.datastore import storage, data_types, data_handler
-from src.bot.fuzzing import fuzzer_selection
-from src.bot.metrics import logs
-from src.bot.platforms import android
-from src.bot.system import environment, shell, archive, new_process, errors, minijail
-from src.bot.utils import utils
+from bot.build_management import overrides, revisions
+from bot.datastore import storage, data_types, data_handler
+from bot.fuzzing import fuzzer_selection
+from bot.metrics import logs
+from bot.platforms import android
+from bot.system import environment, shell, archive, new_process, errors, minijail
+from bot.utils import utils
 
 DEFAULT_BUILD_BUCKET_PATH_ENV_VARS = (
     'RELEASE_BUILD_BUCKET_PATH',
@@ -452,7 +452,7 @@ class Build(BaseBuild):
         """Patch rpaths of builds to point to instrumented libraries."""
         if environment.is_engine_fuzzer_job():
             # Import here as this path is not available in App Engine context.
-            from src.bot.fuzzers.utils import fuzzer_utils
+            from bot.fuzzers.utils import fuzzer_utils
 
             for target_path in fuzzer_utils.get_fuzz_targets(self.build_dir):
                 self._patch_rpath(target_path, instrumented_library_paths)
@@ -628,7 +628,7 @@ class Build(BaseBuild):
     def _get_fuzz_targets_from_archive(self, archive_path):
         """Get iterator of fuzz targets from archive path."""
         # Import here as this path is not available in App Engine context.
-        from src.bot.fuzzers.utils import fuzzer_utils
+        from bot.fuzzers.utils import fuzzer_utils
 
         for archive_file in archive.iterator(archive_path):
             if fuzzer_utils.is_fuzz_target_local(archive_file.name,
@@ -639,7 +639,7 @@ class Build(BaseBuild):
     def _get_fuzz_targets_from_dir(self, build_dir):
         """Get iterator of fuzz targets from build dir."""
         # Import here as this path is not available in App Engine context.
-        from src.bot.fuzzers.utils import fuzzer_utils
+        from bot.fuzzers.utils import fuzzer_utils
 
         for path in fuzzer_utils.get_fuzz_targets(build_dir):
             yield os.path.splitext(os.path.basename(path))[0]
@@ -652,7 +652,7 @@ class Build(BaseBuild):
     def _get_build_scripts_from_dir(self, build_dir):
         """Get iterator of fuzz targets from build dir."""
         # Import here as this path is not available in App Engine context.
-        from src.bot.fuzzers.utils import fuzzer_utils
+        from bot.fuzzers.utils import fuzzer_utils
 
         for path in fuzzer_utils.get_build_scripts(build_dir):
             yield path
@@ -854,8 +854,8 @@ class FuchsiaBuild(RegularBuild):
     #         return []
     #
     #     # Prevent App Engine import issues.
-    #     #from src.bot.platforms.fuchsia.util.fuzzer import Fuzzer
-    #     #from src.bot._internal.platforms.fuchsia.util.host import Host
+    #     #from bot.platforms.fuchsia.util.fuzzer import Fuzzer
+    #     #from bot._internal.platforms.fuchsia.util.host import Host
     #     #host = Host.from_dir(os.path.join(build_dir, self.FUCHSIA_BUILD_REL_PATH))
     #
     #     sanitizer = environment.get_memory_tool_name(
@@ -868,7 +868,7 @@ class FuchsiaBuild(RegularBuild):
     # def _setup_legacy_build(self):
     #     """setup() for builds that don't use undercoat."""
     #     # Prevent App Engine import issues.
-    #     from src.bot._internal.platforms import fuchsia
+    #     from bot._internal.platforms import fuchsia
     #
     #     # Select a fuzzer, as we skipped doing so in the superclass's setup()
     #     _set_random_fuzz_target_for_fuzzing_if_needed(
@@ -895,7 +895,7 @@ class FuchsiaBuild(RegularBuild):
     # def _setup_undercoat_build(self):
     #     """setup() for builds that do use undercoat."""
     #     # Prevent App Engine import issues.
-    #     from src.bot._internal.platforms import fuchsia
+    #     from bot._internal.platforms import fuchsia
     #
     #     # Kill any stale undercoat instances (currently, this is in fact the only
     #     # path through which instances are shut down)
@@ -913,7 +913,7 @@ class FuchsiaBuild(RegularBuild):
     # def setup(self):
     #     """Fuchsia build setup."""
     #     # Prevent App Engine import issues.
-    #     from src.bot._internal.platforms import fuchsia
+    #     from bot._internal.platforms import fuchsia
     #
     #     # Decide per-build whether to use undercoat, based on rollout level
     #     rollout_level = environment.get_value('FUCHSIA_UNDERCOAT_ROLLOUT_LEVEL', 0)
@@ -964,7 +964,7 @@ class CuttlefishKernelBuild(RegularBuild):
 
     def setup(self):
         """Android kernel build setup."""
-        from src.bot.platforms.android import adb
+        from bot.platforms.android import adb
 
         result = super().setup()
         if not result:
@@ -1501,7 +1501,7 @@ def setup_regular_build(revision,
 
     build_class = RegularBuild
     # if environment.is_trusted_host():
-    #     from src.bot._internal.bot.untrusted_runner import build_setup_host
+    #     from bot._internal.bot.untrusted_runner import build_setup_host
     #     build_class = build_setup_host.RemoteRegularBuild
     # elif environment.platform() == 'FUCHSIA':
     #     build_class = FuchsiaBuild
@@ -1548,7 +1548,7 @@ def setup_symbolized_builds(revision):
 
     build_class = SymbolizedBuild
     # if environment.is_trusted_host():
-    #     from src.bot._internal.bot.untrusted_runner import build_setup_host
+    #     from bot._internal.bot.untrusted_runner import build_setup_host
     #     build_class = build_setup_host.RemoteSymbolizedBuild
 
     build = build_class(base_build_dir, revision, sym_release_build_url,
@@ -1631,7 +1631,7 @@ def setup_production_build(build_type):
 
     build_class = ProductionBuild
     # if environment.is_trusted_host():
-    #     from src.bot._internal.bot.untrusted_runner import build_setup_host
+    #     from bot._internal.bot.untrusted_runner import build_setup_host
     #     build_class = build_setup_host.RemoteProductionBuild
 
     build = build_class(base_build_dir, version, build_url, build_type)

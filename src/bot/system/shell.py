@@ -21,8 +21,8 @@ import subprocess
 import sys
 import tempfile
 
-from src.bot.metrics import logs
-from src.bot.system import environment, persistent_cache
+from bot.metrics import logs
+from bot.system import environment, persistent_cache
 
 try:
     import psutil
@@ -84,7 +84,7 @@ def clear_build_urls_directory():
     remove_directory(environment.get_value('BUILD_URLS_DIR'), recreate=True)
 
     #if environment.is_trusted_host():
-    #    from src.bot._internal.bot.untrusted_runner import file_host
+    #    from bot._internal.bot.untrusted_runner import file_host
     #    file_host.clear_build_urls_directory()
 
 
@@ -144,7 +144,7 @@ def clear_data_directories_on_low_disk_space():
 def clear_device_temp_directories():
     """Clear device specific temp directories."""
     if environment.is_android() and environment.get_value('ANDROID_SERIAL'):
-        from src.bot.platforms import android
+        from bot.platforms import android
         android.device.clear_temp_directories()
 
 
@@ -163,7 +163,7 @@ def clear_temp_directory(clear_user_profile_directories=True):
         remove_directory(test_temp_directory, recreate=True)
 
     #if environment.is_trusted_host():
-    #    from src.bot._internal.bot.untrusted_runner import file_host
+    #    from bot._internal.bot.untrusted_runner import file_host
     #    file_host.clear_temp_directory()
 
     if not clear_user_profile_directories:
@@ -216,13 +216,13 @@ def clear_testcase_directories():
     remove_directory(environment.get_value('FUZZ_INPUTS_DISK'), recreate=True)
 
     if environment.is_android() and environment.get_value('ANDROID_SERIAL'):
-        from src.bot.platforms import android
+        from bot.platforms import android
         android.device.clear_testcase_directory()
     if environment.platform() == 'FUCHSIA':
-        from src.bot.platforms import fuchsia
+        from bot.platforms import fuchsia
         fuchsia.device.clear_testcase_directory()
     # if environment.is_trusted_host():
-    # from src.bot._internal.bot.untrusted_runner import file_host
+    # from bot._internal.bot.untrusted_runner import file_host
     #  file_host.clear_testcase_directories()
 
 

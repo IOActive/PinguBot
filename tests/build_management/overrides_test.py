@@ -16,8 +16,8 @@
 import os
 import unittest
 
-from src.bot.build_management import overrides
-from src.bot.tests.test_libs import helpers as test_helpers
+from bot.build_management import overrides
+from bot.tests.test_libs import helpers as test_helpers
 
 DATA_PATH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'overrides_data')

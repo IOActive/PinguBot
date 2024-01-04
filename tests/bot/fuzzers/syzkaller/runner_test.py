@@ -18,8 +18,8 @@ import unittest
 
 import mock
 
-from src.bot.fuzzers.syzkaller import runner
-from src.bot.fuzzers.syzkaller.runner import \
+from bot.fuzzers.syzkaller import runner
+from bot.fuzzers.syzkaller.runner import \
     AndroidSyzkallerRunner
 
 EXECUTABLE_PATH = '/usr/local/google/home/username/syzkaller'

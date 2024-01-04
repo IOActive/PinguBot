@@ -16,7 +16,7 @@ import unittest
 
 import mock
 
-from src.bot.tests.test_libs import helpers
+from bot.tests.test_libs import helpers
 from python.bot.startup import run
 
 

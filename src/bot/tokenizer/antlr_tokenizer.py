@@ -14,8 +14,8 @@
 """Antlr Tokenizer"""
 import antlr4
 
-from src.bot.minimizer import errors
-from src.bot.utils import utils
+from bot.minimizer import errors
+from bot.utils import utils
 
 
 class AntlrTokenizer(object):

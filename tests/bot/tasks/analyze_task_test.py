@@ -15,9 +15,9 @@
 
 import unittest
 
-from src.bot.tasks import analyze_task
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.tasks import analyze_task
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 
 @test_utils.with_cloud_emulators('datastore')

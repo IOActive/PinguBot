@@ -20,14 +20,14 @@ import tempfile
 
 import requests
 
-from src.bot.build_management import revisions
-from src.bot.crash_analysis.stack_parsing import stack_parser
-from src.bot.datastore import data_types, data_handler
-from src.bot.metrics import logs
-from src.bot.platforms.android import constants, adb
-from src.bot.protos import process_state_pb2
-from src.bot.system import environment, process_handler
-from src.bot.utils import utils
+from bot.build_management import revisions
+from bot.crash_analysis.stack_parsing import stack_parser
+from bot.datastore import data_types, data_handler
+from bot.metrics import logs
+from bot.platforms.android import constants, adb
+from bot.protos import process_state_pb2
+from bot.system import environment, process_handler
+from bot.utils import utils
 
 CRASH_REPORT_UPLOAD_URL = {
     'staging': 'https://clients2.google.com/cr/staging_report',

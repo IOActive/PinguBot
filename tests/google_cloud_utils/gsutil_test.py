@@ -18,9 +18,9 @@ import os
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from src.bot.google_cloud_utils import gsutil
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.google_cloud_utils import gsutil
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 
 class GSUtilRunnerTest(fake_filesystem_unittest.TestCase):

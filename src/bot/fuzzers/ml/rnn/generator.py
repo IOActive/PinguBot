@@ -13,11 +13,11 @@
 # limitations under the License.
 """Generate new inputs using ML RNN model."""
 # pylint: disable=g-statement-before-imports
-from src.bot.datastore import storage
-from src.bot.fuzzers.ml.rnn import constants
-from src.bot.metrics import logs
-from src.bot.system import environment, shell, new_process
-from src.bot.utils import utils
+from bot.datastore import storage
+from bot.fuzzers.ml.rnn import constants
+from bot.metrics import logs
+from bot.system import environment, shell, new_process
+from bot.utils import utils
 
 import os
 import sys

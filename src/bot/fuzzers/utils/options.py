@@ -20,9 +20,9 @@ import re
 
 import six
 
-from src.bot.fuzzers.utils import fuzzer_utils
-from src.bot.metrics import logs
-from src.bot.system import environment
+from bot.fuzzers.utils import fuzzer_utils
+from bot.metrics import logs
+from bot.system import environment
 
 OPTIONS_FILE_EXTENSION = '.options'
 

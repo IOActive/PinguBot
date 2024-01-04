@@ -31,9 +31,9 @@ from minio.commonconfig import CopySource
 from minio.error import S3Error
 from urllib3.exceptions import ResponseError
 
-from src.bot.metrics import logs
-from src.bot.system import shell, environment
-from src.bot.utils import utils
+from bot.metrics import logs
+from bot.system import shell, environment
+from bot.utils import utils
 
 # Prefix for MINIO urls.
 MINIO_PREFIX = environment.get_value("MINIO_HOST")

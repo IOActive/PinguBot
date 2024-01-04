@@ -18,9 +18,9 @@ import os
 
 from pyfakefs import fake_filesystem_unittest
 
-from src.bot.fuzzing import coverage_uploader
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.fuzzing import coverage_uploader
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 
 def _mock_config_get(_, param):

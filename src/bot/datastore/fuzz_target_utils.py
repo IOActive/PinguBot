@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Helper functions related to fuzz target entities."""
-from src.bot.datastore import data_types, data_handler
+from bot.datastore import data_types, data_handler
 
 
 def get_fuzz_targets_for_target_jobs(target_jobs):

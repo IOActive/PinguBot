@@ -19,9 +19,9 @@ import os
 
 # For any given value file, if a file with the same name with this added
 # extension exists, it is not cleared during initialization.
-from src.bot.metrics import logs
-from src.bot.system import environment
-from src.bot.utils import json_utils
+from bot.metrics import logs
+from bot.system import environment
+from bot.utils import json_utils
 
 PERSIST_FILE_EXTENSION = '.persist'
 

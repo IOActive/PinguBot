@@ -16,8 +16,8 @@
 import os
 import unittest
 
-from src.bot.crash_analysis import crash_analyzer
-from src.bot.tests.test_libs import helpers as test_helpers
+from bot.crash_analysis import crash_analyzer
+from bot.tests.test_libs import helpers as test_helpers
 
 
 class IgnoreStacktraceTest(unittest.TestCase):

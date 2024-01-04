@@ -19,11 +19,11 @@ import os
 import random
 import sys
 
-from src.bot import testcase_manager
-from src.bot.datastore import data_types
-from src.bot.fuzzers.utils import fuzzer_utils, engine_common
-from src.bot.system import environment, shell
-from src.bot.utils import utils
+from bot import testcase_manager
+from bot.datastore import data_types
+from bot.fuzzers.utils import fuzzer_utils, engine_common
+from bot.system import environment, shell
+from bot.utils import utils
 
 
 class BuiltinFuzzerResult(object):

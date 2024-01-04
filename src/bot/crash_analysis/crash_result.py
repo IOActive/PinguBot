@@ -15,9 +15,9 @@
 
 
 # pylint: disable=unpacking-non-sequence
-from src.bot.crash_analysis import crash_analyzer
-from src.bot.crash_analysis.stack_parsing import stack_analyzer
-from src.bot.utils import utils
+from bot.crash_analysis import crash_analyzer
+from bot.crash_analysis.stack_parsing import stack_analyzer
+from bot.utils import utils
 
 
 class CrashResult(object):

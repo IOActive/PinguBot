@@ -29,9 +29,9 @@ import weakref
 
 import requests
 
-from src.bot.config import local_config
-from src.bot.metrics import logs
-from src.bot.system import environment
+from bot.config import local_config
+from bot.metrics import logs
+from bot.system import environment
 
 try:
     import psutil

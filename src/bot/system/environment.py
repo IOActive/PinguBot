@@ -30,7 +30,7 @@ import yaml
 # ASAN instrumented build.
 from flask.cli import load_dotenv
 
-from src.bot import fuzzing
+from bot import fuzzing
 
 SUPPORTED_MEMORY_TOOLS_FOR_OPTIONS = [
     'HWASAN', 'ASAN', 'KASAN', 'CFI', 'MSAN', 'TSAN', 'UBSAN'
@@ -208,7 +208,7 @@ def get_cpu_arch():
     """Return cpu architecture."""
     if is_android() and not is_android_emulator():
         # FIXME: Handle this import in a cleaner way.
-        from src.bot.platforms import android
+        from bot.platforms import android
         return android.settings.get_cpu_arch()
 
     # FIXME: Add support for desktop architectures as needed.
@@ -279,7 +279,7 @@ def get_environment_settings_as_string():
     # Add Android specific variables.
     if is_android():
         # FIXME: Handle this import in a cleaner way.
-        from src.bot.platforms import android
+        from bot.platforms import android
         build_fingerprint = get_value(
             'BUILD_FINGERPRINT') or android.settings.get_build_fingerprint()
         environment_string += '[Environment] Build fingerprint: %s\n' % (
@@ -470,7 +470,7 @@ def get_platform():
         return bot_platform.title()
     if is_android(bot_platform):
         # FIXME: Handle this import in a cleaner way.
-        from src.bot.platforms import android
+        from bot.platforms import android
         platform_id = get_value('PLATFORM_ID', android.settings.get_platform_id())
         return platform_id.title()
     
@@ -873,7 +873,7 @@ def reset_current_memory_tool_options(redzone_size=0,
     # For engine-based fuzzers, it is not needed as options variable is directly
     # passed to shell.
     if is_android(bot_platform) and not is_engine_fuzzer_job():
-        from src.bot.platforms import android
+        from bot.platforms import android
         android.sanitizer.set_options(tool_name, joined_tool_options)
 
 
@@ -1112,7 +1112,7 @@ def get_platform_id():
         return bot_platform.lower()
     if is_android(bot_platform):
         # FIXME: Handle this import in a cleaner way.
-        from src.bot.platforms import android
+        from bot.platforms import android
 
         platform_id = get_value('PLATFORM_ID', android.settings.get_platform_id())
         return platform_id.lower()

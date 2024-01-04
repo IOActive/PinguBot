@@ -16,7 +16,7 @@
 import re
 import unittest
 
-from src.bot.crash_analysis.stack_parsing import stack_parser
+from bot.crash_analysis.stack_parsing import stack_parser
 
 
 class StackFrameTestcase(unittest.TestCase):

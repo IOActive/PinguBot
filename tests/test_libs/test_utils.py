@@ -18,8 +18,8 @@ import io
 import os
 import unittest
 
-from src.bot.datastore import data_types
-from src.bot.system import environment
+from bot.datastore import data_types
+from bot.system import environment
 
 from mockupdb import MockupDB
 

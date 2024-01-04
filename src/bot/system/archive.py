@@ -18,7 +18,7 @@ import os
 import tarfile
 import zipfile
 
-from src.bot.metrics import logs
+from bot.metrics import logs
 
 FILE_ATTRIBUTE = '0o10'
 SYMLINK_ATTRIBUTE = '0o12'

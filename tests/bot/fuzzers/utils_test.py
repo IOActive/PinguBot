@@ -18,9 +18,9 @@ import shutil
 import tempfile
 import unittest
 
-from src.bot.fuzzers import utils
-from src.bot.system import environment
-from src.bot.tests.test_libs import helpers as test_helpers
+from bot.fuzzers import utils
+from bot.system import environment
+from bot.tests.test_libs import helpers as test_helpers
 
 
 class IsFuzzTargetLocalTest(unittest.TestCase):

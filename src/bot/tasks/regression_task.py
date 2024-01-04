@@ -20,12 +20,12 @@ import time
 # Number of revisions before the maximum to test before doing a bisect. This
 # is also used as a cap for revisions to test near the minimum if the minimum
 # happens to be a bad build.
-from src.bot import testcase_manager
-from src.bot.build_management import build_manager, revisions
-from src.bot.datastore import data_handler, data_types
-from src.bot.metrics import logs
-from src.bot.system import errors, environment, tasks
-from src.bot.tasks import task_creation, setup
+from bot import testcase_manager
+from bot.build_management import build_manager, revisions
+from bot.datastore import data_handler, data_types
+from bot.metrics import logs
+from bot.system import errors, environment, tasks
+from bot.tasks import task_creation, setup
 
 EXTREME_REVISIONS_TO_TEST = 3
 

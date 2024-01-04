@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Linux init scripts."""
-from src.bot.init_scripts import init_runner
+from bot.init_scripts import init_runner
 
 
 def run():

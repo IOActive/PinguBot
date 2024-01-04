@@ -15,11 +15,11 @@
 
 import os
 
-from src.bot import fuzzing
-from src.bot.datastore import storage
-from src.bot.metrics import logs
-from src.bot.system import environment
-from src.bot.utils import utils
+from bot import fuzzing
+from bot.datastore import storage
+from bot.metrics import logs
+from bot.system import environment
+from bot.utils import utils
 
 LIST_FILE_BASENAME = 'file_list.txt'
 TESTCASES_PER_DAY = 1000

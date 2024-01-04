@@ -18,12 +18,12 @@ import unittest
 
 from pyfakefs import fake_filesystem_unittest
 
-from src.bot.base import utils
-from src.bot.tasks import update_task
-from src.bot.metrics import monitor
-from src.bot.metrics import monitoring_metrics
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.base import utils
+from bot.tasks import update_task
+from bot.metrics import monitor
+from bot.metrics import monitoring_metrics
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 
 class GetLocalSourceRevisionTest(fake_filesystem_unittest.TestCase):

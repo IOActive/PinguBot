@@ -20,7 +20,7 @@ import sys
 import numpy as np
 import tensorflow as tf
 
-from src.bot.fuzzers.ml.rnn import constants
+from bot.fuzzers.ml.rnn import constants
 
 
 def build_model(num_rnn_cells, dropout_pkeep, batch_size, debug):

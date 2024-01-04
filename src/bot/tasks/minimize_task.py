@@ -22,24 +22,24 @@ import zipfile
 
 import six
 
-from src.bot import testcase_manager
-from src.bot.build_management import build_manager
-from src.bot.crash_analysis import severity_analyzer
-from src.bot.crash_analysis.crash_comparer import CrashComparer
-from src.bot.crash_analysis.crash_result import CrashResult
-from src.bot.datastore import data_handler, data_types
-from src.bot.fuzzers.utils import engine_common
-from src.bot.metrics import logs
-from src.bot.minimizer import delta_minimizer, minimizer, basic_minimizers, js_minimizer, html_minimizer
-from src.bot.platforms import android
-from src.bot.system import environment, errors, shell, process_handler, tasks
-from src.bot.tasks import setup, task_creation
-from src.bot.tokenizer.antlr_tokenizer import AntlrTokenizer
-from src.bot.tokenizer.grammars import JavaScriptLexer
-from src.bot.utils import utils
-from src.bot.fuzzers.templates.python import PythonTemplateEngine as engine
-from src.bot.fuzzers.libFuzzer import  engine as libfuzzer_engine
-from src.bot.minimizer import errors as minimizer_errors
+from bot import testcase_manager
+from bot.build_management import build_manager
+from bot.crash_analysis import severity_analyzer
+from bot.crash_analysis.crash_comparer import CrashComparer
+from bot.crash_analysis.crash_result import CrashResult
+from bot.datastore import data_handler, data_types
+from bot.fuzzers.utils import engine_common
+from bot.metrics import logs
+from bot.minimizer import delta_minimizer, minimizer, basic_minimizers, js_minimizer, html_minimizer
+from bot.platforms import android
+from bot.system import environment, errors, shell, process_handler, tasks
+from bot.tasks import setup, task_creation
+from bot.tokenizer.antlr_tokenizer import AntlrTokenizer
+from bot.tokenizer.grammars import JavaScriptLexer
+from bot.utils import utils
+from bot.fuzzers.templates.python import PythonTemplateEngine as engine
+from bot.fuzzers.libFuzzer import  engine as libfuzzer_engine
+from bot.minimizer import errors as minimizer_errors
 
 IPCDUMP_TIMEOUT = 60
 COMBINED_IPCDUMP_TIMEOUT = 60 * 3
@@ -275,7 +275,7 @@ class TestRunner(object):
         if environment.is_android():
             android.device.push_testcases_to_device()
         # elif environment.is_trusted_host():
-        #     from src.bot._internal.bot.untrusted_runner import file_host
+        #     from bot._internal.bot.untrusted_runner import file_host
         #     file_host.push_testcases_to_worker()
 
         # If we need to write a command line file, only do so if the arguments have
@@ -1086,7 +1086,7 @@ def _run_libfuzzer_testcase(testcase, testcase_file_path, crash, crash_retries=1
     shell.clear_temp_directory()
 
     # if environment.is_trusted_host():
-    #     from src.bot._internal.bot.untrusted_runner import file_host
+    #     from bot._internal.bot.untrusted_runner import file_host
     #     file_host.copy_file_to_worker(
     #         testcase_file_path, file_host.rebase_to_worker_root(testcase_file_path))
 
@@ -1106,7 +1106,7 @@ def run_libfuzzer_engine(tool_name, target_name, arguments, testcase_path,
     """Run the libFuzzer engine."""
     arguments = list(arguments)
     # if environment.is_trusted_host():
-    #     from src.bot._internal.bot.untrusted_runner import tasks_host
+    #     from bot._internal.bot.untrusted_runner import tasks_host
     #
     #     # TODO(ochang): Remove hardcode.
     #     return tasks_host.process_testcase('libFuzzer', tool_name, target_name,

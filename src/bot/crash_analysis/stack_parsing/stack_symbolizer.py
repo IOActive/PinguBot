@@ -35,11 +35,11 @@ import sys
 
 import six
 
-from src.bot.metrics import logs
-from src.bot.platforms.android import symbols_downloader
-from src.bot.platforms.linux import lkl
-from src.bot.system import environment
-from src.bot.utils import utils
+from bot.metrics import logs
+from bot.platforms.android import symbols_downloader
+from bot.platforms.linux import lkl
+from bot.system import environment
+from bot.utils import utils
 
 try:
     import pty
@@ -599,7 +599,7 @@ def symbolize_stacktrace(unsymbolized_crash_stacktrace,
                          enable_inline_frames=True):
     """Symbolize a crash stacktrace."""
     # if environment.is_trusted_host():
-    #     from src.bot._internal.bot.untrusted_runner import symbolize_host
+    #     from bot._internal.bot.untrusted_runner import symbolize_host
     #     return symbolize_host.symbolize_stacktrace(unsymbolized_crash_stacktrace,
     #                                                enable_inline_frames)
 

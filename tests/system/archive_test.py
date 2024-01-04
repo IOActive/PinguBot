@@ -16,9 +16,9 @@ import os
 import tempfile
 import unittest
 
-from src.bot.system import archive
-from src.bot.system import shell
-from src.bot.tests.test_libs import helpers
+from bot.system import archive
+from bot.system import shell
+from bot.tests.test_libs import helpers
 
 TESTDATA_PATH = os.path.join(os.path.dirname(__file__), 'archive_data')
 

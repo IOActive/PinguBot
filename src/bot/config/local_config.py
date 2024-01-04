@@ -18,7 +18,7 @@ import os
 import six
 import yaml
 
-from src.bot.system import errors, environment, memoize
+from bot.system import errors, environment, memoize
 
 CACHE_SIZE = 1024
 YAML_FILE_EXTENSION = '.yaml'

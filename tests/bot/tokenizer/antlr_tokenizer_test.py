@@ -15,8 +15,8 @@
 
 import unittest
 
-from src.bot.tokenizer.antlr_tokenizer import AntlrTokenizer
-from src.bot.tokenizer.grammars.JavaScriptLexer import \
+from bot.tokenizer.antlr_tokenizer import AntlrTokenizer
+from bot.tokenizer.grammars.JavaScriptLexer import \
     JavaScriptLexer
 
 

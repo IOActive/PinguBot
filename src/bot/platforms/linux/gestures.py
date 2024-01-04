@@ -16,9 +16,9 @@
 import random
 import time
 
-from src.bot.metrics import logs
-from src.bot.system import shell
-from src.bot.utils import utils
+from bot.metrics import logs
+from bot.system import shell
+from bot.utils import utils
 
 MAX_CHARS_TO_TYPE = 20
 RELOAD_GESTURE = 'key,F5'

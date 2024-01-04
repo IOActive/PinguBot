@@ -17,7 +17,7 @@
 # to be able to import dependencies directly, but we must store these in
 # subdirectories of common so that they are shared with App Engine.
 
-# from src.bot._internal.base import modules
+# from bot._internal.base import modules
 
 import atexit
 import multiprocessing
@@ -26,9 +26,9 @@ import subprocess
 import time
 import traceback
 
-from src.bot.datastore import data_handler
-from src.bot.metrics import logs
-from src.bot.system import environment, shell
+from bot.datastore import data_handler
+from bot.metrics import logs
+from bot.system import environment, shell
 
 # modules.fix_module_search_paths()
 

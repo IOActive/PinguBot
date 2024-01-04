@@ -23,9 +23,9 @@ import tempfile
 import threading
 import time
 
-from src.bot.metrics import logs
-from src.bot.system import persistent_cache, environment, shell
-from src.bot.utils import utils
+from bot.metrics import logs
+from bot.system import persistent_cache, environment, shell
+from bot.utils import utils
 
 ADB_TIMEOUT = 1200  # Should be lower than |REBOOT_TIMEOUT|.
 BAD_STATE_WAIT = 900

@@ -24,18 +24,18 @@ import src.bot.fuzzers.templates.python.PythonTemplateEngine as engine
 # TODO(ochang): Move common libFuzzer code from fuzzer into CF.
 
 # Redzone size for running testcase.
-from src.bot.datastore import blobs_manager
-from src.bot.build_management import build_manager
-from src.bot.crash_analysis import crash_analyzer
-from src.bot.crash_analysis.stack_parsing import stack_analyzer, stack_symbolizer
-from src.bot.datastore import storage, data_types, data_handler, fuzz_target_utils, corpus_tagging
-from src.bot.fuzzers.libFuzzer import constants
-from src.bot.fuzzers.utils import engine_common, options
-from src.bot.fuzzing import corpus_manager, leak_blacklist
-from src.bot.metrics import logs
-from src.bot.system import environment, shell, archive
-from src.bot.tasks import task_creation, setup
-from src.bot.utils import utils
+from bot.datastore import blobs_manager
+from bot.build_management import build_manager
+from bot.crash_analysis import crash_analyzer
+from bot.crash_analysis.stack_parsing import stack_analyzer, stack_symbolizer
+from bot.datastore import storage, data_types, data_handler, fuzz_target_utils, corpus_tagging
+from bot.fuzzers.libFuzzer import constants
+from bot.fuzzers.utils import engine_common, options
+from bot.fuzzing import corpus_manager, leak_blacklist
+from bot.metrics import logs
+from bot.system import environment, shell, archive
+from bot.tasks import task_creation, setup
+from bot.utils import utils
 
 DEFAULT_REDZONE = 32
 
@@ -580,7 +580,7 @@ def do_corpus_pruning(context, last_execution_failed, revision):
     environment.set_value('FUZZ_TARGET', context.fuzz_target.binary)
 
     # if environment.is_trusted_host():
-    #     from src.bot._internal.bot.untrusted_runner import tasks_host
+    #     from bot._internal.bot.untrusted_runner import tasks_host
     #     return tasks_host.do_corpus_pruning(context, last_execution_failed,
     #                                         revision)
 
@@ -733,7 +733,7 @@ def _process_corpus_crashes(context, result):
 
         # Upload/store testcase.
         # if environment.is_trusted_host():
-        #     from src.bot._internal.bot.untrusted_runner import file_host
+        #     from bot._internal.bot.untrusted_runner import file_host
         #     unit_path = os.path.join(context.bad_units_path,
         #                              os.path.basename(crash.unit_path))
         #     # Prevent the worker from escaping out of |context.bad_units_path|.

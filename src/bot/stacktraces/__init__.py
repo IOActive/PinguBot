@@ -17,7 +17,7 @@ import re
 import string
 import subprocess
 
-from src.bot.platforms.linux.lkl import constants as lkl_constants
+from bot.platforms.linux.lkl import constants as lkl_constants
 
 from .constants import *
 from ..crash_analysis import crash_analyzer

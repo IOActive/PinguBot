@@ -19,13 +19,13 @@ import unittest
 
 import pyfakefs.fake_filesystem_unittest as fake_fs_unittest
 
-from src.bot.fuzzers.ml.rnn import constants
-from src.bot.tasks import train_rnn_generator_task
-from src.bot.datastore import data_types
-from src.bot.system import new_process
-from src.bot.system import shell
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.fuzzers.ml.rnn import constants
+from bot.tasks import train_rnn_generator_task
+from bot.datastore import data_types
+from bot.system import new_process
+from bot.system import shell
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 MODEL_DIR = '/fake/model_directory'
 

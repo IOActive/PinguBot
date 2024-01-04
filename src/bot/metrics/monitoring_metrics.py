@@ -15,7 +15,7 @@
 
 
 # Fuzz task metrics.
-from src.bot.metrics import monitor
+from bot.metrics import monitor
 
 BIG_QUERY_WRITE_COUNT = monitor.CounterMetric(
     'debug/big_query/write_count',

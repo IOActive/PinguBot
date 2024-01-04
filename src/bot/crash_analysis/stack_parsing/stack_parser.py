@@ -15,7 +15,7 @@
 
 import inspect
 
-from src.bot.metrics import logs
+from bot.metrics import logs
 
 
 def unsigned_to_signed(address):

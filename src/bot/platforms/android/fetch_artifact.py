@@ -23,7 +23,7 @@ import re
 from oauth2client.service_account import ServiceAccountCredentials
 
 # 20 MB default chunk size.
-from src.bot.metrics import logs
+from bot.metrics import logs
 
 DEFAULT_CHUNK_SIZE = 20 * 1024 * 1024
 

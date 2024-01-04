@@ -18,10 +18,10 @@ import sys
 import tempfile
 import unittest
 
-from src.bot.fuzzers.ml.rnn import constants
-from src.bot.fuzzers.ml.rnn import generator
-from src.bot.system import shell
-from src.bot.tests.test_libs import test_utils
+from bot.fuzzers.ml.rnn import constants
+from bot.fuzzers.ml.rnn import generator
+from bot.system import shell
+from bot.tests.test_libs import test_utils
 
 DATA_DIRECTORY = os.path.abspath(
     os.path.join(os.path.dirname(__file__), 'data'))

@@ -15,9 +15,9 @@
 
 import datetime
 
-from src.bot.datastore import storage
-from src.bot.metrics import logs
-from src.bot.system import environment
+from bot.datastore import storage
+from bot.metrics import logs
+from bot.system import environment
 
 DATE_FORMAT = '%Y-%m-%d'
 TIME_FORMAT = '%H:%M:%S:%f'

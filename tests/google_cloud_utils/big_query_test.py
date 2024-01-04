@@ -18,10 +18,10 @@ import unittest
 
 import mock
 
-from src.bot.datastore import data_types
-from src.bot.google_cloud_utils import big_query
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.datastore import data_types
+from bot.google_cloud_utils import big_query
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 
 class InitTest(unittest.TestCase):

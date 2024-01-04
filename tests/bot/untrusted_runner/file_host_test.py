@@ -18,11 +18,11 @@ import os
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from src.bot.untrusted_runner import config
-from src.bot.untrusted_runner import file_host
-from src.bot.protos import untrusted_runner_pb2
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.untrusted_runner import config
+from bot.untrusted_runner import file_host
+from bot.protos import untrusted_runner_pb2
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 
 class FileHostTest(fake_filesystem_unittest.TestCase):

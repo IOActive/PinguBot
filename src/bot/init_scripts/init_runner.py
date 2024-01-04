@@ -15,8 +15,8 @@
 
 import os
 
-from src.bot.metrics import logs
-from src.bot.system import environment, process_handler
+from bot.metrics import logs
+from bot.system import environment, process_handler
 
 SCRIPT_DIR = os.path.join('bot', 'init')
 

@@ -15,7 +15,7 @@
 
 import time
 
-from src.bot.utils import utils
+from bot.utils import utils
 
 
 def initialize_timezone_from_environment():

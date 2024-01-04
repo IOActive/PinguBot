@@ -18,9 +18,9 @@ import unittest
 
 import six
 
-from src.bot.google_cloud_utils import pubsub
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.google_cloud_utils import pubsub
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 ACK_DEADLINE = 3
 

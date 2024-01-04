@@ -19,9 +19,9 @@ import unittest
 from pyfakefs import fake_filesystem_unittest
 import six
 
-from src.bot.base import utils
-from src.bot.google_cloud_utils import storage
-from src.bot.tests.test_libs import test_utils
+from bot.base import utils
+from bot.google_cloud_utils import storage
+from bot.tests.test_libs import test_utils
 
 
 class LifecycleConfigTest(unittest.TestCase):

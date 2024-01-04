@@ -18,9 +18,9 @@ import re
 import stat
 import tempfile
 
-from src.bot.metrics import logs
-from src.bot.system import environment, shell
-from src.bot.utils import utils
+from bot.metrics import logs
+from bot.system import environment, shell
+from bot.utils import utils
 
 ALLOWED_FUZZ_TARGET_EXTENSIONS = ['', '.exe', '.par']
 FUZZ_TARGET_SEARCH_BYTES = b'LLVMFuzzerTestOneInput'

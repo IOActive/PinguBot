@@ -21,10 +21,10 @@ import os
 import sys
 import time
 
-from src.bot.datastore import data_handler
-from src.bot.metrics import logs
-from src.bot.system import environment, tasks, process_handler, shell
-from src.bot.utils import dates
+from bot.datastore import data_handler
+from bot.metrics import logs
+from bot.system import environment, tasks, process_handler, shell
+from bot.utils import dates
 
 import psutil
 

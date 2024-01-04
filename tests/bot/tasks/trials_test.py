@@ -15,11 +15,11 @@
 
 import unittest
 
-from src.bot.tasks import trials
-from src.bot.datastore import data_types
-from src.bot.system import environment
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.tasks import trials
+from bot.datastore import data_types
+from bot.system import environment
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 
 @test_utils.with_cloud_emulators('datastore')

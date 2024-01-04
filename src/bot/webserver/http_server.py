@@ -19,7 +19,7 @@ import os
 import socket
 import threading
 
-from src.bot.system import environment
+from bot.system import environment
 
 
 def get_absolute_testcase_file(request_path):

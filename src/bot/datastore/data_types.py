@@ -7,9 +7,9 @@ import six
 from bson import ObjectId
 from pydantic import BaseModel, Field, PrivateAttr
 
-from src.bot.crash_analysis.stack_parsing.stack_parser import StackFrame
-from src.bot.system import environment
-from src.bot.utils import json_utils, utils
+from bot.crash_analysis.stack_parsing.stack_parser import StackFrame
+from bot.system import environment
+from bot.utils import json_utils, utils
 from uuid import UUID, uuid4
 
 

@@ -19,10 +19,10 @@ import unittest
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from src.bot.system import environment
-from src.bot.system import shell
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.system import environment
+from bot.system import shell
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 
 class RemoveEmptyFilesTest(fake_filesystem_unittest.TestCase):

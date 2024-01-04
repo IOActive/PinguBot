@@ -17,9 +17,9 @@ from user upload."""
 import json
 import os
 
-from src.bot.datastore import data_types, data_handler
-from src.bot.metrics import logs
-from src.bot.system import environment, tasks, archive, shell
+from bot.datastore import data_types, data_handler
+from bot.metrics import logs
+from bot.system import environment, tasks, archive, shell
 
 
 def execute_task(job_type):

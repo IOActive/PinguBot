@@ -24,23 +24,23 @@ import parameterized
 import pyfakefs.fake_filesystem_unittest as fake_fs_unittest
 import six
 
-from src.bot.fuzzers import engine_common
-from src.bot.fuzzers import libfuzzer
-from src.bot.fuzzers import strategy_selection
-from src.bot.fuzzers import utils as fuzzer_utils
-from src.bot.fuzzers.libFuzzer import constants
-from src.bot.fuzzers.libFuzzer import engine
-from src.bot.build_management import build_manager
-from src.bot.fuzzing import strategy
-from src.bot.metrics import logs
-from src.bot.platforms import android
-from src.bot.system import environment
-from src.bot.system import new_process
-from src.bot.system import process_handler
-from src.bot.system import shell
-from src.bot.tests.test_libs import android_helpers
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.fuzzers import engine_common
+from bot.fuzzers import libfuzzer
+from bot.fuzzers import strategy_selection
+from bot.fuzzers import utils as fuzzer_utils
+from bot.fuzzers.libFuzzer import constants
+from bot.fuzzers.libFuzzer import engine
+from bot.build_management import build_manager
+from bot.fuzzing import strategy
+from bot.metrics import logs
+from bot.platforms import android
+from bot.system import environment
+from bot.system import new_process
+from bot.system import process_handler
+from bot.system import shell
+from bot.tests.test_libs import android_helpers
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 try:
   from shlex import quote

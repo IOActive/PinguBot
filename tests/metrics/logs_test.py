@@ -21,8 +21,8 @@ import unittest
 
 import mock
 
-from src.bot.metrics import logs
-from src.bot.tests.test_libs import helpers
+from bot.metrics import logs
+from bot.tests.test_libs import helpers
 
 
 class GetSourceLocationTest(unittest.TestCase):

@@ -15,7 +15,7 @@
 
 import re
 
-from src.bot.utils import utils
+from bot.utils import utils
 
 DRIVE_LETTER_REGEX = re.compile(r'^[a-zA-Z]:\\')
 RANGE_LIMIT = 10000

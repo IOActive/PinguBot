@@ -19,8 +19,8 @@ import unittest
 
 import mock
 
-from src.bot.untrusted_runner import environment
-from src.bot.tests.test_libs import helpers
+from bot.untrusted_runner import environment
+from bot.tests.test_libs import helpers
 
 FORWARDED_ENVIRONMENT_VARIABLES = [
     re.compile(pattern) for pattern in (

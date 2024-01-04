@@ -20,19 +20,19 @@ import os
 import re
 import zlib
 
-from src.bot.build_management import revisions
-from src.bot.fuzzers.templates.python import PythonTemplateEngine as engine
+from bot.build_management import revisions
+from bot.fuzzers.templates.python import PythonTemplateEngine as engine
 
 # Testcase filename prefixes and suffixes.
-from src.bot.crash_analysis import crash_analyzer
-from src.bot.crash_analysis.crash_comparer import CrashComparer
-from src.bot.crash_analysis.crash_result import CrashResult
-from src.bot.datastore import data_types, data_handler
-from src.bot.fuzzers.utils import engine_common
-from src.bot.metrics import logs, fuzzer_stats, fuzzer_logs
-from src.bot.platforms import android
-from src.bot.system import environment, shell, process_handler, archive
-from src.bot.utils import utils
+from bot.crash_analysis import crash_analyzer
+from bot.crash_analysis.crash_comparer import CrashComparer
+from bot.crash_analysis.crash_result import CrashResult
+from bot.datastore import data_types, data_handler
+from bot.fuzzers.utils import engine_common
+from bot.metrics import logs, fuzzer_stats, fuzzer_logs
+from bot.platforms import android
+from bot.system import environment, shell, process_handler, archive
+from bot.utils import utils
 
 CRASH_PREFIX = 'crash-'
 FUZZ_PREFIX = 'fuzz-'
@@ -454,7 +454,7 @@ def convert_dependency_url_to_local_path(url):
     elif http_match:
         relative_http_path = os.path.sep + http_match.group(2)
         logs.log('Detected http dependency: %s.' % relative_http_path)
-        from src.bot.webserver import http_server
+        from bot.webserver import http_server
         local_path = http_server.get_absolute_testcase_file(relative_http_path)
         if not local_path:
             # This needs to be a warning since in many cases, it is actually a
@@ -588,7 +588,7 @@ def _do_run_testcase_and_return_result_in_queue(crash_queue,
 
         # Pull testcase directory to host to get any stats files.
         # if environment.is_trusted_host():
-        #    from src.bot._internal.bot.untrusted_runner import file_host
+        #    from bot._internal.bot.untrusted_runner import file_host
         #    file_host.pull_testcases_from_worker()
 
         # Analyze the crash.
@@ -653,7 +653,7 @@ def engine_reproduce(engine_impl, target_name, testcase_path, arguments,
     @return The result of the engine_impl.reproduce function.
     """
     # if environment.is_trusted_host():
-    #    from src.bot._internal.bot.untrusted_runner import tasks_host
+    #    from bot._internal.bot.untrusted_runner import tasks_host
     #    return tasks_host.engine_reproduce(engine_impl, target_name, testcase_path,
     #                                       arguments, timeout)
     build_dir = environment.get_value('BUILD_DIR')
@@ -1140,7 +1140,7 @@ def get_command_line_for_application(file_to_run='',
 
     # Rebase the file_to_run and launcher paths to the worker's root.
     # if environment.is_trusted_host():
-    #     from src.bot._internal.bot.untrusted_runner import file_host
+    #     from bot._internal.bot.untrusted_runner import file_host
     #     file_to_run = file_host.rebase_to_worker_root(file_to_run)
     #     launcher = file_host.rebase_to_worker_root(launcher)
 

@@ -21,13 +21,13 @@ import unittest
 
 import pyfakefs.fake_filesystem_unittest as fake_fs_unittest
 
-from src.bot.fuzzers import engine_common
-from src.bot.fuzzers import libfuzzer
-from src.bot.fuzzers import strategy_selection
-from src.bot.fuzzing import strategy
-from src.bot.system import environment
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.fuzzers import engine_common
+from bot.fuzzers import libfuzzer
+from bot.fuzzers import strategy_selection
+from bot.fuzzing import strategy
+from bot.system import environment
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 TESTDATA_PATH = os.path.join(os.path.dirname(__file__), 'libfuzzer_test_data')
 

@@ -22,11 +22,11 @@ import unittest
 import mock
 import six
 
-from src.bot.tasks import fuzz_task
-from src.bot.datastore import data_types
-from src.bot.metrics import fuzzer_stats
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.tasks import fuzz_task
+from bot.datastore import data_types
+from bot.metrics import fuzzer_stats
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 
 def sanitize_sql(s):

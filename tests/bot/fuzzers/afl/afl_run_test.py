@@ -15,9 +15,9 @@
 
 import os
 
-from src.bot.fuzzers.afl import fuzzer
-from src.bot.tests.core.bot.fuzzers import builtin_test
-from src.bot.tests.test_libs import helpers
+from bot.fuzzers.afl import fuzzer
+from bot.tests.core.bot.fuzzers import builtin_test
+from bot.tests.test_libs import helpers
 
 
 class FuzzerTest(builtin_test.BaseEngineFuzzerTest):

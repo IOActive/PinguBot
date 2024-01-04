@@ -17,9 +17,9 @@ import os
 import re
 import subprocess
 
-from src.bot.metrics import logs
-from src.bot.platforms.android import adb
-from src.bot.system import environment, new_process
+from bot.metrics import logs
+from bot.platforms.android import adb
+from bot.system import environment, new_process
 
 # Output pattern to parse stdout for serial number
 DEVICE_SERIAL_RE = re.compile(r'DEVICE_SERIAL: (.+)')

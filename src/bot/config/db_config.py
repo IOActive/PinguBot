@@ -15,8 +15,8 @@
 
 import base64
 
-from src.bot.datastore import data_types
-from src.bot.system import environment
+from bot.datastore import data_types
+from bot.system import environment
 
 BASE64_MARKER = 'base64;'
 

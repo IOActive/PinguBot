@@ -16,7 +16,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from src.bot.protos import heartbeat_pb2 as src_dot_bot_dot_protos_dot_heartbeat__pb2
+from bot.protos import heartbeat_pb2 as src_dot_bot_dot_protos_dot_heartbeat__pb2
 
 
 class HeartbeatStub(object):

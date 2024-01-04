@@ -20,13 +20,13 @@ import sys
 import time
 import zipfile
 
-from src.bot.datastore import data_handler, storage
-from src.bot.metrics import monitoring_metrics, logs
-from src.bot.system import shell, environment, process_handler, persistent_cache, tasks, archive
-from src.bot.utils import utils, dates
-from src.bot.init_scripts import android as android_init
-from src.bot.init_scripts import linux as linux_init
-from src.bot.init_scripts import windows as windows_init
+from bot.datastore import data_handler, storage
+from bot.metrics import monitoring_metrics, logs
+from bot.system import shell, environment, process_handler, persistent_cache, tasks, archive
+from bot.utils import utils, dates
+from bot.init_scripts import android as android_init
+from bot.init_scripts import linux as linux_init
+from bot.init_scripts import windows as windows_init
 
 TESTS_LAST_UPDATE_KEY = 'tests_last_update'
 TESTS_UPDATE_INTERVAL_DAYS = 1

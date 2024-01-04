@@ -16,13 +16,13 @@ import unittest
 
 import mock
 
-from src.bot.tasks import impact_task
-from src.bot.build_management import build_manager
-from src.bot.datastore import data_types
-from src.bot.tests.core.bot.tasks.component_revision_patching_test import \
+from bot.tasks import impact_task
+from bot.build_management import build_manager
+from bot.datastore import data_types
+from bot.tests.core.bot.tasks.component_revision_patching_test import \
     ComponentRevisionPatchingTest
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 
 @test_utils.with_cloud_emulators('datastore')

@@ -20,16 +20,16 @@ import unittest
 # pylint: disable=unused-argument
 import mock
 
-from src.bot.base import utils
-from src.bot.fuzzers import init as fuzzers_init
-from src.bot.tasks import minimize_task
-from src.bot.datastore import data_handler
-from src.bot.datastore import data_types
-from src.bot.google_cloud_utils import blobs
-from src.bot.system import environment
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
-from src.bot.tests.test_libs import untrusted_runner_helpers
+from bot.base import utils
+from bot.fuzzers import init as fuzzers_init
+from bot.tasks import minimize_task
+from bot.datastore import data_handler
+from bot.datastore import data_types
+from bot.google_cloud_utils import blobs
+from bot.system import environment
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
+from bot.tests.test_libs import untrusted_runner_helpers
 
 TEST_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), 'minimize_task_data')
@@ -62,7 +62,7 @@ class LibFuzzerMinimizeTaskTest(unittest.TestCase):
   def test_libfuzzer_skip_minimization_initial_crash_state(self):
     """Test libFuzzer minimization skipping with a valid initial crash state."""
     # TODO(ochang): Fix circular import.
-    from src.bot.crash_analysis.crash_result import CrashResult
+    from bot.crash_analysis.crash_result import CrashResult
 
     data_types.Job(name='libfuzzer_asan_job').put()
     testcase = data_types.Testcase(

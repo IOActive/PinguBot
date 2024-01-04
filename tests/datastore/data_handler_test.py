@@ -23,12 +23,12 @@ import mock
 import parameterized
 from pyfakefs import fake_filesystem_unittest
 
-from src.bot.config import local_config
-from src.bot.datastore import data_handler
-from src.bot.datastore import data_types
-from src.bot.system import environment
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.config import local_config
+from bot.datastore import data_handler
+from bot.datastore import data_types
+from bot.system import environment
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 
 class SetInitialTestcaseMetadata(fake_filesystem_unittest.TestCase):

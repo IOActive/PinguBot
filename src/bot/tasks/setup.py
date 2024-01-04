@@ -21,17 +21,17 @@ import zipfile
 
 import six
 
-from src.bot.datastore import blobs_manager
-from src.bot.datastore.data_types import Testcase
-from src.bot import testcase_manager
-from src.bot.build_management import revisions
-from src.bot.datastore import data_types, data_handler, storage
-from src.bot.datastore.data_handler import get_fuzzer
-from src.bot.fuzzing import leak_blacklist
-from src.bot.metrics import logs, fuzzer_logs
-from src.bot.platforms import android
-from src.bot.system import environment, shell, errors, tasks, archive
-from src.bot.utils import utils, dates
+from bot.datastore import blobs_manager
+from bot.datastore.data_types import Testcase
+from bot import testcase_manager
+from bot.build_management import revisions
+from bot.datastore import data_types, data_handler, storage
+from bot.datastore.data_handler import get_fuzzer
+from bot.fuzzing import leak_blacklist
+from bot.metrics import logs, fuzzer_logs
+from bot.platforms import android
+from bot.system import environment, shell, errors, tasks, archive
+from bot.utils import utils, dates
 
 _BOT_DIR = 'bot'
 _DATA_BUNDLE_CACHE_COUNT = 10
@@ -219,7 +219,7 @@ def setup_testcase(testcase: Testcase, job_type, fuzzer_override=None):
 
     # Push testcases to worker.
     # if environment.is_trusted_host():
-    #     from src.bot._internal.bot.untrusted_runner import file_host
+    #     from bot._internal.bot.untrusted_runner import file_host
     #     file_host.push_testcases_to_worker()
 
     # Copy global blacklist into local blacklist.

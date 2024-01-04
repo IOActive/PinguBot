@@ -17,8 +17,8 @@ import ast
 import random
 import time
 
-from src.bot.metrics import logs
-from src.bot.utils import utils
+from bot.metrics import logs
+from bot.utils import utils
 
 try:
     from pywinauto import application

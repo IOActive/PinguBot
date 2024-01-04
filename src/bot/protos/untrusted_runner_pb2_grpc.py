@@ -16,7 +16,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from src.bot.protos import untrusted_runner_pb2 as src_dot_bot_dot_protos_dot_untrusted__runner__pb2
+from bot.protos import untrusted_runner_pb2 as src_dot_bot_dot_protos_dot_untrusted__runner__pb2
 
 
 class UntrustedRunnerStub(object):

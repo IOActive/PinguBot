@@ -20,9 +20,9 @@ import datetime
 import re
 import time
 
-from src.bot.config import local_config
-from src.bot.metrics import logs
-from src.bot.system import environment, retry, utils
+from bot.config import local_config
+from bot.metrics import logs
+from bot.system import environment, retry, utils
 
 REQUEST_TIMEOUT = 60
 QUERY_TIMEOUT = 10 * 60

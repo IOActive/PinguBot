@@ -17,8 +17,8 @@
 import os
 import unittest
 
-from src.bot.metrics import monitor
-from src.bot.tests.test_libs import helpers
+from bot.metrics import monitor
+from bot.tests.test_libs import helpers
 
 
 class InitializeTest(unittest.TestCase):

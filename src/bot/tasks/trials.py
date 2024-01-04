@@ -15,10 +15,10 @@
 
 import random
 
-from src.bot.datastore import data_handler
-from src.bot.datastore import data_types
-from src.bot.system import environment
-from src.bot.utils import utils
+from bot.datastore import data_handler
+from bot.datastore import data_types
+from bot.system import environment
+from bot.utils import utils
 
 
 class Trials:

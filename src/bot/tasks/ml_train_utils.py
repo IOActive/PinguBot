@@ -15,10 +15,10 @@
 
 import os
 
-from src.bot.datastore import storage
-from src.bot.fuzzing import corpus_manager
-from src.bot.metrics import logs
-from src.bot.system import environment, archive, shell
+from bot.datastore import storage
+from bot.fuzzing import corpus_manager
+from bot.metrics import logs
+from bot.system import environment, archive, shell
 
 
 def get_corpus(corpus_directory, fuzzer_name):

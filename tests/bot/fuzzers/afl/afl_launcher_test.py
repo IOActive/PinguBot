@@ -20,15 +20,15 @@ import os
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from src.bot.fuzzers import engine_common
-from src.bot.fuzzers.afl import fuzzer
-from src.bot.fuzzers.afl import launcher
-from src.bot.system import environment
-from src.bot.system import new_process
-from src.bot.tests.core.bot.fuzzers.engine_common_test import \
+from bot.fuzzers import engine_common
+from bot.fuzzers.afl import fuzzer
+from bot.fuzzers.afl import launcher
+from bot.system import environment
+from bot.system import new_process
+from bot.tests.core.bot.fuzzers.engine_common_test import \
     GetTimeoutTestBase
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 
 class LauncherTestBase(fake_filesystem_unittest.TestCase):

@@ -17,8 +17,8 @@ import unittest
 
 import parameterized
 
-from src.bot.system import environment
-from src.bot.tests.test_libs import helpers as test_helpers
+from bot.system import environment
+from bot.tests.test_libs import helpers as test_helpers
 
 
 class EnvironmentTest(unittest.TestCase):

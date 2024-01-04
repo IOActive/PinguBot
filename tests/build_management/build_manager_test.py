@@ -26,15 +26,15 @@ import parameterized
 from pyfakefs import fake_filesystem_unittest
 import six
 
-from src.bot.base import errors
-from src.bot.base import utils
-from src.bot.tasks import fuzz_task
-from src.bot.build_management import build_manager
-from src.bot.datastore import data_types
-from src.bot.system import environment
-from src.bot.system import shell
-from src.bot.tests.test_libs import helpers as test_helpers
-from src.bot.tests.test_libs import test_utils
+from bot.base import errors
+from bot.base import utils
+from bot.tasks import fuzz_task
+from bot.build_management import build_manager
+from bot.datastore import data_types
+from bot.system import environment
+from bot.system import shell
+from bot.tests.test_libs import helpers as test_helpers
+from bot.tests.test_libs import test_utils
 
 FAKE_APP_NAME = 'app'
 

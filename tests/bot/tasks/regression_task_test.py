@@ -18,12 +18,12 @@
 import os
 import unittest
 
-from src.bot.base import errors
-from src.bot.tasks import regression_task
-from src.bot.datastore import data_handler
-from src.bot.datastore import data_types
-from src.bot.tests.test_libs import helpers
-from src.bot.tests.test_libs import test_utils
+from bot.base import errors
+from bot.tasks import regression_task
+from bot.datastore import data_handler
+from bot.datastore import data_types
+from bot.tests.test_libs import helpers
+from bot.tests.test_libs import test_utils
 
 
 class WriteToBigQueryTest(unittest.TestCase):

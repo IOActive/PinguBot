@@ -15,7 +15,7 @@
 
 import unittest
 
-from src.bot.crash_analysis.stack_parsing import stack_symbolizer
+from bot.crash_analysis.stack_parsing import stack_symbolizer
 
 
 class ChromeDsymHintsTests(unittest.TestCase):
