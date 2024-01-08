@@ -566,8 +566,8 @@ def _create_storage_client_new():
     # and secret key.
     client = Minio(
         environment.get_value("MINIO_HOST"),
-        access_key=environment.get_value("ACCESS_KEY"),
-        secret_key=environment.get_value("SECRET_KEY"),
+        access_key=environment.get_value("MINIO_ACCESS_KEY"),
+        secret_key=environment.get_value("MINIO_SECRET_KEY"),
         secure=False
     )
     return client
@@ -716,8 +716,8 @@ def create_discovery_storage_client():
     """Create a storage client using discovery APIs."""
     return Minio(
         environment.get_value("MINIO_HOST"),
-        access_key=environment.get_value("ACCESS_KEY"),
-        secret_key=environment.get_value("SECRET_KEY"),
+        access_key=environment.get_value("MINIO_ACCESS_KEY"),
+        secret_key=environment.get_value("MINIO_SECRET_KEY"),
         secure=False
     )
 
