@@ -36,7 +36,7 @@ def _setup_bot_directory(args):
 
     bot_working_directory = os.path.join(args.directory, 'bot_working_directory')
     bot_src_dir = os.path.join(args.directory, 'src')
-    bot_config_dir = os.path.join(args.directory, 'configs')
+    bot_config_dir = os.path.join(args.directory, 'config')
     if not os.path.exists(bot_working_directory):
         os.makedirs(bot_working_directory)
         os.mkdir(bot_src_dir)
@@ -51,7 +51,7 @@ def _setup_bot_directory(args):
         os.path.join(bot_src_dir, 'bot'))
 
     common.update_dir(
-        os.path.join(src_root_dir, 'configs'),
+        os.path.join(src_root_dir, 'config'),
         os.path.join(bot_config_dir)
     )
 
@@ -122,7 +122,6 @@ def _setup_environment_and_configs(args):
 
 def execute(args):
     """Run the bot."""
-    os.environ['CONFIG_DIR_OVERRIDE'] = args.config_dir
     local_config.ProjectConfig().set_environment()
 
     # try:
