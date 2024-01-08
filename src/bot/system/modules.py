@@ -51,8 +51,9 @@ def fix_module_search_paths(submodule_root=""):
 
     python_path = os.getenv('PYTHONPATH', '').split(os.pathsep)
 
-    third_party_libraries_directory = os.path.join(source_directory,submodule_root,
+    third_party_libraries_directory = os.path.join(root_directory,
                                                    'third_party')
+    
     config_modules_directory = _config_modules_directory(root_directory)
 
     if (os.path.exists(config_modules_directory) and
