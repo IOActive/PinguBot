@@ -44,14 +44,14 @@ def _patch_appengine_modules_for_bots():
         pass
 
 
-def fix_module_search_paths():
+def fix_module_search_paths(submodule_root=""):
     """Add directories that we must be able to import from to path."""
     root_directory = os.environ['ROOT_DIR']
     source_directory = os.path.join(root_directory, 'src')
 
     python_path = os.getenv('PYTHONPATH', '').split(os.pathsep)
 
-    third_party_libraries_directory = os.path.join(source_directory,
+    third_party_libraries_directory = os.path.join(source_directory,submodule_root,
                                                    'third_party')
     config_modules_directory = _config_modules_directory(root_directory)
 

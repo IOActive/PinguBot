@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""run_bot.py run a Clusterfuzz bot locally."""
+"""run_bot.py run a PinguCrew bot locally."""
 import os
 import shlex
 import signal
