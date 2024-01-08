@@ -5,6 +5,7 @@ test-bot*/
 .vscode copy/launch.json
 .vscode copy/settings.json
 third_party/*
+config/*
 
 Skip to content
 

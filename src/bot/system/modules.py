@@ -70,9 +70,3 @@ def fix_module_search_paths(submodule_root=""):
         python_path.insert(0, source_directory)
 
     os.environ['PYTHONPATH'] = os.pathsep.join(python_path)
-
-    # Add site directory to make from imports work in google namespace.
-    #site.addsitedir(third_party_libraries_directory)
-
-    # TODO(ochang): Remove this once SDK is removed from images.
-    #_patch_appengine_modules_for_bots()

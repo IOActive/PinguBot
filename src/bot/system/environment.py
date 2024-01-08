@@ -377,7 +377,7 @@ def get_config_directory():
         return config_dir
 
     # Running on bot, give path to config folder inside appengine dir.
-    return os.path.join(get_root_directory(), 'configs', 'test')
+    return os.path.join(get_root_directory(), 'config')
 
 
 def get_gae_config_directory():

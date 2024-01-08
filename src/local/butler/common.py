@@ -379,14 +379,6 @@ def test_bucket(env_var):
     return bucket
 
 
-def kill_leftover_emulators():
-    """Kill leftover instances of cloud emulators and dev_appserver."""
-    kill_process('dev_appserver.py')
-    kill_process('CloudDatastore.jar')
-    kill_process('pubsub-emulator')
-    kill_process('run_bot')
-
-
 def get_platform():
     """Get the platform."""
     if platform.system() == 'Linux':
