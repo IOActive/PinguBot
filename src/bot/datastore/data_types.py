@@ -136,7 +136,7 @@ class Fuzzer(BaseModel):
     id:UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="_id")
 
     # Additionally allows '.' and '@' over NAME_CHECK_REGEX.
-    VALID_NAME_REGEX: str = re.compile(r'^[a-zA-Z0-9_@.-]+$')
+    #VALID_NAME_REGEX: str = re.compile(r'^[a-zA-Z0-9_@.-]+$')
 
     # Last update time.
     timestamp: datetime = None
