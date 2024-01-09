@@ -682,13 +682,13 @@ def is_untrusted_worker():
 
 def is_running_on_app_engine():
     """Return True if we are running on appengine (local or production)."""
-    return (os.getenv('GAE_ENV') or is_running_on_app_engine_development() or
+    return (os.getenv('PINGU_ENV') or is_running_on_app_engine_development() or
             os.getenv('SERVER_SOFTWARE', '').startswith('App Engine/'))
 
 
 def is_running_on_app_engine_development():
     """Return True if running on the local development appengine server."""
-    return (os.getenv('GAE_ENV') == 'dev' or
+    return (os.getenv('PINGU_ENV') == 'dev' or
             os.getenv('SERVER_SOFTWARE', '').startswith('Development/'))
 
 

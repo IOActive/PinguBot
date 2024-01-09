@@ -40,7 +40,7 @@ def _is_local():
 def _is_running_on_app_engine():
     """Return whether or not we're running on App Engine (production or
   development)."""
-    return os.getenv('GAE_ENV') or (
+    return os.getenv('PINGU_ENV') or (
             os.getenv('SERVER_SOFTWARE') and
             (os.getenv('SERVER_SOFTWARE').startswith('Development/') or
              os.getenv('SERVER_SOFTWARE').startswith('Google App Engine/')))

@@ -145,34 +145,34 @@ class Fuzzer(BaseModel):
     name: str
 
     # The name of the archive that the user uploaded.
-    filename: str
+    filename: str = ""
 
     # String representation of the file size.
-    file_size: str
+    file_size: int = 0
 
     # Blobstore path or URL for this fuzzer.
-    blobstore_path: str
+    blobstore_path: str = ""
 
     # Fuzzer's main executable path, relative to root.
-    executable_path: str
+    executable_path: str = ""
 
     # Testcase timeout.
-    timeout: int
+    timeout: int = 0
 
     # Supported platforms.
-    supported_platforms: str
+    supported_platforms: str = 'NA'
 
     # Custom script that should be used to launch for this fuzzer.
-    launcher_script: str
+    launcher_script: str = ""
 
     # Job types for this fuzzer.
     # jobs: str
 
     # Max testcases to generate for this fuzzer.
-    max_testcases: int
+    max_testcases: int = 1000
 
     # Additional environment variables that need to be set for this fuzzer.
-    additional_environment_string: str
+    additional_environment_string: str = ""
 
     # Column specification for stats.
     stats_columns: dict = {}
@@ -183,10 +183,10 @@ class Fuzzer(BaseModel):
     builtin: bool
 
     # Whether this is a differential fuzzer.
-    differential: bool
+    differential: bool = False
 
     # Does it run un-trusted content ? Examples including running live sites.
-    untrusted_content: bool
+    untrusted_content: bool = False
 
     # If this flag is set, fuzzer generates the testcase in the larger directory
     # on disk |FUZZ_INPUTS_DISK|, rather than smaller tmpfs one (FUZZ_INPUTS).
@@ -368,7 +368,7 @@ class Crash(BaseModel):
 
 
 class Testcase(BaseModel):
-    id: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="_idNameError: Private attributes must not use dunder names; use a single underscore prefix instead of '__metadata_cache__'.")
     bug_information: str = None
     # Testcase file
     test_case: bytes
