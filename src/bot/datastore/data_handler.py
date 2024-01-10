@@ -386,11 +386,14 @@ def get_fuzz_target_job_by_job_fuzztarget(job_id, fuzzTarget_id) -> list[FuzzTar
     response = requests.get(
         f'{api_host}/api/fuzztargetjob/?job={job_id}&fuzzing_target={fuzzTarget_id}',
         headers=headers)
-    json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))['results']
-
     try:
-        fuzzTargetJobs = [FuzzTargetJob(**json_fuzzTargetJob) for json_fuzzTargetJob in json_fuzzTargetJobs]
-        return fuzzTargetJobs
+        if response.status_code == 200:
+            json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))['results']
+            fuzzTargetJobs = [FuzzTargetJob(**json_fuzzTargetJob) for json_fuzzTargetJob in json_fuzzTargetJobs]
+            return fuzzTargetJobs
+        else:
+            logs.log_warn("FuzzTarget Job not found")
+            return None
     except ValidationError as e:
         logs.log_error(e)
 
