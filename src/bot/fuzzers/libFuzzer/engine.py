@@ -22,7 +22,7 @@ from bot.fuzzers.libFuzzer import fuzzer, libfuzzer, constants, stats
 from bot.fuzzing import strategy
 from bot.metrics import logs, profiler
 from bot.system import shell, environment
-import src.bot.fuzzers.templates.python.PythonTemplateEngine as engine
+import bot.fuzzers.templates.python.PythonTemplateEngine as engine
 from bot.utils import utils
 
 ENGINE_ERROR_MESSAGE = 'libFuzzer: engine encountered an error'

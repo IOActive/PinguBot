@@ -86,8 +86,8 @@ class UploadTestcaseOutputTest(fake_filesystem_unittest.TestCase):
     orig_utcfromtimestamp = datetime.datetime.utcfromtimestamp
 
     test_helpers.patch(self, [
-        'src.bot.build_management.revisions.get_component_range_list',
-        'src.bot.google_cloud_utils.storage.write_data',
+        'bot.build_management.revisions.get_component_range_list',
+        'bot.google_cloud_utils.storage.write_data',
         'datetime.datetime',
     ])
 
@@ -239,9 +239,9 @@ class ConvertDependencyUrlToLocalPathTest(unittest.TestCase):
     environment.set_value('FUZZ_INPUTS', '/mnt/scratch0')
 
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.webserver.http_server.get_absolute_testcase_file',
-        'src.bot.system.environment.platform',
-        'src.bot.base.utils.normalize_path',
+        'bot.bot_working_directory.webserver.http_server.get_absolute_testcase_file',
+        'bot.system.environment.platform',
+        'bot.base.utils.normalize_path',
     ])
     self.mock.normalize_path.side_effect = lambda x: x
 
@@ -331,7 +331,7 @@ class GetResourcePathsTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.testcase_manager.convert_dependency_url_to_local_path',
+        'bot.bot_working_directory.testcase_manager.convert_dependency_url_to_local_path',
     ])
     self.mock.convert_dependency_url_to_local_path.side_effect = lambda x: x
 
@@ -420,13 +420,13 @@ class TestcaseRunningTest(fake_filesystem_unittest.TestCase):
     test_utils.set_up_pyfakefs(self)
 
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.engine_common.find_fuzzer_path',
-        'src.bot.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
-        'src.bot.system.process_handler.run_process',
-        'src.bot.system.process_handler.'
+        'bot.bot_working_directory.fuzzers.engine_common.find_fuzzer_path',
+        'bot.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
+        'bot.system.process_handler.run_process',
+        'bot.system.process_handler.'
         'terminate_stale_application_instances',
         'clusterfuzz.fuzz.engine.get',
-        'src.bot.metrics.logs.log',
+        'bot.metrics.logs.log',
     ])
 
     os.environ['CRASH_RETRIES'] = '3'

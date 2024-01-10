@@ -21,7 +21,7 @@ from bot.fuzzers.utils import fuzzer_utils, dictionary_manager
 from bot.fuzzing import strategy
 from bot.metrics import logs
 from bot.system import environment
-import src.bot.stacktraces.constants as stacktrace_constants
+import bot.stacktraces.constants as stacktrace_constants
 
 LEAK_TESTCASE_REGEX = re.compile(r'.*ERROR: LeakSanitizer.*')
 LIBFUZZER_BAD_INSTRUMENTATION_REGEX = re.compile(

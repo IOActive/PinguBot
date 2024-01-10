@@ -91,8 +91,8 @@ class PosixProcessTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.system.environment.platform',
-        'src.bot.system.new_process.ChildProcess.kill'
+        'bot.system.environment.platform',
+        'bot.system.new_process.ChildProcess.kill'
     ])
     self.mock.platform.return_value = 'LINUX'
     self.mock.kill.side_effect = mock_kill
@@ -208,8 +208,8 @@ class WindowsProcessTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.system.environment.platform',
-        'src.bot.system.new_process.ChildProcess.kill'
+        'bot.system.environment.platform',
+        'bot.system.new_process.ChildProcess.kill'
     ])
     self.mock.kill.side_effect = mock_kill
     self.mock.platform.return_value = 'WINDOWS'

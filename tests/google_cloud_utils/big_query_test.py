@@ -29,7 +29,7 @@ class InitTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.base.utils.get_application_id',
+        'bot.base.utils.get_application_id',
         'googleapiclient.discovery.build',
         'httplib2.Http',
     ])
@@ -58,8 +58,8 @@ class RawQueryTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.base.utils.get_application_id',
-        'src.bot.google_cloud_utils.big_query.get_api_client',
+        'bot.base.utils.get_application_id',
+        'bot.google_cloud_utils.big_query.get_api_client',
     ])
     self.mock.get_application_id.return_value = 'project'
 
@@ -92,8 +92,8 @@ class InsertTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.base.utils.get_application_id',
-        'src.bot.google_cloud_utils.big_query.get_api_client',
+        'bot.base.utils.get_application_id',
+        'bot.google_cloud_utils.big_query.get_api_client',
     ])
     self.mock.get_application_id.return_value = 'project'
 
@@ -379,8 +379,8 @@ class QueryTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.base.utils.get_application_id',
-        'src.bot.google_cloud_utils.big_query.get_api_client',
+        'bot.base.utils.get_application_id',
+        'bot.google_cloud_utils.big_query.get_api_client',
         'time.time', 'time.sleep'
     ])
     self.mock.time.return_value = 1
@@ -652,8 +652,8 @@ class WriteRangeTest(unittest.TestCase):
   def setUp(self):
     self.client = mock.Mock(spec_set=big_query.Client)
     helpers.patch(self, [
-        'src.bot.metrics.logs.log_error',
-        'src.bot.google_cloud_utils.big_query.Client',
+        'bot.metrics.logs.log_error',
+        'bot.google_cloud_utils.big_query.Client',
         'time.time',
     ])
     self.mock.time.return_value = 99

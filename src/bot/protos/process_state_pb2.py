@@ -31,7 +31,7 @@ DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"src/bot/protos/p
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'src.bot.protos.process_state_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'bot.protos.process_state_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   _globals['_PROCESSSTATEPROTO']._serialized_start=39

@@ -26,12 +26,12 @@ class HTMLMinimizerTest(unittest.TestCase):
     helpers.patch_environ(self)
     helpers.patch(self, [(
         'js_minimizer',
-        'src.bot.bot_working_directory.minimizer.js_minimizer.JSMinimizer.minimize'
+        'bot.bot_working_directory.minimizer.js_minimizer.JSMinimizer.minimize'
     ), (
         'html_minimizer',
-        'src.bot.bot_working_directory.minimizer.chunk_minimizer.ChunkMinimizer.minimize'
+        'bot.bot_working_directory.minimizer.chunk_minimizer.ChunkMinimizer.minimize'
     ), ('line_minimizer',
-        'src.bot.bot_working_directory.minimizer.delta_minimizer.DeltaMinimizer.minimize'
+        'bot.bot_working_directory.minimizer.delta_minimizer.DeltaMinimizer.minimize'
        )])
 
     # HTML Minimizer passes data to a series of sub-minimizers. These take a

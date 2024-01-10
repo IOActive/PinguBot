@@ -26,9 +26,9 @@ class RunTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.bot_working_directory.init_scripts.init_runner.run',
+        'bot.bot_working_directory.init_scripts.init_runner.run',
         'os.path.expanduser',
-        'src.bot.system.shell.remove_directory',
+        'bot.system.shell.remove_directory',
         'shutil.rmtree',
         'subprocess.Popen',
         'os.path.exists',

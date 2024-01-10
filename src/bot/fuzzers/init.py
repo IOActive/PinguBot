@@ -28,7 +28,7 @@ def run(include_private=True, include_lowercase=False):
 
     for engine_name in engines:
         try:
-            module = f'src.bot.fuzzers.{engine_name}.engine'
+            module = f'bot.fuzzers.{engine_name}.engine'
             mod = importlib.import_module(module)
             engine.register(engine_name, mod.Engine)
             if include_lowercase and engine_name.lower() != engine_name:

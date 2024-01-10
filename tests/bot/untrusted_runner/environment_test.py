@@ -36,17 +36,17 @@ REBASED_ENVIRONMENT_VARIABLES = set([
 ])
 
 
-@mock.patch('src.bot.bot.untrusted_runner.environment.'
+@mock.patch('bot.bot.untrusted_runner.environment.'
             'FORWARDED_ENVIRONMENT_VARIABLES', FORWARDED_ENVIRONMENT_VARIABLES)
 @mock.patch(
-    'src.bot.bot.untrusted_runner.environment.REBASED_ENVIRONMENT_VARIABLES',
+    'bot.bot.untrusted_runner.environment.REBASED_ENVIRONMENT_VARIABLES',
     REBASED_ENVIRONMENT_VARIABLES)
 class EnvironmentTest(unittest.TestCase):
   """Test environment."""
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.bot_working_directory.untrusted_runner.host.stub',
+        'bot.bot_working_directory.untrusted_runner.host.stub',
     ])
 
     helpers.patch_environ(self)

@@ -40,7 +40,7 @@ class TerminateProcessesMatchingNameTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'src.bot.system.process_handler.terminate_process',
+        'bot.system.process_handler.terminate_process',
         'psutil.process_iter',
     ])
     self.mock.process_iter.return_value = [
@@ -102,7 +102,7 @@ class TerminateProcessesMatchingPathTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'src.bot.system.process_handler.terminate_process',
+        'bot.system.process_handler.terminate_process',
         'psutil.process_iter',
     ])
     self.mock.process_iter.return_value = [

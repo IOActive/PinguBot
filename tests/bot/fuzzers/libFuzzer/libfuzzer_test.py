@@ -174,7 +174,7 @@ class RecommendedDictionaryTest(fake_fs_unittest.TestCase):
         os.path.join(dictionaries_directory, 'fake_gcs_dictionary.dict'))
 
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
+        'bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
         'download_recommended_dictionary_from_gcs',
         'os.getpid',
     ])
@@ -334,8 +334,8 @@ class SelectGeneratorTest(unittest.TestCase):
     self.pool = strategy_selection.generate_default_strategy_pool(
         strategy_list=strategy.LIBFUZZER_STRATEGY_LIST, use_generator=True)
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target',
-        'src.bot.bot_working_directory.fuzzers.strategy_selection.StrategyPool.do_strategy'
+        'bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target',
+        'bot.bot_working_directory.fuzzers.strategy_selection.StrategyPool.do_strategy'
     ])
     self.mock.do_strategy.return_value = True
     self.mock.is_lpm_fuzz_target.return_value = True

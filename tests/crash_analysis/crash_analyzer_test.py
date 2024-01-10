@@ -47,7 +47,7 @@ class IgnoreStacktraceTest(unittest.TestCase):
       return None
 
     test_helpers.patch(
-        self, ['src.bot.config.local_config.ProjectConfig.get'])
+        self, ['bot.config.local_config.ProjectConfig.get'])
     self.mock.get.side_effect = _mock_config_get
 
     crash_stacktrace = ('aaa\nbbbbbbb\nzzzccc\nddd\n\n')

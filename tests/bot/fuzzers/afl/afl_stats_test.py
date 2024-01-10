@@ -43,7 +43,7 @@ class StatsGetterTests(unittest.TestCase):
   CORPUS_SIZE = 20
   ACTUAL_DURATION = 5
 
-  @mock.patch('src.bot.system.environment.get_value',
+  @mock.patch('bot.system.environment.get_value',
               override_fail_retries)
   def setUp(self):
 
@@ -65,7 +65,7 @@ class StatsGetterTests(unittest.TestCase):
     dont_use_strategies(self)
     test_helpers.patch(
         self,
-        ['src.bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
+        ['bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
     self.mock.is_lpm_fuzz_target.return_value = True
     self.strategies = launcher.FuzzingStrategies(None)
 
@@ -103,7 +103,7 @@ class StatsGetterTests(unittest.TestCase):
 
     self.assertEqual(self.stats_getter.afl_stats, expected_stats)
 
-  @mock.patch('src.bot.system.environment.get_value',
+  @mock.patch('bot.system.environment.get_value',
               override_fail_retries)
   def _set_stats(self):
     """Helper function that calls self.stats_getter.set_stats with default
@@ -218,7 +218,7 @@ class StatsGetterTests(unittest.TestCase):
     actual_stats = self._set_stats()
     self.assertEqual(actual_stats, expected_stats)
 
-  @mock.patch('src.bot.system.environment.get_value',
+  @mock.patch('bot.system.environment.get_value',
               override_fail_retries)
   def test_actual_duration_is_0(self):
     """Tests that average_exec_per_sec is set to 0 when actual_duration is 0."""
@@ -233,7 +233,7 @@ class StatsGetterTests(unittest.TestCase):
 
     self.assertEqual(self.stats_getter.stats['average_exec_per_sec'], 0)
 
-  @mock.patch('src.bot.system.environment.get_value',
+  @mock.patch('bot.system.environment.get_value',
               override_fail_retries)
   def test_log_lines_unwanted(self):
     """Tests that average_exec_per_sec is set to 0 when actual_duration is 0."""

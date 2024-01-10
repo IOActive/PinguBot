@@ -79,7 +79,7 @@ class LeaksTest(unittest.TestCase):
     self.assertTrue(blacklist_item.key.get())
 
   @mock.patch(
-      'src.bot.fuzzing.leak_blacklist.get_local_blacklist_file_path'
+      'bot.fuzzing.leak_blacklist.get_local_blacklist_file_path'
   )
   def test_copy_global_to_local_blacklist(self,
                                           mock_get_local_blacklist_file_path):

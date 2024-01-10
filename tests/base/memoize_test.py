@@ -217,7 +217,7 @@ class MemcacheTest(unittest.TestCase):
     def setUp(self):
         test_helpers.patch(self, [
             'redis.Redis',
-            'src.bot.system.environment.is_running_on_app_engine',
+            'bot.system.environment.is_running_on_app_engine',
         ])
         self.mock.Redis.return_value = _MockRedis()
         self.mock.is_running_on_app_engine.return_value = True

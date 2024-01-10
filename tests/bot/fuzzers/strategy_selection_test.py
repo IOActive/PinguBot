@@ -33,7 +33,7 @@ class TestDefaultStrategySelectionLibFuzzerPatched(unittest.TestCase):
         """Set up method for strategy pool generator tests with patch."""
         test_helpers.patch_environ(self)
         test_helpers.patch(self, [
-            'src.bot.bot_working_directory.fuzzers.engine_common.decide_with_probability'
+            'bot.bot_working_directory.fuzzers.engine_common.decide_with_probability'
         ])
         self.mock.decide_with_probability.return_value = True
 
@@ -132,7 +132,7 @@ class TestMultiArmedBanditStrategySelectionLibFuzzer(unittest.TestCase):
         """Put data in the local ndb table the tests to query from."""
         test_helpers.patch_environ(self)
         test_helpers.patch(self, [
-            'src.bot.fuzzers.utils.engine_common.decide_with_probability'
+            'bot.fuzzers.utils.engine_common.decide_with_probability'
         ])
         self.mock.decide_with_probability.return_value = True
 
@@ -181,7 +181,7 @@ class TestDefaultStrategySelectionAFLPatched(unittest.TestCase):
         """Set up method for strategy pool generator tests with patch."""
         test_helpers.patch_environ(self)
         test_helpers.patch(self, [
-            'src.bot.bot_working_directory.fuzzers.engine_common.decide_with_probability'
+            'bot.bot_working_directory.fuzzers.engine_common.decide_with_probability'
         ])
         self.mock.decide_with_probability.return_value = True
 
@@ -271,7 +271,7 @@ class TestMultiArmedBanditStrategySelectionAFL(unittest.TestCase):
         """Put data in the local ndb table the tests to query from."""
         test_helpers.patch_environ(self)
         test_helpers.patch(self, [
-            'src.bot.bot_working_directory.fuzzers.engine_common.decide_with_probability'
+            'bot.bot_working_directory.fuzzers.engine_common.decide_with_probability'
         ])
         self.mock.decide_with_probability.return_value = True
 

@@ -29,7 +29,7 @@ class RemoteProcessTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(
-        self, ['src.bot.system.process_handler.run_process'])
+        self, ['bot.system.process_handler.run_process'])
 
   @mock.patch.object(new_process.ProcessRunner, 'run_and_wait')
   def test_run_and_wait(self, mock_run_and_wait):

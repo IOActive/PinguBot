@@ -24,8 +24,8 @@ class InitRunnerTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.system.environment.platform',
-        'src.bot.system.process_handler.run_process',
+        'bot.system.environment.platform',
+        'bot.system.process_handler.run_process',
     ])
 
   def test_windows(self):

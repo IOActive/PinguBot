@@ -73,10 +73,10 @@ class DataHandlerTest(unittest.TestCase):
     helpers.patch_environ(self)
     project_config_get = local_config.ProjectConfig.get
     helpers.patch(self, [
-        'src.bot.base.utils.default_project_name',
-        'src.bot.config.db_config.get',
+        'bot.base.utils.default_project_name',
+        'bot.config.db_config.get',
         ('project_config_get',
-         'src.bot.config.local_config.ProjectConfig.get'),
+         'bot.config.local_config.ProjectConfig.get'),
     ])
 
     self.job = data_types.Job(
@@ -541,7 +541,7 @@ class GetSecuritySeverityTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.crash_analysis.severity_analyzer.get_security_severity',
+        'bot.crash_analysis.severity_analyzer.get_security_severity',
     ])
     self.gestures = ''
     self.mock.get_security_severity.return_value = 'Low'
@@ -573,7 +573,7 @@ class UpdateTestcaseCommentTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'src.bot.base.utils.current_date_time',
+        'bot.base.utils.current_date_time',
     ])
 
     os.environ['BOT_NAME'] = 'bot_working_directory'
@@ -787,8 +787,8 @@ class RecordFuzzTargetTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'src.bot.base.utils.is_oss_fuzz',
-        'src.bot.base.utils.utcnow',
+        'bot.base.utils.is_oss_fuzz',
+        'bot.base.utils.utcnow',
     ])
 
     self.mock.is_oss_fuzz.return_value = False

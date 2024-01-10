@@ -19,7 +19,7 @@ from enum import Enum
 import os
 import random
 import shutil
-import src.bot.fuzzers.templates.python.PythonTemplateEngine as engine
+import bot.fuzzers.templates.python.PythonTemplateEngine as engine
 
 # TODO(ochang): Move common libFuzzer code from fuzzer into CF.
 

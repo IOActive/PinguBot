@@ -65,7 +65,7 @@ class PrepareTest(fake_fs_unittest.TestCase):
     test_utils.set_up_pyfakefs(self)
 
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.engine_common.unpack_seed_corpus_if_needed',
+        'bot.bot_working_directory.fuzzers.engine_common.unpack_seed_corpus_if_needed',
     ])
 
     self.fs.create_dir('/inputs')
@@ -83,7 +83,7 @@ class PrepareTest(fake_fs_unittest.TestCase):
     os.environ['FUZZ_INPUTS_DISK'] = '/inputs'
 
     test_helpers.patch(
-        self, ['src.bot.bot_working_directory.fuzzers.libFuzzer.pick_strategies'])
+        self, ['bot.bot_working_directory.fuzzers.libFuzzer.pick_strategies'])
 
     self.mock.pick_strategies.return_value = libfuzzer.StrategyInfo(
         fuzzing_strategies=[
@@ -183,7 +183,7 @@ class PickStrategiesTest(fake_fs_unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target',
+        'bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target',
         'random.SystemRandom.randint',
     ])
     self.mock.is_lpm_fuzz_target.return_value = False
@@ -223,9 +223,9 @@ class FuzzTest(fake_fs_unittest.TestCase):
     self.fs.add_real_directory(TEST_DIR)
 
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.libFuzzer.engine._is_multistep_merge_supported',
-        'src.bot.bot_working_directory.fuzzers.libFuzzer.LibFuzzerRunner.fuzz',
-        'src.bot.bot_working_directory.fuzzers.libFuzzer.LibFuzzerRunner.merge',
+        'bot.bot_working_directory.fuzzers.libFuzzer.engine._is_multistep_merge_supported',
+        'bot.bot_working_directory.fuzzers.libFuzzer.LibFuzzerRunner.fuzz',
+        'bot.bot_working_directory.fuzzers.libFuzzer.LibFuzzerRunner.merge',
         'os.getpid',
     ])
 
@@ -465,18 +465,18 @@ class BaseIntegrationTest(unittest.TestCase):
     os.environ['CACHE_DIR'] = TEMP_DIR
 
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
+        'bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
         'update_recommended_dictionary',
-        'src.bot.bot_working_directory.fuzzers.engine_common.get_merge_timeout',
-        'src.bot.bot_working_directory.fuzzers.engine_common.random_choice',
-        'src.bot.bot_working_directory.fuzzers.mutator_plugin._download_mutator_plugin_archive',
-        'src.bot.bot_working_directory.fuzzers.mutator_plugin._get_mutator_plugins_from_bucket',
-        'src.bot.bot_working_directory.fuzzers.strategy_selection.'
+        'bot.bot_working_directory.fuzzers.engine_common.get_merge_timeout',
+        'bot.bot_working_directory.fuzzers.engine_common.random_choice',
+        'bot.bot_working_directory.fuzzers.mutator_plugin._download_mutator_plugin_archive',
+        'bot.bot_working_directory.fuzzers.mutator_plugin._get_mutator_plugins_from_bucket',
+        'bot.bot_working_directory.fuzzers.strategy_selection.'
         'generate_weighted_strategy_pool',
-        'src.bot.bot_working_directory.fuzzers.libFuzzer.get_dictionary_analysis_timeout',
-        'src.bot.bot_working_directory.fuzzers.libFuzzer.get_fuzz_timeout',
+        'bot.bot_working_directory.fuzzers.libFuzzer.get_dictionary_analysis_timeout',
+        'bot.bot_working_directory.fuzzers.libFuzzer.get_fuzz_timeout',
         'os.getpid',
-        'src.bot.system.minijail.MinijailChroot._mknod',
+        'bot.system.minijail.MinijailChroot._mknod',
     ])
 
     self.mock.getpid.return_value = 1337
@@ -691,7 +691,7 @@ class IntegrationTests(BaseIntegrationTest):
   def test_analyze_dict(self):
     """Tests recommended dictionary analysis."""
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
+        'bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
         'parse_recommended_dictionary_from_log_lines',
     ])
 
@@ -765,9 +765,9 @@ class IntegrationTests(BaseIntegrationTest):
     fuzz_target_name = 'analyze_dict_fuzzer'
 
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.libFuzzer.engine.Engine.'
+        'bot.bot_working_directory.fuzzers.libFuzzer.engine.Engine.'
         '_create_merge_corpus_dir',
-        'src.bot.system.shell.get_directory_file_count',
+        'bot.system.shell.get_directory_file_count',
     ])
 
     self.mock.get_directory_file_count.side_effect = (
@@ -817,7 +817,7 @@ class IntegrationTests(BaseIntegrationTest):
     """Test that we log when libFuzzer's exit code indicates it ran into an
     error."""
     test_helpers.patch(self, [
-        'src.bot.metrics.logs.log_error',
+        'bot.metrics.logs.log_error',
     ])
 
     def mocked_log_error(*args, **kwargs):  # pylint: disable=unused-argument
@@ -843,7 +843,7 @@ class IntegrationTests(BaseIntegrationTest):
   def test_exit_target_bug_not_logged(self, exit_code):
     """Test that we don't log when exit code indicates bug found in target."""
     test_helpers.patch(self, [
-        'src.bot.metrics.logs.log_error',
+        'bot.metrics.logs.log_error',
     ])
 
     def mocked_log_error(*args, **kwargs):  # pylint: disable=unused-argument
@@ -867,7 +867,7 @@ class IntegrationTests(BaseIntegrationTest):
   def test_fuzz_invalid_dict(self):
     """Tests fuzzing with an invalid dictionary (ParseDictionaryFile crash)."""
     test_helpers.patch(self, [
-        'src.bot.metrics.logs.log_error',
+        'bot.metrics.logs.log_error',
     ])
 
     def mocked_log_error(*args, **kwargs):  # pylint: disable=unused-argument
@@ -942,7 +942,7 @@ class MinijailIntegrationTests(IntegrationTests):
   def test_exit_target_bug_not_logged(self, exit_code):
     """Test that we don't log when exit code indicates bug found in target."""
     test_helpers.patch(self, [
-        'src.bot.metrics.logs.log_error',
+        'bot.metrics.logs.log_error',
     ])
 
     def mocked_log_error(*args, **kwargs):  # pylint: disable=unused-argument
@@ -987,7 +987,7 @@ class IntegrationTestsFuchsia(BaseIntegrationTest):
         'fuchsia-([0-9]+).zip')
     environment.set_value('UNPACK_ALL_FUZZ_TARGETS_AND_FILES', True)
     test_helpers.patch(self, [
-        'src.bot.system.shell.clear_temp_directory',
+        'bot.system.shell.clear_temp_directory',
     ])
 
   def tearDown(self):
@@ -1047,7 +1047,7 @@ class IntegrationTestsFuchsia(BaseIntegrationTest):
       'Temporarily disabling the Fuchsia tests until build size reduced.')
   def test_qemu_logs_returned_on_error(self):
     """Test running against a qemu that has died"""
-    test_helpers.patch(self, ['src.bot.metrics.logs.log_warn'])
+    test_helpers.patch(self, ['bot.metrics.logs.log_warn'])
     # Pass-through logs just so we can see what's going on (but moving from
     # log_warn to plain log to avoid creating a loop)
     self.mock.log_warn.side_effect = logs.log
@@ -1311,7 +1311,7 @@ class IntegrationTestsAndroid(BaseIntegrationTest, android_helpers.AndroidTest):
   def test_analyze_dict(self):
     """Tests recommended dictionary analysis."""
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
+        'bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
         'parse_recommended_dictionary_from_log_lines',
     ])
 

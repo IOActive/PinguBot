@@ -74,9 +74,9 @@ class RemoveDirectoryTest(unittest.TestCase):
         'os.makedirs',
         'os.path.exists',
         'os.system',
-        'src.bot.system.environment.platform',
-        'src.bot.metrics.logs.log_error',
-        'src.bot.metrics.logs.log_warn',
+        'bot.system.environment.platform',
+        'bot.metrics.logs.log_error',
+        'bot.metrics.logs.log_warn',
         'shutil.rmtree',
     ])
 

@@ -31,12 +31,12 @@ from pydantic import PyObject
 from pyfakefs import fake_filesystem_unittest
 import six
 
-import src.bot.datastore.data_handler
+import bot.datastore.data_handler
 from bot import stacktraces, testcase_manager
 from bot.datastore import data_types, data_handler, crash_uploader, big_query
 from bot.datastore.data_types import FuzzTarget
 from bot.fuzzers.libFuzzer import engine as libfuzzer_engine
-import src.bot.fuzzers.templates.python.PythonTemplateEngine as engine
+import bot.fuzzers.templates.python.PythonTemplateEngine as engine
 from bot.metrics import monitor, monitoring_metrics
 from bot.system import environment, utils
 from bot.tasks import fuzz_task
@@ -232,7 +232,7 @@ class GetRegressionTest(unittest.TestCase):
 
     def setUp(self):
         helpers.patch(self, [
-            'src.bot.build_management.build_manager.is_custom_binary'
+            'bot.build_management.build_manager.is_custom_binary'
         ])
 
     def test_one_time_crasher(self):
@@ -269,13 +269,13 @@ class CrashInitTest(fake_filesystem_unittest.TestCase):
     def setUp(self):
         """Setup for crash init test."""
         helpers.patch(self, [
-            'src.bot.tasks.setup.archive_testcase_and_dependencies_in_gcs',
-            'src.bot.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
-            'src.bot.testcase_manager.get_additional_command_line_flags',
-            'src.bot.testcase_manager.get_command_line_for_application',
-            'src.bot.utils.utils.get_crash_stacktrace_output',
-            'src.bot.crash_analysis.crash_analyzer.ignore_stacktrace',
-            'src.bot.crash_analysis.crash_analyzer.is_security_issue',
+            'bot.tasks.setup.archive_testcase_and_dependencies_in_gcs',
+            'bot.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
+            'bot.testcase_manager.get_additional_command_line_flags',
+            'bot.testcase_manager.get_command_line_for_application',
+            'bot.utils.utils.get_crash_stacktrace_output',
+            'bot.crash_analysis.crash_analyzer.ignore_stacktrace',
+            'bot.crash_analysis.crash_analyzer.is_security_issue',
         ])
         helpers.patch_environ(self)
         test_utils.set_up_pyfakefs(self)
@@ -441,9 +441,9 @@ class CrashGroupTest(unittest.TestCase):
 
     def setUp(self):
         helpers.patch(self, [
-            'src.bot.tasks.fuzz_task.find_main_crash',
-            'src.bot.tasks.fuzz_task.data_handler.find_testcase',
-            'src.bot.tasks.fuzz_task.data_handler.get_project_name',
+            'bot.tasks.fuzz_task.find_main_crash',
+            'bot.tasks.fuzz_task.data_handler.find_testcase',
+            'bot.tasks.fuzz_task.data_handler.get_project_name',
         ])
 
         self.mock.get_project_name.return_value = 'some_project'
@@ -551,7 +551,7 @@ class FindMainCrashTest(unittest.TestCase):
 
     def setUp(self):
         helpers.patch(self, [
-            'src.bot.testcase_manager.test_for_reproducibility',
+            'bot.testcase_manager.test_for_reproducibility',
         ])
         self.crashes = [
             self._make_crash('g1'),
@@ -649,25 +649,25 @@ class ProcessCrashesTest(fake_filesystem_unittest.TestCase):
     def setUp(self):
         """Setup for process crashes test."""
         helpers.patch(self, [
-            'src.bot.tasks.fuzz_task.get_unsymbolized_crash_stacktrace',
-            'src.bot.tasks.task_creation.create_tasks',
-            'src.bot.tasks.setup.archive_testcase_and_dependencies_in_gcs',
-            'src.bot.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
-            'src.bot.build_management.revisions.get_real_revision',
-            'src.bot.testcase_manager.get_command_line_for_application',
-            'src.bot.testcase_manager.test_for_reproducibility',
-            'src.bot.utils.utils.get_crash_stacktrace_output',
-            'src.bot.crash_analysis.crash_analyzer.ignore_stacktrace',
-            'src.bot.crash_analysis.crash_analyzer.is_security_issue',
-            'src.bot.datastore.data_handler.get_issue_tracker_name',
-            'src.bot.datastore.crash_uploader.get_symbolized_stack_bytes',
-            'src.bot.tasks.fuzz_task.data_handler.find_testcase',
-            'src.bot.tasks.fuzz_task._update_testcase_variant_if_needed',
-            'src.bot.tasks.fuzz_task.data_handler.store_testcase',
-            'src.bot.tasks.fuzz_task.data_handler.get_testcase_by_id',
-            'src.bot.tasks.fuzz_task.store_crash',
-            'src.bot.tasks.fuzz_task.update_testcase',
-            'src.bot.datastore.crash_uploader.data_handler.get_project_name',
+            'bot.tasks.fuzz_task.get_unsymbolized_crash_stacktrace',
+            'bot.tasks.task_creation.create_tasks',
+            'bot.tasks.setup.archive_testcase_and_dependencies_in_gcs',
+            'bot.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
+            'bot.build_management.revisions.get_real_revision',
+            'bot.testcase_manager.get_command_line_for_application',
+            'bot.testcase_manager.test_for_reproducibility',
+            'bot.utils.utils.get_crash_stacktrace_output',
+            'bot.crash_analysis.crash_analyzer.ignore_stacktrace',
+            'bot.crash_analysis.crash_analyzer.is_security_issue',
+            'bot.datastore.data_handler.get_issue_tracker_name',
+            'bot.datastore.crash_uploader.get_symbolized_stack_bytes',
+            'bot.tasks.fuzz_task.data_handler.find_testcase',
+            'bot.tasks.fuzz_task._update_testcase_variant_if_needed',
+            'bot.tasks.fuzz_task.data_handler.store_testcase',
+            'bot.tasks.fuzz_task.data_handler.get_testcase_by_id',
+            'bot.tasks.fuzz_task.store_crash',
+            'bot.tasks.fuzz_task.update_testcase',
+            'bot.datastore.crash_uploader.data_handler.get_project_name',
             'time.sleep', 'time.time'
         ])
         os.environ['ROOT_DIR'] = os.getcwd()
@@ -968,8 +968,8 @@ class WriteCrashToBigQueryTest(unittest.TestCase):
     def setUp(self):
         self.client = mock.Mock(spec_set=big_query.Client)
         helpers.patch(self, [
-            'src.bot.system.environment.get_value',
-            'src.bot.datastore.data_handler.get_project_name',
+            'bot.system.environment.get_value',
+            'bot.datastore.data_handler.get_project_name',
             'time.time',
         ])
         monitor.metrics_store().reset_for_testing()
@@ -1182,9 +1182,9 @@ class TestCorpusSync(fake_filesystem_unittest.TestCase):
     def setUp(self):
         """Setup for test corpus sync."""
         helpers.patch(self, [
-            'src.bot.fuzzing.corpus_manager.FuzzTargetCorpus.rsync_to_disk',
-            'src.bot.fuzzing.corpus_manager.FuzzTargetCorpus.upload_files',
-            'src.bot.datastore.storage.last_updated',
+            'bot.fuzzing.corpus_manager.FuzzTargetCorpus.rsync_to_disk',
+            'bot.fuzzing.corpus_manager.FuzzTargetCorpus.upload_files',
+            'bot.datastore.storage.last_updated',
         ])
 
         helpers.patch_environ(self)
@@ -1249,28 +1249,28 @@ class DoBlackboxFuzzingTest(fake_filesystem_unittest.TestCase):
         """Setup for blackbox fuzzing test."""
         helpers.patch_environ(self)
         helpers.patch(self, [
-            'src.bot.tasks.fuzz_task.utils.random_element_from_list',
-            'src.bot.tasks.fuzz_task.utils.random_number',
-            'src.bot.fuzzers.utils.engine_common.current_timestamp',
-            'src.bot.tasks.fuzz_task.pick_gestures',
-            'src.bot.testcase_manager.upload_log',
-            'src.bot.testcase_manager.upload_testcase',
-            'src.bot.build_management.revisions.get_component_list',
-            'src.bot.testcase_manager.CrashResult.is_crash',
-            'src.bot.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
-            'src.bot.metrics.fuzzer_stats.upload_stats',
+            'bot.tasks.fuzz_task.utils.random_element_from_list',
+            'bot.tasks.fuzz_task.utils.random_number',
+            'bot.fuzzers.utils.engine_common.current_timestamp',
+            'bot.tasks.fuzz_task.pick_gestures',
+            'bot.testcase_manager.upload_log',
+            'bot.testcase_manager.upload_testcase',
+            'bot.build_management.revisions.get_component_list',
+            'bot.testcase_manager.CrashResult.is_crash',
+            'bot.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
+            'bot.metrics.fuzzer_stats.upload_stats',
             'random.random',
-            'src.bot.tasks.fuzz_task.process_handler.close_queue',
-            'src.bot.tasks.fuzz_task.process_handler.get_process',
-            'src.bot.tasks.fuzz_task.process_handler.get_queue',
-            'src.bot.testcase_manager.process_handler.run_process',
-            'src.bot.tasks.fuzz_task.process_handler.terminate_hung_threads',
-            'src.bot.tasks.fuzz_task.process_handler.terminate_stale_application_instances',
-            'src.bot.tasks.fuzz_task.data_handler.record_fuzz_target',
-            'src.bot.tasks.trials.data_handler.get_trial_by_appname',
-            'src.bot.testcase_manager.fuzzer_logs.upload_to_logs',
-            'src.bot.build_management.revisions.data_handler.get_project_name',
-            'src.bot.build_management.revisions.data_handler.get_main_repo'
+            'bot.tasks.fuzz_task.process_handler.close_queue',
+            'bot.tasks.fuzz_task.process_handler.get_process',
+            'bot.tasks.fuzz_task.process_handler.get_queue',
+            'bot.testcase_manager.process_handler.run_process',
+            'bot.tasks.fuzz_task.process_handler.terminate_hung_threads',
+            'bot.tasks.fuzz_task.process_handler.terminate_stale_application_instances',
+            'bot.tasks.fuzz_task.data_handler.record_fuzz_target',
+            'bot.tasks.trials.data_handler.get_trial_by_appname',
+            'bot.testcase_manager.fuzzer_logs.upload_to_logs',
+            'bot.build_management.revisions.data_handler.get_project_name',
+            'bot.build_management.revisions.data_handler.get_main_repo'
         ])
 
         os.environ['APP_ARGS'] = '-x'
@@ -1391,13 +1391,13 @@ class DoEngineFuzzingTest(fake_filesystem_unittest.TestCase):
         """Setup for do engine fuzzing test."""
         helpers.patch_environ(self)
         helpers.patch(self, [
-            'src.bot.fuzzers.utils.engine_common.current_timestamp',
-            'src.bot.testcase_manager.revisions.get_component_list',
-            'src.bot.testcase_manager.upload_log',
-            'src.bot.tasks.fuzz_task.testcase_manager.upload_testcase',
-            'src.bot.tasks.fuzz_task.fuzzer_stats.upload_stats',
-            'src.bot.tasks.fuzz_task.data_handler.record_fuzz_target',
-            'src.bot.build_management.revisions.data_handler.get_value_from_job_definition',
+            'bot.fuzzers.utils.engine_common.current_timestamp',
+            'bot.testcase_manager.revisions.get_component_list',
+            'bot.testcase_manager.upload_log',
+            'bot.tasks.fuzz_task.testcase_manager.upload_testcase',
+            'bot.tasks.fuzz_task.fuzzer_stats.upload_stats',
+            'bot.tasks.fuzz_task.data_handler.record_fuzz_target',
+            'bot.build_management.revisions.data_handler.get_value_from_job_definition',
         ])
         test_utils.set_up_pyfakefs(self)
 

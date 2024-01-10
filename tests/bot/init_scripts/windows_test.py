@@ -30,7 +30,7 @@ class CleanTempDirectoriesTest(unittest.TestCase):
         'os.path.abspath',
         'os.path.expandvars',
         'os.path.join',
-        'src.bot.system.shell.remove_directory',
+        'bot.system.shell.remove_directory',
     ])
 
     def abspath(path):
@@ -84,9 +84,9 @@ class RemountIfNeededTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'src.bot.metrics.logs.log_error',
-        'src.bot.base.retry.sleep',
-        'src.bot.base.utils.write_data_to_file',
+        'bot.metrics.logs.log_error',
+        'bot.base.retry.sleep',
+        'bot.base.utils.write_data_to_file',
         'os.path.exists',
         'os.path.join',
         'subprocess.call',
