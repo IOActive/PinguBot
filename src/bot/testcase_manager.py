@@ -929,8 +929,8 @@ def test_for_crash_with_retries(testcase,
     """
     gestures = crash.gestures if use_gestures else None
     try:
-        fuzz_target = testcase.get_fuzz_target_by_id()
-        if engine.get(testcase.fuzzer_name) and not fuzz_target:
+        fuzz_target = data_handler.get_fuzz_target_by_keyName("libFuzzer", environment.get_value("FUZZ_TARGET"))
+        if testcase.fuzzer_id and not fuzz_target:
             raise TargetNotFoundError
 
         runner = TestcaseRunner(fuzz_target, testcase_path, test_timeout, gestures,
@@ -948,7 +948,7 @@ def test_for_crash_with_retries(testcase,
 
         return runner.reproduce_with_retries(crash_retries, expected_state,
                                              expected_security_flag,
-                                             testcase.flaky_stack)
+                                             crash.flaky_stack)
     except TargetNotFoundError:
         # If a target isn't found, treat it as not crashing.
         return CrashResult(return_code=0, crash_time=0, output='')

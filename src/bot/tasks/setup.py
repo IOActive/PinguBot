@@ -41,14 +41,6 @@ _SYNC_FILENAME = '.sync'
 _TESTCASE_ARCHIVE_EXTENSION = '.zip'
 
 
-def _set_timeout_value_from_user_upload(testcase_id):
-    """Get the timeout associated with this testcase."""
-    metadata = data_types.TestcaseUploadMetadata.query(
-        data_types.TestcaseUploadMetadata.testcase_id == int(testcase_id)).get()
-    if metadata and metadata.timeout:
-        environment.set_value('TEST_TIMEOUT', metadata.timeout)
-
-
 def _copy_testcase_to_device_and_setup_environment(testcase,
                                                    testcase_file_path):
     """Android specific setup steps for testcase."""
@@ -263,11 +255,11 @@ def _get_testcase_file_and_path(testcase):
         return input_directory, testcase_absolute_path
 
     # Root directory can be different on bots. Fix the path to account for this.
-    root_directory = environment.get_value('ROOT_DIR')
-    search_string = '%s%s%s' % (os.sep, _BOT_DIR, os.sep)
-    search_index = testcase_absolute_path.find(search_string)
-    relative_path = testcase_absolute_path[search_index + len(search_string):]
-    testcase_path = os.path.join(root_directory, _BOT_DIR, relative_path)
+    #root_directory = environment.get_value('ROOT_DIR')
+    #search_string = '%s%s%s' % (os.sep, _BOT_DIR, os.sep)
+    #search_index = testcase_absolute_path.find(search_string)
+    #relative_path = testcase_absolute_path[search_index + len(search_string):]
+    testcase_path = testcase_absolute_path #os.path.join(root_directory, _BOT_DIR, relative_path)
 
     return input_directory, testcase_path
 

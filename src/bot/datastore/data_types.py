@@ -357,6 +357,8 @@ class Crash(BaseModel):
     crash_info: str = None
     # Optional. Revision that we discovered the crash in.
     crash_revision: int = 1
+    # Does the testcase crash stack vary b/w crashes ?
+    flaky_stack: bool=False
 
     # References
     testcase_id: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="testcase_id")
@@ -421,6 +423,7 @@ class Testcase(BaseModel):
     # References
     job_id: UUID  #PyObjectId = Field(default_factory=PyObjectId, alias="job_id")
     fuzzer_id: UUID  #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzer_id")
+    duplicate_of: UUID = None
 
     __metadata_cache__: Dict[str, int] = PrivateAttr(default_factory=dict)
 
@@ -472,6 +475,29 @@ class Testcase(BaseModel):
         del self.__metadata_cache__[key]
         self.additional_metadata = json_utils.dumps(self.__metadata_cache__)
 
+    def actual_fuzzer_name(self):
+        """Actual fuzzer name, uses one from overridden attribute if available."""
+        return self.fuzzer_id
+    
+    def get_fuzz_target(self):
+        """Get the associated FuzzTarget entity for this test case."""
+        name = self.actual_fuzzer_name()
+        if not name:
+            return None
+
+        binary = self.get_metadata('fuzzer_binary_name')
+        if not binary:
+            # Not applicable.
+            return None
+        
+        target = FuzzTarget(
+            fuzzer_engine=self.fuzzer_id, project='minimize', binary=binary)
+
+        if environment.get_value('ORIGINAL_JOB_NAME'):
+            # Overridden engine (e.g. for minimization).
+            target.fuzzer_engine = environment.get_engine_for_job()
+
+        return target
 
 # Task state string mappings.
 class TaskState(object):

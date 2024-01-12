@@ -240,7 +240,7 @@ class MinioProvider(StorageProvider):
                 else:
                     # Upload data with metadata.
                     blob = client.put_object(
-                        bucket_name, remote_path, local_path_or_handle, length=size,
+                        bucket_name, path, local_path_or_handle, length=size,
                         metadata=metadata
                     )
                 logs.log("created {0} object; etag: {1}, version-id: {2}".format(blob.object_name, blob.etag,

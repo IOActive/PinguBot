@@ -37,7 +37,7 @@ def mark_unreproducible_if_flaky(testcase, potentially_flaky):
 
         # In this case, the current task will usually be in a state where it cannot
         # be completed. Recreate it.
-        tasks.add_task(task_name, testcase.key.id(), testcase.job_type)
+        tasks.add_task(task_name, str(testcase.id), testcase.job_id)
         return
 
     # At this point, this test case has been flagged as potentially flaky twice.
@@ -45,8 +45,8 @@ def mark_unreproducible_if_flaky(testcase, potentially_flaky):
     # fields that cannot be populated accordingly.
     if task_name == 'minimize' and not testcase.minimized_keys:
         testcase.minimized_keys = 'NA'
-    if task_name in ['minimize', 'impact']:
-        testcase.set_impacts_as_na()
+    #if task_name in ['minimize', 'impact']:
+    #    testcase.set_impacts_as_na()
     if task_name in ['minimize', 'regression']:
         testcase.regression = 'NA'
     if task_name in ['minimize', 'progression']:
