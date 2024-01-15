@@ -41,6 +41,7 @@ from bot.utils import utils
 from bot.fuzzers.templates.python import PythonTemplateEngine as engine
 from bot.fuzzers.libFuzzer import  engine as libfuzzer_engine
 from bot.minimizer import errors as minimizer_errors
+from bot.datastore import blobs_manager
 
 IPCDUMP_TIMEOUT = 60
 COMBINED_IPCDUMP_TIMEOUT = 60 * 3
