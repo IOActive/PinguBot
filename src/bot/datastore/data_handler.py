@@ -624,7 +624,7 @@ def store_testcase(crash, fuzzed_keys, minimized_keys, regression, fixed,
         test_case = f.read()
 
     fuzzer = get_fuzzer(fuzzer_name)
-    testcase = data_types.Testcase(test_case=test_case, fixed=fixed, one_time_crasher_flag=one_time_crasher_flag,
+    testcase = data_types.Testcase(test_case=base64.b64encode(test_case).decode(), fixed=fixed, one_time_crasher_flag=one_time_crasher_flag,
                                    comments=comment, fuzzed_keys=fuzzed_keys,
                                    absolute_path=absolute_path,
                                    queue=job_type, archived=False,

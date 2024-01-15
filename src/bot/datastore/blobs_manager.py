@@ -117,7 +117,7 @@ def delete_blob(blob_key):
 def write_blob(file_handle_or_path, file_size):
     """Write a single file testcase to GCS."""
     blobs_bucket = storage.blobs_bucket()
-    blob_name = file_handle_or_path.name.split("/")[-1] #generate_new_blob_name()
+    blob_name =  generate_new_blob_name() #file_handle_or_path.name.split("/")[-1]
 
     if storage.get(storage.get_cloud_storage_file_path(blobs_bucket, blob_name)):
         raise BlobsException('UUID collision found: %s' % blob_name)

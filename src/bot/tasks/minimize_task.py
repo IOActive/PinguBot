@@ -13,6 +13,7 @@
 # limitations under the License.
 """Minimize task for handling testcase minimization."""
 
+import base64
 import binascii
 import functools
 import os
@@ -40,7 +41,6 @@ from bot.utils import utils
 from bot.fuzzers.templates.python import PythonTemplateEngine as engine
 from bot.fuzzers.libFuzzer import  engine as libfuzzer_engine
 from bot.minimizer import errors as minimizer_errors
-from src.pingubot.src.bot.datastore import blobs_manager
 
 IPCDUMP_TIMEOUT = 60
 COMBINED_IPCDUMP_TIMEOUT = 60 * 3
@@ -1084,20 +1084,19 @@ def do_js_minimization(test_function, get_temp_file, data, deadline, threads,
                                 threads, cleanup_interval, delete_temp_files)
 
 
-def _run_libfuzzer_testcase(testcase, testcase_file_path, crash, crash_retries=1):
+def _run_libfuzzer_testcase(testcase: data_types.Testcase, testcase_file_path, crash, crash_retries=1):
     """Run libFuzzer testcase, and return the CrashResult."""
     # Cleanup any existing application instances and temp directories.
     process_handler.cleanup_stale_processes()
     shell.clear_temp_directory()
 
     # Download Testcase from Blobs Bucket
-    blob_name = testcase_file_path.split("/")[-1]
-    blobs_manager.read_blob_to_disk(blob_key=blob_name, local_file=testcase_file_path)
+    #blob_name = testcase_file_path.split("/")[-1]
+    #blobs_manager.read_blob_to_disk(blob_key=blob_name, local_file=testcase_file_path)
 
-    # if environment.is_trusted_host():
-    #     from bot._internal.bot.untrusted_runner import file_host
-    #     file_host.copy_file_to_worker(
-    #         testcase_file_path, file_host.rebase_to_worker_root(testcase_file_path))
+   
+    testcase_data = base64.b64decode(testcase.test_case)
+    utils.write_data_to_file(testcase_data, testcase_file_path)
 
     test_timeout = environment.get_value('TEST_TIMEOUT',
                                          process_handler.DEFAULT_TEST_TIMEOUT)

@@ -373,7 +373,7 @@ class Testcase(BaseModel):
     id: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="_idNameError: Private attributes must not use dunder names; use a single underscore prefix instead of '__metadata_cache__'.")
     bug_information: str = None
     # Testcase file
-    test_case: bytes
+    test_case: str = ""
     fixed: str = 'NA'
     # Did the bug only reproduced once ?
     one_time_crasher_flag: bool
