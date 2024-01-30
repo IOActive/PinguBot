@@ -256,6 +256,8 @@ def execute_task(testcase_id, job_type):
         unsymbolized_crash_stacktrace)
     crash.crash_stacktrace = data_handler.filter_stacktrace(
         crash_stacktrace_output)
+    
+    crash.unsymbolized_crash_stacktrace = unsymbolized_crash_stacktrace
 
     # Try to guess if the bug is security or not.
     security_flag = crash_analyzer.is_security_issue(
