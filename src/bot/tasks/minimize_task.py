@@ -1091,14 +1091,6 @@ def _run_libfuzzer_testcase(testcase: data_types.Testcase, testcase_file_path, c
     process_handler.cleanup_stale_processes()
     shell.clear_temp_directory()
 
-    # Download Testcase from Blobs Bucket
-    #blob_name = testcase_file_path.split("/")[-1]
-    #blobs_manager.read_blob_to_disk(blob_key=blob_name, local_file=testcase_file_path)
-
-   
-    testcase_data = base64.b64decode(testcase.test_case)
-    utils.write_data_to_file(testcase_data, testcase_file_path)
-
     test_timeout = environment.get_value('TEST_TIMEOUT',
                                          process_handler.DEFAULT_TEST_TIMEOUT)
     return testcase_manager.test_for_crash_with_retries(

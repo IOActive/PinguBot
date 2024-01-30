@@ -59,11 +59,12 @@ def _add_default_issue_metadata(testcase):
         testcase.set_metadata(key, new_value)
 
 
-def setup_build(testcase):
+def setup_build(testcase: data_types.Testcase, crash: data_types.Crash):
     """Set up a custom or regular build based on revision. For regular builds,
   if a provided revision is not found, set up a build with the
   closest revision <= provided revision."""
-    revision = testcase.crash_revision
+
+    revision = crash.crash_revision
 
     if revision and not build_manager.is_custom_binary():
         build_bucket_path = build_manager.get_primary_bucket_path()
@@ -92,37 +93,23 @@ def execute_task(testcase_id, job_type):
     # Locate the testcase associated with the id.
     testcase = data_handler.get_testcase_by_id(testcase_id)
     crash = data_handler.get_crash_by_testcase(str(testcase.id))
-    if not testcase:
+    if not testcase and not crash:
         return
 
     data_handler.update_testcase_comment(testcase, data_types.TaskState.STARTED)
-
-    metadata = data_types.TestcaseUploadMetadata.query(
-        data_types.TestcaseUploadMetadata.testcase_id == int(testcase_id)).get()
-    if not metadata:
-        logs.log_error(
-            'Testcase %s has no associated upload metadata.' % testcase_id)
-        testcase.key.delete()
-        return
 
     is_lsan_enabled = environment.get_value('LSAN')
     if is_lsan_enabled:
         # Creates empty local blacklist so all leaks will be visible to uploader.
         leak_blacklist.create_empty_local_blacklist()
 
-    # Store the bot name and timestamp in upload metadata.
-    bot_name = environment.get_value('BOT_NAME')
-    metadata.bot_name = bot_name
-    metadata.timestamp = datetime.datetime.utcnow()
-    metadata.put()
-
     # Adjust the test timeout, if user has provided one.
-    if metadata.timeout:
-        environment.set_value('TEST_TIMEOUT', metadata.timeout)
+    if testcase.timeout:
+        environment.set_value('TEST_TIMEOUT', testcase.timeout)
 
     # Adjust the number of retries, if user has provided one.
-    if metadata.retries is not None:
-        environment.set_value('CRASH_RETRIES', metadata.retries)
+    if testcase.retries is not None:
+        environment.set_value('CRASH_RETRIES', testcase.retries)
 
     # Set up testcase and get absolute testcase path.
     file_list, _, testcase_file_path = setup.setup_testcase(testcase, job_type)
@@ -130,7 +117,7 @@ def execute_task(testcase_id, job_type):
         return
 
     # Set up build.
-    setup_build(testcase)
+    setup_build(testcase=testcase, crash=crash)
 
     # Check if we have an application path. If not, our build failed
     # to setup correctly.
@@ -149,10 +136,10 @@ def execute_task(testcase_id, job_type):
 
     # Update initial testcase information.
     testcase.absolute_path = testcase_file_path
-    testcase.job_type = job_type
-    testcase.binary_flag = utils.is_binary_file(testcase_file_path)
+    testcase.job_id = job_type
+    #testcase.binary_flag = utils.is_binary_file(testcase_file_path)
     testcase.queue = tasks.default_queue()
-    testcase.crash_state = ''
+    crash.crash_state = ''
 
     # Set initial testcase metadata fields (e.g. build url, etc).
     data_handler.set_initial_testcase_metadata(testcase)
@@ -168,13 +155,13 @@ def execute_task(testcase_id, job_type):
         testcase.minimized_arguments = minimized_arguments
 
     # Update other fields not set at upload time.
-    testcase.crash_revision = environment.get_value('APP_REVISION')
+
+    crash.crash_revision = environment.get_value('APP_REVISION')
     data_handler.set_initial_testcase_metadata(testcase)
-    testcase.put()
+    data_handler.update_testcase(testcase=testcase)
 
     # Initialize some variables.
-    gestures = testcase.gestures
-    http_flag = testcase.http_flag
+    gestures = crash.gestures
     test_timeout = environment.get_value('TEST_TIMEOUT')
 
     # Get the crash output.
@@ -183,13 +170,12 @@ def execute_task(testcase_id, job_type):
         testcase_file_path,
         test_timeout,
         crash,
-        http_flag=http_flag,
         compare_crash=False)
 
     # If we don't get a crash, try enabling http to see if we can get a crash.
     # Skip engine fuzzer jobs (e.g. libFuzzer, AFL) for which http testcase paths
     # are not applicable.
-    if (not result.is_crash() and not http_flag and
+    if (not result.is_crash() and
             not environment.is_engine_fuzzer_job()):
         result_with_http = testcase_manager.test_for_crash_with_retries(
             testcase,
@@ -210,7 +196,7 @@ def execute_task(testcase_id, job_type):
     # Set application command line with the correct http flag.
     application_command_line = (
         testcase_manager.get_command_line_for_application(
-            testcase_file_path, needs_http=http_flag))
+            testcase_file_path, needs_http=False))
 
     # Get the crash data.
     crashed = result.is_crash()
@@ -239,20 +225,21 @@ def execute_task(testcase_id, job_type):
         crash_stacktrace_output = utils.get_crash_stacktrace_output(
             application_command_line, state.crash_stacktrace,
             unsymbolized_crash_stacktrace)
-        testcase.crash_stacktrace = data_handler.filter_stacktrace(
-            crash_stacktrace_output)
+
+        crash.crash_stacktrace = data_handler.filter_stacktrace(
+                crash_stacktrace_output)
 
         # For an unreproducible testcase, retry once on another bot to confirm
         # our results and in case this bot is in a bad state which we didn't catch
         # through our usual means.
         if data_handler.is_first_retry_for_task(testcase):
             testcase.status = 'Unreproducible, retrying'
-            testcase.put()
+            data_handler.update_crash(testcase)
 
             tasks.add_task('analyze', testcase_id, job_type)
             return
 
-        data_handler.close_invalid_uploaded_testcase(testcase, metadata,
+        data_handler.close_invalid_uploaded_testcase(testcase,
                                                      'Unreproducible')
 
         # A non-reproducing testcase might still impact production branches.
@@ -261,58 +248,57 @@ def execute_task(testcase_id, job_type):
         return
 
     # Update testcase crash parameters.
-    testcase.http_flag = http_flag
-    testcase.crash_type = state.crash_type
-    testcase.crash_address = state.crash_address
-    testcase.crash_state = state.crash_state
+    crash.crash_type = state.crash_type
+    crash.crash_address = state.crash_address
+    crash.crash_state = state.crash_state
     crash_stacktrace_output = utils.get_crash_stacktrace_output(
         application_command_line, state.crash_stacktrace,
         unsymbolized_crash_stacktrace)
-    testcase.crash_stacktrace = data_handler.filter_stacktrace(
+    crash.crash_stacktrace = data_handler.filter_stacktrace(
         crash_stacktrace_output)
 
     # Try to guess if the bug is security or not.
     security_flag = crash_analyzer.is_security_issue(
         state.crash_stacktrace, state.crash_type, state.crash_address)
-    testcase.security_flag = security_flag
+    crash.security_flag = security_flag
 
     # If it is, guess the severity.
     if security_flag:
-        testcase.security_severity = severity_analyzer.get_security_severity(
+        crash.security_severity = severity_analyzer.get_security_severity(
             state.crash_type, state.crash_stacktrace, job_type, bool(gestures))
 
     log_message = ('Testcase crashed in %d seconds (r%d)' %
-                   (crash_time, testcase.crash_revision))
+                   (crash_time, crash.crash_revision))
     data_handler.update_testcase_comment(testcase, data_types.TaskState.FINISHED,
                                          log_message)
 
     # See if we have to ignore this crash.
     if crash_analyzer.ignore_stacktrace(state.crash_stacktrace):
-        data_handler.close_invalid_uploaded_testcase(testcase, metadata,
+        data_handler.close_invalid_uploaded_testcase(testcase,
                                                      'Irrelavant')
         return
 
     # Test for reproducibility.
     one_time_crasher_flag = not testcase_manager.test_for_reproducibility(
-        testcase.fuzzer_name, testcase.actual_fuzzer_name(), testcase_file_path,
-        state.crash_state, security_flag, test_timeout, http_flag, gestures)
+        testcase.fuzzer_id, testcase.actual_fuzzer_name(), testcase_file_path,
+        state.crash_state, security_flag, test_timeout, False, gestures)
     testcase.one_time_crasher_flag = one_time_crasher_flag
 
     # Check to see if this is a duplicate.
-    data_handler.check_uploaded_testcase_duplicate(testcase, metadata)
+    data_handler.check_uploaded_testcase_duplicate(testcase, crash)
 
     # Set testcase and metadata status if not set already.
     if testcase.status == 'Duplicate':
         # For testcase uploaded by bots (with quiet flag), don't create additional
         # tasks.
-        if metadata.quiet_flag:
-            data_handler.close_invalid_uploaded_testcase(testcase, metadata,
+        if testcase.quiet_flag:
+            data_handler.close_invalid_uploaded_testcase(testcase,
                                                          'Duplicate')
             return
     else:
         # New testcase.
         testcase.status = 'Processed'
-        metadata.status = 'Confirmed'
+        #metadata.status = 'Confirmed'
 
         # Reset the timestamp as well, to respect
         # data_types.MIN_ELAPSED_TIME_SINCE_REPORT. Otherwise it may get filed by
@@ -326,11 +312,11 @@ def execute_task(testcase_id, job_type):
             leak_blacklist.add_crash_to_global_blacklist_if_needed(testcase)
 
     # Update the testcase values.
-    testcase.put()
+    data_handler.update_testcase(testcase=testcase)
 
     # Update the upload metadata.
-    metadata.security_flag = security_flag
-    metadata.put()
+    crash.security_flag = security_flag
+    data_handler.update_crash(crash=crash)
 
     _add_default_issue_metadata(testcase)
 

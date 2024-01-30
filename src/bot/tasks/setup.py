@@ -13,6 +13,7 @@
 # limitations under the License.
 """Common helper functions for setup at the start of tasks."""
 
+import base64
 import datetime
 import os
 import shlex
@@ -164,7 +165,7 @@ def setup_testcase(testcase: Testcase, job_type, fuzzer_override=None):
     fuzzer_name = fuzzer_override or fuzzer.name
     task_name = environment.get_value('TASK_NAME')
     testcase_fail_wait = environment.get_value('FAIL_WAIT')
-    testcase_id = testcase.id
+    testcase_id = str(testcase.id)
 
     # Clear testcase directories.
     shell.clear_testcase_directories()
@@ -310,6 +311,11 @@ def unpack_testcase(testcase: Testcase):
             return None, input_directory, testcase_file_path
     else:
         file_list.append(testcase_file_path)
+
+    for file_path in file_list:
+        if not os.path.exists(file_path):
+            testcase_data = base64.b64decode(testcase.test_case)
+            utils.write_data_to_file(testcase_data, file_path)
 
     return file_list, input_directory, testcase_file_path
 

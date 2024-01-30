@@ -27,7 +27,7 @@ import time
 import six
 
 # Maximum allowed size of a corpus file.
-from bot.datastore import data_types
+from bot.datastore import data_types, data_handler
 from bot.fuzzers.utils import fuzzer_utils, options
 from bot.fuzzing import strategy
 from bot.metrics import logs, fuzzer_stats
@@ -472,13 +472,13 @@ def get_all_issue_metadata(fuzz_target_path):
     return metadata
 
 
-def get_all_issue_metadata_for_testcase(testcase):
+def get_all_issue_metadata_for_testcase(testcase: data_types.Testcase):
     """Get issue related metadata given a testcase."""
     if environment.is_trusted_host():
         # Not applicable.
         return None
 
-    fuzz_target = testcase.get_fuzz_target_by_id()
+    fuzz_target = testcase.get_fuzz_target()
     if not fuzz_target:
         return None
 

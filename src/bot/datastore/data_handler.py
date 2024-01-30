@@ -749,6 +749,49 @@ def update_testcase_comment(testcase: Testcase, task_state, message=None):
             message=message,
             testcase_id=str(testcase.id),
             job_type=str(testcase.job_id)))
+        
+    
+def close_invalid_uploaded_testcase(testcase: Testcase, status):
+    testcase.open = False
+    mark_invalid_uploaded_testcase(testcase, status)
+
+
+def mark_invalid_uploaded_testcase(testcase: Testcase, status):
+    """Closes an invalid testcase and updates metadata."""
+    testcase.status = status
+    testcase.minimized_keys = 'NA'
+    testcase.regression = 'NA'
+    testcase.fixed = 'NA'
+    testcase.triaged = True
+    update_testcase(testcase=testcase)
+
+def check_uploaded_testcase_duplicate(testcase: Testcase, crash: Crash):
+    """Check if the uploaded testcase is a duplicate."""
+    project_name = get_project_name(testcase.job_id)
+    existing_testcase = find_testcase(project_name, crash.crash_type,
+                                    crash.crash_state,
+                                    crash.security_flag)
+
+    if not existing_testcase or existing_testcase.id == testcase.id:
+        return False
+
+    # If the existing test case is unreproducible and we are, replace the
+    # existing test case with this one.
+    if (existing_testcase.one_time_crasher_flag and
+        not testcase.one_time_crasher_flag):
+        duplicate_testcase = existing_testcase
+        original_testcase = testcase
+    else:
+        duplicate_testcase = testcase
+        original_testcase = existing_testcase
+        testcase.status = 'Duplicate'
+        testcase.duplicate_of = existing_testcase.id
+
+    duplicate_testcase.status = 'Duplicate'
+    duplicate_testcase.duplicate_of = original_testcase.id
+    update_testcase(duplicate_testcase)
+
+    return duplicate_testcase.id == testcase.id
 
 
 # ------------------------------------------------------------------------------

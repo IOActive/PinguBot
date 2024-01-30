@@ -420,6 +420,14 @@ class Testcase(BaseModel):
     # ASAN redzone size in bytes.
     redzone: int = 128
 
+    # Testcase timeout.
+    timeout: int = None
+
+    # Number of retries for this testcase.
+    retries: int = None
+
+    quiet_flag: bool = False
+
     # References
     job_id: UUID  #PyObjectId = Field(default_factory=PyObjectId, alias="job_id")
     fuzzer_id: UUID  #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzer_id")
