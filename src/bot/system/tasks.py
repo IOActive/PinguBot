@@ -361,7 +361,10 @@ def track_task_start(task, task_duration):
     persistent_cache.set_value(TASK_END_TIME_KEY, time.time() + task_duration)
 
     # Don't wait on |run_heartbeat|, update task information as soon as it starts.
-
+    # Clean Bot log once the task is finished
+    log_directory = environment.get_value('LOG_DIR')
+    bot_log = os.path.join(log_directory, 'bot.log')
+    open(bot_log, "wb").close()
     from bot.datastore import data_handler
     data_handler.update_heartbeat(force_update=True)
 
@@ -378,5 +381,5 @@ def track_task_end():
     bot_log = os.path.join(log_directory, 'bot.log')
     data_handler.update_heartbeat(log_filename=bot_log, force_update=True)
     # Clean Bot log once the task is finished
-    open(bot_log, "w").close()
+    open(bot_log, "wb").close()
 
