@@ -195,7 +195,7 @@ def get_task_status(bot_name, task_name):
     response = requests.get(f'{api_host}/api/bot/?name={bot_name}', headers=headers)
     result = json.loads(response.content.decode('utf-8'))
     if response.status_code == 200 and len(result["results"]) > 0:
-        json_bot = result["results"]
+        json_bot = result["results"][0]
         return json_bot['task_status'], json_bot['last_beat_time']
     else:
         return None
