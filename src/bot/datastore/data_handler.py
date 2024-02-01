@@ -133,7 +133,7 @@ def get_bot(bot_name) -> Bot:
     response = requests.get(f'{api_host}/api/bot/?name={bot_name}', headers=headers)
     result = json.loads(response.content.decode('utf-8'))
     if response.status_code == 200 and len(result["results"]) > 0:
-        json_bot = result["results"]
+        json_bot = result["results"][0]
         try:
             return Bot(**json_bot)
         except ValidationError as e:
@@ -351,7 +351,7 @@ def get_fuzzer(fuzzer_name) -> Fuzzer:
     result = json.loads(response.content.decode('utf-8'))
     try:
         if response.status_code == 200 and len(result['results']) > 0:
-            json_fuzzer = result['results']
+            json_fuzzer = result['results'][0]
             return Fuzzer(**json_fuzzer)
     except ValidationError as e:
         logs.log_error(e)
@@ -363,7 +363,7 @@ def get_fuzzer_by_id(fuzzer_id) -> Fuzzer:
     try:
         result = json.loads(response.content.decode('utf-8'))
         if response.status_code == 200 and len(result['results']) > 0:
-            json_fuzzer = result['results']
+            json_fuzzer = result['results'][0]
             return Fuzzer(**json_fuzzer)
     except ValidationError as e:
         logs.log_error(e)
