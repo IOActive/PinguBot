@@ -361,7 +361,7 @@ def track_task_start(task, task_duration):
     persistent_cache.set_value(TASK_END_TIME_KEY, time.time() + task_duration)
 
     # Don't wait on |run_heartbeat|, update task information as soon as it starts.
-    # Clean Bot log once the task is finished
+    # Clean Bot log before the task is started
     log_directory = environment.get_value('LOG_DIR')
     bot_log = os.path.join(log_directory, 'bot.log')
     open(bot_log, "wb").close()
