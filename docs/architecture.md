@@ -22,28 +22,34 @@ The bot architecture is designed to streamline the process of software testing, 
 14. **Utils**: This component includes various utilities and helper functions that can be used to make the bot more efficient and flexible.
 15. Web server: This component allows the bot to be accessed through a web-based interface, providing a user interface for interacting with the bot or accessing its functionality remotely.
 
-
-
 # Bot working Directory
 
 In additional to the bot architecture, the `bot_working_directory` contains the project's configuration data, including settings and parameters that are important for the bot to function properly. These settings and parameters are stored in the `env.yaml` file, which contains the specific instructions for running the bot. Additionally, the directory contains other necessary subdirectories that the bot will need to access during its execution, such as the `crash-stacks`, `data-bundles`, `fuzzers`, `image`, `mutator-plugins`, and more. These subdirectories contain the data and resources that the bot needs to perform specific tasks, such as testing and data analysis.
 
 The `bot_working_directory` contains various subdirectories for different purposes related to the bot. The following is a brief description of each subdirectory:
 
-1. `builds`: Stores the builds of the bot or its components that have been generated after successful compilation.
-2. 'build-urls': Contains the URL's used for building or building-related resources.
-3. `cache`: Stores the cached information, such as frequently accessed data or project-specific data that needs to be retrieved quickly.
-4. `inputs`: Contains the input data or resources required in the testing process, such as fuzzers, test cases, images, symbols, and more.
-    1. `crash-stacks`: a folder containing the stack traces of previously crashed programs.
-    2. `data-bundles`: a folder containing data bundles that are used during the bot's operation.
-    3. `fuzzer-common-data-bundles`: a folder containing common data bundles used during the fuzzer operation.
-    4. `fuzzers`: a folder containing the fuzzers used during the testing process.
-    5. `fuzzer-testcases`: a folder containing the test cases used during the fuzz test.
-    6. `fuzzer-testcases-disk`: a folder containing the test cases used during the fuzz test that are stored on disk.
-    7. `images`: a folder containing the images used during the testing process.
-    8. `mutator-plugins`: a folder containing the mutator plugins used during the testing process.
-    9. `symbols`: a folder containing the symbols used during the testing process.
-    10. `user-profile-dirs`: a folder containing the user profile directories used during the testing process.
-6. 'logs': Stores the logs and other related information related to the bot's execution.
+1. **builds**: Stores the builds of the bot or its components that have been generated after successful compilation.
+2. **build-urls**: Contains the URL's used for building or building-related resources.
+3. **cache**: Stores the cached information, such as frequently accessed data or project-specific data that needs to be retrieved quickly.
+4. **inputs**: Contains the input data or resources required in the testing process, such as fuzzers, test cases, images, symbols, and more.
+   1. **crash-stacks**: a folder containing the stack traces of previously crashed programs.
+   2. **data-bundles**: a folder containing data bundles that are used during the bot's operation.
+   3. **fuzzer-common-data-bundles**: a folder containing common data bundles used during the fuzzer operation.
+   4. **fuzzers**: a folder containing the built-in fuzzers used during the testing process.
+   5. **fuzzer-testcases**: a folder containing the test cases used during the fuzz test.
+   6. **fuzzer-testcases-disk**: a folder containing the test cases used during the fuzz test that are stored on disk.
+   7. **images**: a folder containing the images used during the testing process.
+   8. **mutator-plugins**: a folder containing the mutator plugins used during the testing process.
+   9. **symbols**: a folder containing the symbols used during the testing process.
+   10. **user-profile-dirs**: a folder containing the user profile directories used during the testing process.
+5. **logs**: Stores the logs and other related information related to the bot's execution.
 
+# Built in Fuzzer Template
 
+Black box fuzzers are generally used to simulate real-world usagepatterns of the software and identify unexpected inputs that might trigger unexpected behavior, crashes, or other issues. However, the black box fuzzers provided may not be enough to cover all the use cases of a complex software.
+
+To overcome this limitation, fuzzers such as Libfuzzer can be integrated as the built-in fuzzers to enhance its functionality and provide even more robust testing capabilities. 
+
+Built-in fuzzers also optimize the data collected by third-party fuzzer engines like Libfuzzer to adapt to the user's needs, and then upload the optimized data to the Pingu backend using its API. By including a built-in fuzzer, developers can automate the process of testing their software and ensure the highest level of quality and security for their customers.
+
+In order to add new built-in fuzzer there is a [Python Template Engine](../src/bot/fuzzers/templates/python/PythonTemplateEngine.py) that can be use to include all the basic capabilitis that Pingubot need to execute its fuzzing campaings.
