@@ -52,4 +52,4 @@ To overcome this limitation, fuzzers such as Libfuzzer can be integrated as the 
 
 Built-in fuzzers also optimize the data collected by third-party fuzzer engines like Libfuzzer to adapt to the user's needs, and then upload the optimized data to the Pingu backend using its API. By including a built-in fuzzer, developers can automate the process of testing their software and ensure the highest level of quality and security for their customers.
 
-In order to add new built-in fuzzer there is a [Python Template Engine](../src/bot/fuzzers/templates/python/PythonTemplateEngine.py) that can be use to include all the basic capabilitis that Pingubot need to execute its fuzzing campaings.
+In order to add new built-in fuzzer there is a [Python Engine Template](../src/bot/fuzzers/templates/python/PythonTemplateEngine.py) that can be use to include all the basic capabilitis that Pingubot need to execute its fuzzing campaings.
