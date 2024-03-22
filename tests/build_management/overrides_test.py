@@ -32,9 +32,9 @@ class UpdateCheckAndApplyOverridesTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(
-        self, ['src.bot.system.environment.get_platform_id'])
+        self, ['bot.system.environment.get_platform_id'])
     test_helpers.patch(
-        self, ['src.bot.google_cloud_utils.storage.read_data'])
+        self, ['bot.google_cloud_utils.storage.read_data'])
     output = _read_data_file('test_config.json')
     self.mock.read_data.return_value = output.encode()
     test_helpers.patch_environ(self)

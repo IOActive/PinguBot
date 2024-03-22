@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Test the launcher.py script for AFL-based fuzzers."""
 # pylint: disable=protected-access
 
@@ -56,7 +44,7 @@ class LauncherTestBase(fake_filesystem_unittest.TestCase):
 
     self._create_file(fuzzer.AFL_DUMMY_INPUT)
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.utils.get_temp_dir',
+        'bot.bot_working_directory.fuzzers.utils.get_temp_dir',
     ])
 
     self.mock.get_temp_dir.return_value = self.TEMP_DIR
@@ -91,7 +79,7 @@ class FuzzingStrategiesTest(fake_filesystem_unittest.TestCase):
 
     test_helpers.patch(
         self,
-        ['src.bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
+        ['bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
     self.mock.is_lpm_fuzz_target.return_value = True
     self.strategies = launcher.FuzzingStrategies(None)
 
@@ -107,7 +95,7 @@ class AflFuzzInputDirectoryTest(LauncherTestBase):
     self.fs.create_dir(self.temp_input_dir)
     test_helpers.patch(
         self,
-        ['src.bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
+        ['bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
     self.mock.is_lpm_fuzz_target.return_value = True
     self.strategies = launcher.FuzzingStrategies(None)
 
@@ -322,7 +310,7 @@ class AflRunnerTest(LauncherTestBase):
     test_helpers.patch_environ(self)
     test_helpers.patch(
         self,
-        ['src.bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
+        ['bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
     self.mock.is_lpm_fuzz_target.return_value = True
     environment.set_value('HARD_TIMEOUT_OVERRIDE', 600)
     config = launcher.AflConfig.from_target_path(self.TARGET_PATH)
@@ -466,7 +454,7 @@ class AflRunnerTest(LauncherTestBase):
     """Test AflRunner.fuzzer_stderr when there is an error reading the
     stderr file."""
     test_helpers.patch(
-        self, ['src.bot.base.utils.read_from_handle_truncated'])
+        self, ['bot.base.utils.read_from_handle_truncated'])
 
     self.mock.read_from_handle_truncated.side_effect = IOError
     self.assertIsNone(self.runner._fuzzer_stderr)
@@ -513,7 +501,7 @@ class AflRunnerTest(LauncherTestBase):
     """Initialization."""
     # Test that it works when everything works normally (no errors).
     test_helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.afl.launcher.AflRunner.run_and_wait',
+        'bot.bot_working_directory.fuzzers.afl.launcher.AflRunner.run_and_wait',
     ])
 
     # Make sure this initialized or else it will remove CRASHES_DIR.
@@ -574,7 +562,7 @@ class AflRunnerTest(LauncherTestBase):
     self.mock.run_and_wait.side_effect = one_cpu_error
     self.assertEqual(self.runner.run_afl_fuzz(self.args).return_code, 0)
 
-  @mock.patch('src.bot.metrics.logs.log_error')
+  @mock.patch('bot.metrics.logs.log_error')
   def test_run_afl_fuzz_two_cpu_errors(self, mock_log_error):
     """Test AflRunner.run_afl_fuzz_and_handle_error works as intended when there
     is an error binding to CPU and afl-fuzz is never able to run in the end.
@@ -821,6 +809,6 @@ class CorpusTest(fake_filesystem_unittest.TestCase):
 def dont_use_strategies(obj):
   """Helper function to prevent using fuzzing strategies, unless asked for."""
   test_helpers.patch(obj, [
-      'src.bot.bot_working_directory.fuzzers.engine_common.decide_with_probability',
+      'bot.bot_working_directory.fuzzers.engine_common.decide_with_probability',
   ])
   obj.mock.decide_with_probability.return_value = False

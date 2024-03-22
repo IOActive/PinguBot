@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for the Mac initialization script."""
 
 import unittest
@@ -26,9 +14,9 @@ class RunTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.bot_working_directory.init_scripts.init_runner.run',
+        'bot.bot_working_directory.init_scripts.init_runner.run',
         'os.path.expanduser',
-        'src.bot.system.shell.remove_directory',
+        'bot.system.shell.remove_directory',
         'shutil.rmtree',
         'subprocess.Popen',
         'os.path.exists',

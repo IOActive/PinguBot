@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for fuzzer_stats."""
 
 import datetime
@@ -53,7 +41,7 @@ class FuzzerStatsTest(unittest.TestCase):
         last_run=datetime.datetime.utcnow()).put()
 
     helpers.patch(self, [
-        'src.bot.google_cloud_utils.storage.write_data',
+        'bot.google_cloud_utils.storage.write_data',
     ])
 
   def test_upload_testcase_run(self):
@@ -189,7 +177,7 @@ class FuzzerStatsTest(unittest.TestCase):
 
     mock_path_exists.return_value = True
     m = mock.mock_open(read_data=read_data)
-    with mock.patch('src.bot.metrics.fuzzer_stats.open', m):
+    with mock.patch('bot.metrics.fuzzer_stats.open', m):
       testcase_run = fuzzer_stats.TestcaseRun.read_from_disk('fake_path')
 
     self.assertIsNotNone(testcase_run)
@@ -206,7 +194,7 @@ class FuzzerStatsTest(unittest.TestCase):
                                             1472846341.017923)
 
     m = mock.mock_open()
-    with mock.patch('src.bot.metrics.fuzzer_stats.open', m):
+    with mock.patch('bot.metrics.fuzzer_stats.open', m):
       fuzzer_stats.TestcaseRun.write_to_disk(testcase_run, 'fake_path')
 
     handle = m()

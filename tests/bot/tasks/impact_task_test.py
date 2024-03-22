@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """impact_task tests."""
 import unittest
 
@@ -31,14 +19,14 @@ class ExecuteTaskTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.base.utils.is_chromium',
-        'src.bot.bot_working_directory.tasks.impact_task.get_impacts_from_url',
-        'src.bot.bot_working_directory.tasks.impact_task.get_impacts_on_prod_builds',
-        'src.bot.bot_working_directory.tasks.setup.setup_testcase',
-        'src.bot.build_management.build_manager.is_custom_binary',
-        'src.bot.build_management.build_manager.has_production_builds',
-        'src.bot.bot_working_directory.testcase_manager.get_command_line_for_application',
-        'src.bot.base.tasks.add_task',
+        'bot.base.utils.is_chromium',
+        'bot.bot_working_directory.tasks.impact_task.get_impacts_from_url',
+        'bot.bot_working_directory.tasks.impact_task.get_impacts_on_prod_builds',
+        'bot.bot_working_directory.tasks.setup.setup_testcase',
+        'bot.build_management.build_manager.is_custom_binary',
+        'bot.build_management.build_manager.has_production_builds',
+        'bot.bot_working_directory.testcase_manager.get_command_line_for_application',
+        'bot.base.tasks.add_task',
     ])
     impacts = impact_task.Impacts(
         stable=impact_task.Impact('stable', False, 'trace-stable'),
@@ -192,11 +180,11 @@ class GetImpactsFromUrlTest(ComponentRevisionPatchingTest):
     """Setup for get impacts from url test."""
     super().setUp()
     helpers.patch(self, [
-        'src.bot.bot_working_directory.tasks.impact_task.get_start_and_end_revision',
-        'src.bot.bot_working_directory.tasks.impact_task.get_impact',
-        'src.bot.chrome.build_info.get_build_to_revision_mappings',
-        'src.bot.build_management.revisions.revision_to_branched_from',
-        'src.bot.datastore.data_handler.get_component_name',
+        'bot.bot_working_directory.tasks.impact_task.get_start_and_end_revision',
+        'bot.bot_working_directory.tasks.impact_task.get_impact',
+        'bot.chrome.build_info.get_build_to_revision_mappings',
+        'bot.build_management.revisions.revision_to_branched_from',
+        'bot.datastore.data_handler.get_component_name',
     ])
     self.mock.get_component_name.return_value = None
     self.mock.revision_to_branched_from.side_effect = (
@@ -671,10 +659,10 @@ class GetImpactsOnProdBuilds(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.bot_working_directory.tasks.impact_task.get_impact_on_build',
-        'src.bot.bot_working_directory.tasks.impact_task.get_impacts_from_url',
-        'src.bot.bot_working_directory.testcase_manager.get_command_line_for_application',
-        'src.bot.chrome.build_info.get_build_to_revision_mappings',
+        'bot.bot_working_directory.tasks.impact_task.get_impact_on_build',
+        'bot.bot_working_directory.tasks.impact_task.get_impacts_from_url',
+        'bot.bot_working_directory.testcase_manager.get_command_line_for_application',
+        'bot.chrome.build_info.get_build_to_revision_mappings',
     ])
     self.mock.get_build_to_revision_mappings.return_value = {
         'stable': {
@@ -828,10 +816,10 @@ class GetImpactOnBuild(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.build_management.build_manager.setup_production_build',
-        'src.bot.system.environment.get_value',
-        'src.bot.bot_working_directory.testcase_manager.get_command_line_for_application',
-        'src.bot.bot_working_directory.testcase_manager.test_for_crash_with_retries',
+        'bot.build_management.build_manager.setup_production_build',
+        'bot.system.environment.get_value',
+        'bot.bot_working_directory.testcase_manager.get_command_line_for_application',
+        'bot.bot_working_directory.testcase_manager.test_for_crash_with_retries',
     ])
     self.env = {
         'APP_PATH': 'app',
@@ -896,10 +884,10 @@ class GetStartAndEndRevisionTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.build_management.revisions.get_start_and_end_revision',
-        'src.bot.build_management.revisions.get_component_range_list',
-        'src.bot.bot_working_directory.testcase_manager.get_command_line_for_application',
-        'src.bot.system.environment.is_android',
+        'bot.build_management.revisions.get_start_and_end_revision',
+        'bot.build_management.revisions.get_component_range_list',
+        'bot.bot_working_directory.testcase_manager.get_command_line_for_application',
+        'bot.system.environment.is_android',
     ])
 
   def test_normal(self):

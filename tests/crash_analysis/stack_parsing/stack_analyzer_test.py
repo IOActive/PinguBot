@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for the stack analyzer module."""
 
 import os
@@ -40,9 +28,9 @@ class StackAnalyzerTestcase(unittest.TestCase):
     """Set environment variables used by stack analyzer tests."""
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'src.bot.crash_analysis.stack_parsing.stack_symbolizer.'
-        'symbolize_stacktrace', 'src.bot.metrics.logs.log_error',
-        'src.bot.platforms.android.kernel_utils.'
+        'bot.crash_analysis.stack_parsing.stack_symbolizer.'
+        'symbolize_stacktrace', 'bot.metrics.logs.log_error',
+        'bot.platforms.android.kernel_utils.'
         'get_kernel_prefix_and_full_hash'
     ])
 
@@ -2620,7 +2608,7 @@ class StackAnalyzerTestcase(unittest.TestCase):
       return default
 
     helpers.patch(
-        self, ['src.bot.config.local_config.ProjectConfig.get'])
+        self, ['bot.config.local_config.ProjectConfig.get'])
     self.mock.get.side_effect = _mock_config_get
 
     data = self._read_test_data('assert_with_panic_keyword.txt')

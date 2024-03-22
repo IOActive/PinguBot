@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for leaks functions."""
 
 import os
@@ -79,7 +67,7 @@ class LeaksTest(unittest.TestCase):
     self.assertTrue(blacklist_item.key.get())
 
   @mock.patch(
-      'src.bot.fuzzing.leak_blacklist.get_local_blacklist_file_path'
+      'bot.fuzzing.leak_blacklist.get_local_blacklist_file_path'
   )
   def test_copy_global_to_local_blacklist(self,
                                           mock_get_local_blacklist_file_path):

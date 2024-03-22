@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests fuzzers.builtin."""
 
 import os
@@ -38,8 +26,8 @@ class BaseEngineFuzzerTest(fake_filesystem_unittest.TestCase):
         """Setup for base engine fuzzer test."""
         helpers.patch_environ(self)
         helpers.patch(self, [
-            'src.bot.utils.utils.default_project_name',
-            'src.bot.fuzzers.utils.builtin.fuzzer_utils.get_fuzz_targets'
+            'bot.utils.utils.default_project_name',
+            'bot.fuzzers.utils.builtin.fuzzer_utils.get_fuzz_targets'
         ])
 
         test_utils.set_up_pyfakefs(self)
@@ -161,7 +149,7 @@ class GetFuzzerPath(unittest.TestCase):
     def test_get_fuzzer_path(self, target_name, mock_platform):
         """Test that get_fuzzer_path returns the path of a fuzzer."""
         target_path = os.path.join('path', 'to', target_name)
-        helpers.patch(self, ['src.bot.system.environment.platform'])
+        helpers.patch(self, ['bot.system.environment.platform'])
         self.mock.platform.return_value = mock_platform
         result = builtin._get_fuzzer_path(['a', target_path], target_name)  # pylint: disable=protected-access
         self.assertEqual(result, target_path)

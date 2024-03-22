@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """environment tests."""
 import os
 import unittest
@@ -59,7 +47,7 @@ class GetExecutableFileNameTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self,
-                       ['src.bot.system.environment.platform'])
+                       ['bot.system.environment.platform'])
 
   @parameterized.parameterized.expand(['MAC', 'LINUX'])
   def test_non_windows(self, platform):
@@ -87,8 +75,8 @@ class ParseMemoryToolOptionsTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'src.bot.metrics.logs.log_warn',
-        'src.bot.metrics.logs.log_error'
+        'bot.metrics.logs.log_warn',
+        'bot.metrics.logs.log_error'
     ])
 
     self.windows_expected = {
@@ -248,8 +236,8 @@ class ResetCurrentMemoryToolOptionsTest(unittest.TestCase):
     to the llvm symbolizer on Windows."""
     os.environ['JOB_NAME'] = 'windows_libfuzzer_chrome_asan'
     test_helpers.patch(self, [
-        'src.bot.system.environment.platform',
-        'src.bot.system.environment.get_llvm_symbolizer_path'
+        'bot.system.environment.platform',
+        'bot.system.environment.get_llvm_symbolizer_path'
     ])
     self.mock.platform.return_value = 'WINDOWS'
     windows_symbolizer_path = (
@@ -323,8 +311,8 @@ class GetMemoryToolOptionsTest(unittest.TestCase):
     test_helpers.patch_environ(self)
     os.environ['JOB_NAME'] = 'windows_libfuzzer_chrome_asan'
     test_helpers.patch(self, [
-        'src.bot.system.environment.platform',
-        'src.bot.system.environment.get_llvm_symbolizer_path'
+        'bot.system.environment.platform',
+        'bot.system.environment.get_llvm_symbolizer_path'
     ])
     self.mock.platform.return_value = 'WINDOWS'
     windows_symbolizer_path = (
@@ -348,7 +336,7 @@ class AppEngineNoopTest(unittest.TestCase):
   def setUp(self):
     test_helpers.patch(
         self,
-        ['src.bot.system.environment.is_running_on_app_engine'])
+        ['bot.system.environment.is_running_on_app_engine'])
 
   def test_appengine(self):
     """Test calling function in App Engine environment."""
@@ -377,7 +365,7 @@ class BotNoopTest(unittest.TestCase):
   def setUp(self):
     test_helpers.patch(
         self,
-        ['src.bot.system.environment.is_running_on_app_engine'])
+        ['bot.system.environment.is_running_on_app_engine'])
 
   def test_appengine(self):
     """Test calling function in App Engine environment."""
@@ -406,7 +394,7 @@ class LocalNoopTest(unittest.TestCase):
   def setUp(self):
     test_helpers.patch_environ(self)
     test_helpers.patch(self, [
-        'src.bot.system.environment.is_running_on_app_engine_development'
+        'bot.system.environment.is_running_on_app_engine_development'
     ])
 
   def test_prod(self):

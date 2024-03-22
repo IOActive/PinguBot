@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Common functions for task creation for test cases."""
 from bot.datastore.data_handler import get_fuzz_target_job_by_job
 from bot.datastore.data_types import Testcase
@@ -37,7 +25,7 @@ def mark_unreproducible_if_flaky(testcase, potentially_flaky):
 
         # In this case, the current task will usually be in a state where it cannot
         # be completed. Recreate it.
-        tasks.add_task(task_name, testcase.key.id(), testcase.job_type)
+        tasks.add_task(task_name, str(testcase.id), testcase.job_id)
         return
 
     # At this point, this test case has been flagged as potentially flaky twice.
@@ -45,8 +33,8 @@ def mark_unreproducible_if_flaky(testcase, potentially_flaky):
     # fields that cannot be populated accordingly.
     if task_name == 'minimize' and not testcase.minimized_keys:
         testcase.minimized_keys = 'NA'
-    if task_name in ['minimize', 'impact']:
-        testcase.set_impacts_as_na()
+    #if task_name in ['minimize', 'impact']:
+    #    testcase.set_impacts_as_na()
     if task_name in ['minimize', 'regression']:
         testcase.regression = 'NA'
     if task_name in ['minimize', 'progression']:

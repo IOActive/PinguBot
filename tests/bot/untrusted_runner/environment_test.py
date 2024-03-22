@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for environment."""
 
 import os
@@ -36,17 +24,17 @@ REBASED_ENVIRONMENT_VARIABLES = set([
 ])
 
 
-@mock.patch('src.bot.bot.untrusted_runner.environment.'
+@mock.patch('bot.bot.untrusted_runner.environment.'
             'FORWARDED_ENVIRONMENT_VARIABLES', FORWARDED_ENVIRONMENT_VARIABLES)
 @mock.patch(
-    'src.bot.bot.untrusted_runner.environment.REBASED_ENVIRONMENT_VARIABLES',
+    'bot.bot.untrusted_runner.environment.REBASED_ENVIRONMENT_VARIABLES',
     REBASED_ENVIRONMENT_VARIABLES)
 class EnvironmentTest(unittest.TestCase):
   """Test environment."""
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.bot_working_directory.untrusted_runner.host.stub',
+        'bot.bot_working_directory.untrusted_runner.host.stub',
     ])
 
     helpers.patch_environ(self)

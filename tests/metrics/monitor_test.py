@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for monitor."""
 # pylint: disable=protected-access
 
@@ -26,8 +14,8 @@ class InitializeTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.config.local_config.ProjectConfig.get',
-        'src.bot.metrics.monitor.check_module_loaded',
+        'bot.config.local_config.ProjectConfig.get',
+        'bot.metrics.monitor.check_module_loaded',
         'google.cloud.monitoring_v3.MetricServiceClient',
         'threading.Thread.start',
     ])
@@ -66,7 +54,7 @@ class MonitorTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.metrics.monitor.check_module_loaded',
+        'bot.metrics.monitor.check_module_loaded',
     ])
     self.mock.check_module_loaded.return_value = True
     monitor.metrics_store().reset_for_testing()

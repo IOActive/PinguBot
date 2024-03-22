@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """archive tests."""
 import os
 import tempfile
@@ -67,7 +55,7 @@ class IteratorTest(unittest.TestCase):
   def test_tar_xz_broken_links(self):
     """Test that a .tar file with broken links is handled properly by
     iterator()."""
-    helpers.patch(self, ['src.bot.metrics.logs.log_warn'])
+    helpers.patch(self, ['bot.metrics.logs.log_warn'])
 
     archive_name = 'broken-links.tar.xz'
     archive_path = os.path.join(TESTDATA_PATH, archive_name)

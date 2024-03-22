@@ -31,7 +31,7 @@ DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1esrc/bot/protos
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
-_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'src.bot.protos.heartbeat_pb2', _globals)
+_builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'bot.protos.heartbeat_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z#clusterfuzz/protos/untrusted_runner'

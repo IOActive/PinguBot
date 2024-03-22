@@ -136,7 +136,7 @@ class Fuzzer(BaseModel):
     id:UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="_id")
 
     # Additionally allows '.' and '@' over NAME_CHECK_REGEX.
-    VALID_NAME_REGEX: str = re.compile(r'^[a-zA-Z0-9_@.-]+$')
+    #VALID_NAME_REGEX: str = re.compile(r'^[a-zA-Z0-9_@.-]+$')
 
     # Last update time.
     timestamp: datetime = None
@@ -145,34 +145,34 @@ class Fuzzer(BaseModel):
     name: str
 
     # The name of the archive that the user uploaded.
-    filename: str
+    filename: str = ""
 
     # String representation of the file size.
-    file_size: str
+    file_size: int = 0
 
     # Blobstore path or URL for this fuzzer.
-    blobstore_path: str
+    blobstore_path: str = ""
 
     # Fuzzer's main executable path, relative to root.
-    executable_path: str
+    executable_path: str = ""
 
     # Testcase timeout.
-    timeout: int
+    timeout: int = 0
 
     # Supported platforms.
-    supported_platforms: str
+    supported_platforms: str = 'NA'
 
     # Custom script that should be used to launch for this fuzzer.
-    launcher_script: str
+    launcher_script: str = ""
 
     # Job types for this fuzzer.
     # jobs: str
 
     # Max testcases to generate for this fuzzer.
-    max_testcases: int
+    max_testcases: int = 1000
 
     # Additional environment variables that need to be set for this fuzzer.
-    additional_environment_string: str
+    additional_environment_string: str = ""
 
     # Column specification for stats.
     stats_columns: dict = {}
@@ -183,10 +183,10 @@ class Fuzzer(BaseModel):
     builtin: bool
 
     # Whether this is a differential fuzzer.
-    differential: bool
+    differential: bool = False
 
     # Does it run un-trusted content ? Examples including running live sites.
-    untrusted_content: bool
+    untrusted_content: bool = False
 
     # If this flag is set, fuzzer generates the testcase in the larger directory
     # on disk |FUZZ_INPUTS_DISK|, rather than smaller tmpfs one (FUZZ_INPUTS).
@@ -357,6 +357,8 @@ class Crash(BaseModel):
     crash_info: str = None
     # Optional. Revision that we discovered the crash in.
     crash_revision: int = 1
+    # Does the testcase crash stack vary b/w crashes ?
+    flaky_stack: bool=False
 
     # References
     testcase_id: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="testcase_id")
@@ -368,10 +370,10 @@ class Crash(BaseModel):
 
 
 class Testcase(BaseModel):
-    id: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="_idNameError: Private attributes must not use dunder names; use a single underscore prefix instead of '__metadata_cache__'.")
     bug_information: str = None
     # Testcase file
-    test_case: bytes
+    test_case: str = ""
     fixed: str = 'NA'
     # Did the bug only reproduced once ?
     one_time_crasher_flag: bool
@@ -418,9 +420,18 @@ class Testcase(BaseModel):
     # ASAN redzone size in bytes.
     redzone: int = 128
 
+    # Testcase timeout.
+    timeout: int = None
+
+    # Number of retries for this testcase.
+    retries: int = None
+
+    quiet_flag: bool = False
+
     # References
     job_id: UUID  #PyObjectId = Field(default_factory=PyObjectId, alias="job_id")
     fuzzer_id: UUID  #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzer_id")
+    duplicate_of: UUID = None
 
     __metadata_cache__: Dict[str, int] = PrivateAttr(default_factory=dict)
 
@@ -472,6 +483,29 @@ class Testcase(BaseModel):
         del self.__metadata_cache__[key]
         self.additional_metadata = json_utils.dumps(self.__metadata_cache__)
 
+    def actual_fuzzer_name(self):
+        """Actual fuzzer name, uses one from overridden attribute if available."""
+        return self.fuzzer_id
+    
+    def get_fuzz_target(self):
+        """Get the associated FuzzTarget entity for this test case."""
+        name = self.actual_fuzzer_name()
+        if not name:
+            return None
+
+        binary = self.get_metadata('fuzzer_binary_name')
+        if not binary:
+            # Not applicable.
+            return None
+        
+        target = FuzzTarget(
+            fuzzer_engine=self.fuzzer_id, project='minimize', binary=binary)
+
+        if environment.get_value('ORIGINAL_JOB_NAME'):
+            # Overridden engine (e.g. for minimization).
+            target.fuzzer_engine = environment.get_engine_for_job()
+
+        return target
 
 # Task state string mappings.
 class TaskState(object):

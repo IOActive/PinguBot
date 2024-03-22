@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for corpus_manager."""
 
 import datetime
@@ -33,7 +21,7 @@ class GcsCorpusTest(unittest.TestCase):
   def setUp(self):
     test_helpers.patch_environ(self)
     test_helpers.patch(self, [
-        'src.bot.fuzzing.corpus_manager._count_corpus_files',
+        'bot.fuzzing.corpus_manager._count_corpus_files',
         'multiprocessing.cpu_count',
         'subprocess.Popen',
     ])
@@ -109,8 +97,8 @@ class RsyncErrorHandlingTest(unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'src.bot.fuzzing.corpus_manager._count_corpus_files',
-        'src.bot.google_cloud_utils.gsutil.GSUtilRunner.run_gsutil',
+        'bot.fuzzing.corpus_manager._count_corpus_files',
+        'bot.google_cloud_utils.gsutil.GSUtilRunner.run_gsutil',
     ])
 
   def test_rsync_error_below_threshold(self):
@@ -200,7 +188,7 @@ class FuzzTargetCorpusTest(fake_filesystem_unittest.TestCase):
     os.environ['CORPUS_BUCKET'] = 'bucket'
 
     test_helpers.patch(self, [
-        'src.bot.fuzzing.corpus_manager._count_corpus_files',
+        'bot.fuzzing.corpus_manager._count_corpus_files',
         'multiprocessing.cpu_count',
         'subprocess.Popen',
     ])
@@ -300,9 +288,9 @@ class CorpusBackupTest(fake_filesystem_unittest.TestCase):
     os.environ['CORPUS_BUCKET'] = 'bucket'
 
     test_helpers.patch(self, [
-        'src.bot.base.utils.utcnow',
-        'src.bot.google_cloud_utils.storage.copy_blob',
-        'src.bot.google_cloud_utils.storage.copy_file_to',
+        'bot.base.utils.utcnow',
+        'bot.google_cloud_utils.storage.copy_blob',
+        'bot.google_cloud_utils.storage.copy_file_to',
         'multiprocessing.cpu_count',
         'shutil.make_archive',
     ])
@@ -380,7 +368,7 @@ class LegalizeFilenamesTest(FileMixin, fake_filesystem_unittest.TestCase):
   def test_logs_errors(self):
     """Test that errors are logged when we fail to rename a file."""
     test_helpers.patch(
-        self, ['shutil.move', 'src.bot.metrics.logs.log_error'])
+        self, ['shutil.move', 'bot.metrics.logs.log_error'])
 
     def mock_move(*args, **kwargs):  # pylint: disable=unused-argument
       raise OSError

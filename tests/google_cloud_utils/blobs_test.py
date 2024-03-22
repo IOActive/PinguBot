@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for blobs."""
 
 import os
@@ -32,13 +20,13 @@ class BlobsTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'src.bot.system.environment.is_running_on_app_engine',
-        'src.bot.google_cloud_utils.blobs.generate_new_blob_name',
-        'src.bot.google_cloud_utils.storage.copy_file_from',
-        'src.bot.google_cloud_utils.storage.copy_file_to',
-        'src.bot.google_cloud_utils.storage.delete',
-        'src.bot.google_cloud_utils.storage.read_data',
-        'src.bot.google_cloud_utils.storage.get',
+        'bot.system.environment.is_running_on_app_engine',
+        'bot.google_cloud_utils.blobs.generate_new_blob_name',
+        'bot.google_cloud_utils.storage.copy_file_from',
+        'bot.google_cloud_utils.storage.copy_file_to',
+        'bot.google_cloud_utils.storage.delete',
+        'bot.google_cloud_utils.storage.read_data',
+        'bot.google_cloud_utils.storage.get',
     ])
 
     self.mock.is_running_on_app_engine.return_value = True

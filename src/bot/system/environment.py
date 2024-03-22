@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Environment functions."""
 
 import ast
@@ -377,7 +365,7 @@ def get_config_directory():
         return config_dir
 
     # Running on bot, give path to config folder inside appengine dir.
-    return os.path.join(get_root_directory(), 'configs', 'test')
+    return os.path.join(get_root_directory(), 'config')
 
 
 def get_gae_config_directory():
@@ -682,13 +670,13 @@ def is_untrusted_worker():
 
 def is_running_on_app_engine():
     """Return True if we are running on appengine (local or production)."""
-    return (os.getenv('GAE_ENV') or is_running_on_app_engine_development() or
+    return (os.getenv('PINGU_ENV') or is_running_on_app_engine_development() or
             os.getenv('SERVER_SOFTWARE', '').startswith('App Engine/'))
 
 
 def is_running_on_app_engine_development():
     """Return True if running on the local development appengine server."""
-    return (os.getenv('GAE_ENV') == 'dev' or
+    return (os.getenv('PINGU_ENV') == 'dev' or
             os.getenv('SERVER_SOFTWARE', '').startswith('Development/'))
 
 

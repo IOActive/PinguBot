@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Functions for managing Google Cloud Storage."""
 
 import copy
@@ -240,7 +228,7 @@ class MinioProvider(StorageProvider):
                 else:
                     # Upload data with metadata.
                     blob = client.put_object(
-                        bucket_name, remote_path, local_path_or_handle, length=size,
+                        bucket_name, path, local_path_or_handle, length=size,
                         metadata=metadata
                     )
                 logs.log("created {0} object; etag: {1}, version-id: {2}".format(blob.object_name, blob.etag,
@@ -566,8 +554,8 @@ def _create_storage_client_new():
     # and secret key.
     client = Minio(
         environment.get_value("MINIO_HOST"),
-        access_key=environment.get_value("ACCESS_KEY"),
-        secret_key=environment.get_value("SECRET_KEY"),
+        access_key=environment.get_value("MINIO_ACCESS_KEY"),
+        secret_key=environment.get_value("MINIO_SECRET_KEY"),
         secure=False
     )
     return client
@@ -716,8 +704,8 @@ def create_discovery_storage_client():
     """Create a storage client using discovery APIs."""
     return Minio(
         environment.get_value("MINIO_HOST"),
-        access_key=environment.get_value("ACCESS_KEY"),
-        secret_key=environment.get_value("SECRET_KEY"),
+        access_key=environment.get_value("MINIO_ACCESS_KEY"),
+        secret_key=environment.get_value("MINIO_SECRET_KEY"),
         secure=False
     )
 

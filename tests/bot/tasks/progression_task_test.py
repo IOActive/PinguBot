@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for regression_task."""
 
 import json
@@ -31,7 +19,7 @@ class WriteToBigqueryTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.google_cloud_utils.big_query.write_range',
+        'bot.google_cloud_utils.big_query.write_range',
     ])
 
     self.testcase = data_types.Testcase(
@@ -58,9 +46,9 @@ class TestcaseReproducesInRevisionTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.build_management.build_manager.setup_regular_build',
-        'src.bot.bot_working_directory.testcase_manager.test_for_crash_with_retries',
-        'src.bot.bot_working_directory.testcase_manager.check_for_bad_build',
+        'bot.build_management.build_manager.setup_regular_build',
+        'bot.bot_working_directory.testcase_manager.test_for_crash_with_retries',
+        'bot.bot_working_directory.testcase_manager.check_for_bad_build',
     ])
 
   def test_error_on_failed_setup(self):
@@ -79,8 +67,8 @@ class UpdateIssueMetadataTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.bot_working_directory.fuzzers.engine_common.find_fuzzer_path',
-        'src.bot.bot_working_directory.fuzzers.engine_common.get_all_issue_metadata',
+        'bot.bot_working_directory.fuzzers.engine_common.find_fuzzer_path',
+        'bot.bot_working_directory.fuzzers.engine_common.get_all_issue_metadata',
     ])
 
     data_types.FuzzTarget(engine='libFuzzer', binary='fuzzer').put()
@@ -144,7 +132,7 @@ class StoreTestcaseForRegressionTesting(fake_filesystem_unittest.TestCase):
     test_utils.set_up_pyfakefs(self)
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'src.bot.google_cloud_utils.storage.copy_file_to',
+        'bot.google_cloud_utils.storage.copy_file_to',
     ])
 
     os.environ['CORPUS_BUCKET'] = 'corpus'

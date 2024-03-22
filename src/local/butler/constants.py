@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Constants shared across butler commands."""
 
 import collections
@@ -50,8 +38,10 @@ elif sys.version_info.major == 3 and sys.version_info.minor == 9:
   ABIS = {'linux': 'cp39', 'windows': 'cp39', 'macos': 'cp39'}
 elif sys.version_info.major == 3 and sys.version_info.minor == 10:
   ABIS = {'linux': 'cp10', 'windows': 'cp10', 'macos': 'cp10'}
+elif sys.version_info.major == 3 and sys.version_info.minor == 11:
+  ABIS = {'linux': 'cp11', 'windows': 'cp11', 'macos': 'cp11'}
 else:
-  raise Exception('Only python versions 3.7-3.10 are supported.')
+  raise Exception('Only python versions 3.7-3.11 are supported.')
 
 # Config directory to use for tests.
 TEST_CONFIG_DIR = os.path.join('configs', 'test')

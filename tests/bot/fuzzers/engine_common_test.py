@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests fuzzers.engine_common."""
 
 import os
@@ -321,7 +309,7 @@ class GetSeedCorpusPath(fake_filesystem_unittest.TestCase):
     def test_multiple_corpora(self, fuzz_target_path):
         """Tests that the function logs an error when target has multiple seed
     corpora."""
-        test_helpers.patch(self, ['src.bot.metrics.logs.log_error'])
+        test_helpers.patch(self, ['bot.metrics.logs.log_error'])
         self._create_seed_corpus('.tar.gz')
         self._create_seed_corpus('.zip')
         self.assertIsNotNone(self._get_seed_corpus_path(fuzz_target_path))

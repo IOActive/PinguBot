@@ -1,18 +1,7 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Common helper functions for setup at the start of tasks."""
 
+import base64
 import datetime
 import os
 import shlex
@@ -39,14 +28,6 @@ _DATA_BUNDLE_SYNC_INTERVAL_IN_SECONDS = 6 * 60 * 60
 _DATA_BUNDLE_LOCK_INTERVAL_IN_SECONDS = 3 * 60 * 60
 _SYNC_FILENAME = '.sync'
 _TESTCASE_ARCHIVE_EXTENSION = '.zip'
-
-
-def _set_timeout_value_from_user_upload(testcase_id):
-    """Get the timeout associated with this testcase."""
-    metadata = data_types.TestcaseUploadMetadata.query(
-        data_types.TestcaseUploadMetadata.testcase_id == int(testcase_id)).get()
-    if metadata and metadata.timeout:
-        environment.set_value('TEST_TIMEOUT', metadata.timeout)
 
 
 def _copy_testcase_to_device_and_setup_environment(testcase,
@@ -172,7 +153,7 @@ def setup_testcase(testcase: Testcase, job_type, fuzzer_override=None):
     fuzzer_name = fuzzer_override or fuzzer.name
     task_name = environment.get_value('TASK_NAME')
     testcase_fail_wait = environment.get_value('FAIL_WAIT')
-    testcase_id = testcase.id
+    testcase_id = str(testcase.id)
 
     # Clear testcase directories.
     shell.clear_testcase_directories()
@@ -263,11 +244,11 @@ def _get_testcase_file_and_path(testcase):
         return input_directory, testcase_absolute_path
 
     # Root directory can be different on bots. Fix the path to account for this.
-    root_directory = environment.get_value('ROOT_DIR')
-    search_string = '%s%s%s' % (os.sep, _BOT_DIR, os.sep)
-    search_index = testcase_absolute_path.find(search_string)
-    relative_path = testcase_absolute_path[search_index + len(search_string):]
-    testcase_path = os.path.join(root_directory, _BOT_DIR, relative_path)
+    #root_directory = environment.get_value('ROOT_DIR')
+    #search_string = '%s%s%s' % (os.sep, _BOT_DIR, os.sep)
+    #search_index = testcase_absolute_path.find(search_string)
+    #relative_path = testcase_absolute_path[search_index + len(search_string):]
+    testcase_path = testcase_absolute_path #os.path.join(root_directory, _BOT_DIR, relative_path)
 
     return input_directory, testcase_path
 
@@ -318,6 +299,11 @@ def unpack_testcase(testcase: Testcase):
             return None, input_directory, testcase_file_path
     else:
         file_list.append(testcase_file_path)
+
+    for file_path in file_list:
+        if not os.path.exists(file_path):
+            testcase_data = base64.b64decode(testcase.test_case)
+            utils.write_data_to_file(testcase_data, file_path)
 
     return file_list, input_directory, testcase_file_path
 

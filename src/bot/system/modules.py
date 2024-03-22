@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Functions for module management."""
 
 # Do not add any imports to non-standard modules here.
@@ -44,15 +32,16 @@ def _patch_appengine_modules_for_bots():
         pass
 
 
-def fix_module_search_paths():
+def fix_module_search_paths(submodule_root=""):
     """Add directories that we must be able to import from to path."""
     root_directory = os.environ['ROOT_DIR']
     source_directory = os.path.join(root_directory, 'src')
 
     python_path = os.getenv('PYTHONPATH', '').split(os.pathsep)
 
-    third_party_libraries_directory = os.path.join(source_directory,
+    third_party_libraries_directory = os.path.join(root_directory,
                                                    'third_party')
+    
     config_modules_directory = _config_modules_directory(root_directory)
 
     if (os.path.exists(config_modules_directory) and
@@ -69,9 +58,3 @@ def fix_module_search_paths():
         python_path.insert(0, source_directory)
 
     os.environ['PYTHONPATH'] = os.pathsep.join(python_path)
-
-    # Add site directory to make from imports work in google namespace.
-    #site.addsitedir(third_party_libraries_directory)
-
-    # TODO(ochang): Remove this once SDK is removed from images.
-    #_patch_appengine_modules_for_bots()

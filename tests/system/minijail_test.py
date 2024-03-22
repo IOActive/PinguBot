@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for process."""
 
 import os
@@ -38,8 +26,8 @@ class MinijailTest(fake_filesystem_unittest.TestCase):
     self.fs.create_dir(os.path.join('/', 'usr', 'lib32'))
 
     test_helpers.patch(self, [
-        'src.bot.system.minijail._get_minijail_path',
-        'src.bot.system.minijail.MinijailChroot._mknod',
+        'bot.system.minijail._get_minijail_path',
+        'bot.system.minijail.MinijailChroot._mknod',
     ])
 
     test_helpers.patch_environ(self)
@@ -84,7 +72,7 @@ class MinijailTest(fake_filesystem_unittest.TestCase):
         minijail.ChrootBinding('/foo/bar', '/bar', False))
     self.assertFalse(os.path.exists(chroot_directory))
 
-  @mock.patch('src.bot.system.minijail.os.getuid', lambda: 1000)
+  @mock.patch('bot.system.minijail.os.getuid', lambda: 1000)
   def test_minijail(self):
     """Test minijail process command."""
     with minijail.MinijailChroot() as chroot:
@@ -98,7 +86,7 @@ class MinijailTest(fake_filesystem_unittest.TestCase):
           '/usr/lib,/usr/lib,0', '-b', '/usr/lib32,/usr/lib32,0', '/bin/ls'
       ])
 
-  @mock.patch('src.bot.system.minijail.os.getuid', lambda: 1000)
+  @mock.patch('bot.system.minijail.os.getuid', lambda: 1000)
   def test_minijail_bindings(self):
     """Test minijail process command with additional bind dirs."""
     with minijail.MinijailChroot(bindings=[
@@ -116,10 +104,10 @@ class MinijailTest(fake_filesystem_unittest.TestCase):
           '/foo/bar,/bar,1', '-b', '/foo/barr,/barr,0', '/bin/ls'
       ])
 
-  @mock.patch('src.bot.system.minijail.os.getuid', lambda: 1000)
-  @mock.patch('src.bot.system.minijail.subprocess.Popen')
+  @mock.patch('bot.system.minijail.os.getuid', lambda: 1000)
+  @mock.patch('bot.system.minijail.subprocess.Popen')
   @mock.patch(
-      'src.bot.system.minijail.tempfile.NamedTemporaryFile')
+      'bot.system.minijail.tempfile.NamedTemporaryFile')
   def test_minijail_pid(self, mock_tempfile, _):
     """Test minijail process command writing to pid file."""
     mock_tempfile.return_value.name = '/temp_pid'
@@ -136,7 +124,7 @@ class MinijailTest(fake_filesystem_unittest.TestCase):
           '/usr/lib,/usr/lib,0', '-b', '/usr/lib32,/usr/lib32,0', 'bin/ls'
       ])
 
-  @mock.patch('src.bot.system.minijail.subprocess.Popen')
+  @mock.patch('bot.system.minijail.subprocess.Popen')
   def test_minijail_env_vars(self, mock_popen):
     """Test passing of env vars."""
     os.environ['ASAN_OPTIONS'] = 'asan_option=1'

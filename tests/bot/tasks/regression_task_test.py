@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for regression_task."""
 # pylint: disable=unused-argument
 # pylint: disable=protected-access
@@ -31,7 +19,7 @@ class WriteToBigQueryTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.google_cloud_utils.big_query.write_range',
+        'bot.google_cloud_utils.big_query.write_range',
     ])
 
     self.testcase = data_types.Testcase(
@@ -58,9 +46,9 @@ class TestcaseReproducesInRevisionTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.build_management.build_manager.setup_regular_build',
-        'src.bot.bot_working_directory.testcase_manager.test_for_crash_with_retries',
-        'src.bot.bot_working_directory.testcase_manager.check_for_bad_build',
+        'bot.build_management.build_manager.setup_regular_build',
+        'bot.bot_working_directory.testcase_manager.test_for_crash_with_retries',
+        'bot.bot_working_directory.testcase_manager.check_for_bad_build',
     ])
 
   def test_error_on_failed_setup(self):
@@ -79,8 +67,8 @@ class TestFoundRegressionNearExtremeRevisions(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.bot_working_directory.tasks.regression_task.save_regression_range',
-        'src.bot.bot_working_directory.tasks.regression_task._testcase_reproduces_in_revision',
+        'bot.bot_working_directory.tasks.regression_task.save_regression_range',
+        'bot.bot_working_directory.tasks.regression_task._testcase_reproduces_in_revision',
     ])
 
     # Keep a dummy test case. Values are not important, but we need an id.
@@ -143,7 +131,7 @@ class ValidateRegressionRangeTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.bot_working_directory.tasks.regression_task._testcase_reproduces_in_revision',
+        'bot.bot_working_directory.tasks.regression_task._testcase_reproduces_in_revision',
         'random.sample',
     ])
 

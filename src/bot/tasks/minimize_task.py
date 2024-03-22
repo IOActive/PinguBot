@@ -1,18 +1,7 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Minimize task for handling testcase minimization."""
 
+import base64
 import binascii
 import functools
 import os
@@ -40,6 +29,7 @@ from bot.utils import utils
 from bot.fuzzers.templates.python import PythonTemplateEngine as engine
 from bot.fuzzers.libFuzzer import  engine as libfuzzer_engine
 from bot.minimizer import errors as minimizer_errors
+from bot.datastore import blobs_manager
 
 IPCDUMP_TIMEOUT = 60
 COMBINED_IPCDUMP_TIMEOUT = 60 * 3
@@ -379,7 +369,7 @@ def execute_task(testcase_id, job_type):
         build_fail_wait = environment.get_value('FAIL_WAIT')
 
         if environment.get_value('ORIGINAL_JOB_NAME'):
-            _skip_minimization(testcase, 'Failed to setup build for overridden job.')
+            _skip_minimization(testcase, 'Failed to setup build for overridden job.', crash=crash)
         else:
             # Only recreate task if this isn't an overriden job. It's possible that a
             # revision exists for the original job, but doesn't exist for the
@@ -395,7 +385,7 @@ def execute_task(testcase_id, job_type):
 
     if environment.is_engine_fuzzer_job():
         # TODO(ochang): More robust check for engine minimization support.
-        _skip_minimization(testcase, 'Engine does not support minimization.')
+        _skip_minimization(testcase, 'Engine does not support minimization.', crash=crash)
         return
 
     max_threads = utils.maximum_parallel_processes_allowed()
@@ -508,7 +498,7 @@ def execute_task(testcase_id, job_type):
 
         if check_deadline_exceeded_and_store_partial_minimized_testcase(
                 deadline, testcase_id, job_type, input_directory, file_list, data,
-                testcase_file_path):
+                testcase_file_path, crash):
             return
 
         testcase.set_metadata('minimization_phase', MinimizationPhase.FILE_LIST)
@@ -521,7 +511,7 @@ def execute_task(testcase_id, job_type):
 
             if check_deadline_exceeded_and_store_partial_minimized_testcase(
                     deadline, testcase_id, job_type, input_directory, file_list, data,
-                    testcase_file_path):
+                    testcase_file_path, crash):
                 return
         else:
             logs.log('Skipping minimization of file list.')
@@ -537,7 +527,7 @@ def execute_task(testcase_id, job_type):
 
                 if check_deadline_exceeded_and_store_partial_minimized_testcase(
                         deadline, testcase_id, job_type, input_directory, file_list, data,
-                        testcase_file_path):
+                        testcase_file_path, crash):
                     return
         else:
             logs.log('Skipping minimization of resources.')
@@ -553,7 +543,7 @@ def execute_task(testcase_id, job_type):
 
         if check_deadline_exceeded_and_store_partial_minimized_testcase(
                 deadline, testcase_id, job_type, input_directory, file_list, data,
-                testcase_file_path):
+                testcase_file_path, crash):
             return
 
     command = testcase_manager.get_command_line_for_application(
@@ -563,30 +553,34 @@ def execute_task(testcase_id, job_type):
     store_minimized_testcase(testcase, input_directory, file_list, data,
                              testcase_file_path)
     finalize_testcase(
-        testcase_id, command, last_crash_result, flaky_stack=flaky_stack)
+        testcase_id, command, last_crash_result, crash, flaky_stack=flaky_stack)
 
 
 def finalize_testcase(testcase_id,
                       command,
                       last_crash_result,
+                      crash,
                       flaky_stack=False):
     """Perform final updates on a test case and prepare it for other tasks."""
     # Symbolize crash output if we have it.
     testcase = data_handler.get_testcase_by_id(testcase_id)
     if last_crash_result:
-        _update_crash_result(testcase, last_crash_result, command)
+        _update_crash_result(crash, last_crash_result, command)
     testcase.delete_metadata('redo_minimize', update_testcase=False)
 
     # Update remaining test case information.
-    testcase.flaky_stack = flaky_stack
+    crash.flaky_stack = flaky_stack
     if build_manager.is_custom_binary():
-        testcase.set_impacts_as_na()
+        #testcase.set_impacts_as_na()
         testcase.regression = 'NA'
+
     data_handler.update_testcase_comment(testcase, data_types.TaskState.FINISHED)
+    data_handler.update_testcase(testcase)
+    data_handler.update_crash(crash)
 
     # We might have updated the crash state. See if we need to marked as duplicate
     # based on other testcases.
-    data_handler.handle_duplicate_entry(testcase)
+    data_handler.handle_duplicate_entry(testcase, crash)
 
     create_additional_tasks(testcase)
 
@@ -793,7 +787,7 @@ def store_minimized_testcase(testcase, base_directory, file_list,
 
 def check_deadline_exceeded_and_store_partial_minimized_testcase(
         deadline, testcase_id, job_type, input_directory, file_list,
-        file_to_run_data, main_file_path):
+        file_to_run_data, main_file_path, crash):
     """Store the partially minimized test and check the deadline."""
     testcase = data_handler.get_testcase_by_id(testcase_id)
     store_minimized_testcase(testcase, input_directory, file_list,
@@ -805,7 +799,7 @@ def check_deadline_exceeded_and_store_partial_minimized_testcase(
             'minimization_deadline_exceeded_attempts', default=0)
         if attempts >= MAX_DEADLINE_EXCEEDED_ATTEMPTS:
             _skip_minimization(testcase,
-                               'Exceeded minimization deadline too many times.')
+                               'Exceeded minimization deadline too many times.', crash=crash)
         else:
             testcase.set_metadata('minimization_deadline_exceeded_attempts',
                                   attempts + 1)
@@ -1079,16 +1073,11 @@ def do_js_minimization(test_function, get_temp_file, data, deadline, threads,
                                 threads, cleanup_interval, delete_temp_files)
 
 
-def _run_libfuzzer_testcase(testcase, testcase_file_path, crash, crash_retries=1):
+def _run_libfuzzer_testcase(testcase: data_types.Testcase, testcase_file_path, crash, crash_retries=1):
     """Run libFuzzer testcase, and return the CrashResult."""
     # Cleanup any existing application instances and temp directories.
     process_handler.cleanup_stale_processes()
     shell.clear_temp_directory()
-
-    # if environment.is_trusted_host():
-    #     from bot._internal.bot.untrusted_runner import file_host
-    #     file_host.copy_file_to_worker(
-    #         testcase_file_path, file_host.rebase_to_worker_root(testcase_file_path))
 
     test_timeout = environment.get_value('TEST_TIMEOUT',
                                          process_handler.DEFAULT_TEST_TIMEOUT)
@@ -1133,6 +1122,7 @@ def _run_libfuzzer_tool(tool_name,
                         testcase_file_path,
                         timeout,
                         expected_crash_state,
+                        crash,
                         set_dedup_flags=False):
     """Run libFuzzer tool to either minimize or cleanse."""
     memory_tool_options_var = environment.get_current_memory_tool_var()
@@ -1177,13 +1167,18 @@ def _run_libfuzzer_tool(tool_name,
     if not os.path.exists(output_file_path):
         logs.log_warn('LibFuzzer %s run failed.' % tool_name, output=result.output)
         return None, None
+    
+    # Upload Testcase to blobs bucket
+    with open(output_file_path, "rb") as f:
+        size = os.stat(output_file_path).st_size
+        blobs_manager.write_blob(file_handle_or_path=f, file_size=size)
 
     # Ensure that the crash parameters match. It's possible that we will
     # minimize/cleanse to an unrelated bug, such as a timeout.
-    crash_result = _run_libfuzzer_testcase(testcase, output_file_path)
+    crash_result = _run_libfuzzer_testcase(testcase, output_file_path, crash)
     state = crash_result.get_symbolized_data()
     security_flag = crash_result.is_security_issue()
-    if (security_flag != testcase.security_flag or
+    if (security_flag != crash.security_flag or
             state.crash_state != expected_crash_state):
         logs.log_warn('Ignoring unrelated crash.\n'
                       'State: %s (expected %s)\n'
@@ -1203,27 +1198,27 @@ def _run_libfuzzer_tool(tool_name,
     return output_file_path, crash_result
 
 
-def _update_crash_result(testcase, crash_result, command):
+def _update_crash_result(crash, crash_result, command, ):
     """Update testcase with crash result."""
     min_state = crash_result.get_symbolized_data()
     min_unsymbolized_crash_stacktrace = crash_result.get_stacktrace(
         symbolized=False)
     min_crash_stacktrace = utils.get_crash_stacktrace_output(
         command, min_state.crash_stacktrace, min_unsymbolized_crash_stacktrace)
-    testcase.crash_type = min_state.crash_type
-    testcase.crash_address = min_state.crash_address
-    testcase.crash_state = min_state.crash_state
-    testcase.crash_stacktrace = data_handler.filter_stacktrace(
+    crash.crash_type = min_state.crash_type
+    crash.crash_address = min_state.crash_address
+    crash.crash_state = min_state.crash_state
+    crash.crash_stacktrace = data_handler.filter_stacktrace(
         min_crash_stacktrace)
 
 
-def _skip_minimization(testcase, message, crash_result=None, command=None):
+def _skip_minimization(testcase, message, crash, crash_result=None, command=None):
     """Skip minimization for a testcase."""
     testcase = data_handler.get_testcase_by_id(str(testcase.id))
     testcase.minimized_keys = testcase.fuzzed_keys
 
     if crash_result:
-        _update_crash_result(testcase, crash_result, command)
+        _update_crash_result(crash, crash_result, command)
 
     data_handler.update_testcase_comment(testcase, data_types.TaskState.ERROR,
                                          message)
@@ -1238,7 +1233,7 @@ def do_libfuzzer_minimization(testcase, testcase_file_path, crash):
         # Be more lenient with marking testcases as unreproducible when this is a
         # job override.
         if is_overriden_job:
-            _skip_minimization(testcase, 'Unreproducible on overridden job')
+            _skip_minimization(testcase, 'Unreproducible on overridden job', crash=crash)
         else:
             task_creation.mark_unreproducible_if_flaky(testcase, True)
 
@@ -1256,7 +1251,7 @@ def do_libfuzzer_minimization(testcase, testcase_file_path, crash):
         handle_unreproducible()
         return
 
-    if testcase.security_flag != initial_crash_result.is_security_issue():
+    if crash.security_flag != initial_crash_result.is_security_issue():
         logs.log_warn('Security flag does not match.')
         handle_unreproducible()
         return
@@ -1274,15 +1269,13 @@ def do_libfuzzer_minimization(testcase, testcase_file_path, crash):
 
         minimized_options = options.copy()
         for options_name, options_value in six.iteritems(options):
-            if utils.is_oss_fuzz() and options_name in MANDATORY_OSS_FUZZ_OPTIONS:
-                continue
 
             minimized_options.pop(options_name)
             environment.set_memory_tool_options(options_env_var, minimized_options)
 
             reproduced = False
             for _ in range(MINIMIZE_SANITIZER_OPTIONS_RETRIES):
-                crash_result = _run_libfuzzer_testcase(testcase, testcase_file_path)
+                crash_result = _run_libfuzzer_testcase(testcase, testcase_file_path, crash)
                 if (crash_result.is_crash() and crash_result.is_security_issue() ==
                         initial_crash_result.is_security_issue() and
                         crash_result.get_type() == initial_crash_result.get_type() and
@@ -1306,7 +1299,7 @@ def do_libfuzzer_minimization(testcase, testcase_file_path, crash):
         environment.set_memory_tool_options(options_env_var, minimized_options)
         env[options_env_var] = environment.get_memory_tool_options(options_env_var)
     if env:
-        testcase = data_handler.get_testcase_by_id(testcase.key.id())
+        testcase = data_handler.get_testcase_by_id(str(testcase.id))
         testcase.set_metadata('env', env)
 
     # We attempt minimization multiple times in case one round results in an
@@ -1319,7 +1312,9 @@ def do_libfuzzer_minimization(testcase, testcase_file_path, crash):
             current_testcase_path,
             timeout,
             expected_state.crash_state,
-            set_dedup_flags=True)
+            crash,
+            set_dedup_flags=True
+            )
         if output_file_path:
             last_crash_result = crash_result
             current_testcase_path = output_file_path
@@ -1330,34 +1325,28 @@ def do_libfuzzer_minimization(testcase, testcase_file_path, crash):
         _skip_minimization(
             testcase,
             'LibFuzzer minimization failed',
+            crash=crash,
             crash_result=initial_crash_result,
             command=repro_command)
         return
 
     logs.log('LibFuzzer minimization succeeded.')
 
-    if utils.is_oss_fuzz():
-        # Scrub the testcase of non-essential data.
-        cleansed_testcase_path = do_libfuzzer_cleanse(
-            testcase, current_testcase_path, expected_state.crash_state)
-        if cleansed_testcase_path:
-            current_testcase_path = cleansed_testcase_path
-
     # Finalize the test case if we were able to reproduce it.
     repro_command = testcase_manager.get_command_line_for_application(
-        file_to_run=current_testcase_path, needs_http=testcase.http_flag)
+        file_to_run=current_testcase_path)
     finalize_testcase(
-        testcase.key.id(), repro_command, last_crash_result, flaky_stack=False)
+        str(testcase.id), repro_command, last_crash_result, crash, flaky_stack=False)
 
     # Clean up after we're done.
     shell.clear_testcase_directories()
 
 
-def do_libfuzzer_cleanse(testcase, testcase_file_path, expected_crash_state):
+def do_libfuzzer_cleanse(testcase, testcase_file_path, expected_crash_state, crash):
     """Cleanse testcase using libFuzzer."""
     timeout = environment.get_value('LIBFUZZER_CLEANSE_TIMEOUT', 180)
     output_file_path, _ = _run_libfuzzer_tool(
-        'cleanse', testcase, testcase_file_path, timeout, expected_crash_state)
+        'cleanse', testcase, testcase_file_path, timeout, expected_crash_state, crash)
 
     if output_file_path:
         logs.log('LibFuzzer cleanse succeeded.')

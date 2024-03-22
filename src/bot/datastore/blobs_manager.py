@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Blobs handling."""
 
 import os
@@ -117,7 +105,7 @@ def delete_blob(blob_key):
 def write_blob(file_handle_or_path, file_size):
     """Write a single file testcase to GCS."""
     blobs_bucket = storage.blobs_bucket()
-    blob_name = generate_new_blob_name()
+    blob_name =  generate_new_blob_name() #file_handle_or_path.name.split("/")[-1]
 
     if storage.get(storage.get_cloud_storage_file_path(blobs_bucket, blob_name)):
         raise BlobsException('UUID collision found: %s' % blob_name)
@@ -146,8 +134,9 @@ def read_blob_to_disk(blob_key, local_file):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    gcs_path = get_path(blob_key)
-    return storage.copy_file_from(gcs_path, local_file)
+    blobs_bucket = storage.blobs_bucket()
+    cloud_storage_file_path = '/%s/%s' % (blobs_bucket, blob_key)
+    return storage.copy_file_from(cloud_storage_file_path, local_file)
 
 
 def read_key(blob_key):

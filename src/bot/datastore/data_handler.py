@@ -133,7 +133,7 @@ def get_bot(bot_name) -> Bot:
     response = requests.get(f'{api_host}/api/bot/?name={bot_name}', headers=headers)
     result = json.loads(response.content.decode('utf-8'))
     if response.status_code == 200 and len(result["results"]) > 0:
-        json_bot = result["results"]
+        json_bot = result["results"][0]
         try:
             return Bot(**json_bot)
         except ValidationError as e:
@@ -192,9 +192,13 @@ def update_heartbeat(log_filename=None, force_update=False, task_status='NA'):
 def get_task_status(bot_name, task_name):
     """Return the status with the given name."""
     api_host, headers = api_headers()
-    response = requests.get(f'http://{api_host}/api/bot/?name={bot_name}', headers=headers)
-    json_bot = json.loads(response.content.decode('utf-8')["results"][0])
-    return json_bot['task_status'], json_bot['last_beat_time']
+    response = requests.get(f'{api_host}/api/bot/?name={bot_name}', headers=headers)
+    result = json.loads(response.content.decode('utf-8'))
+    if response.status_code == 200 and len(result["results"]) > 0:
+        json_bot = result["results"][0]
+        return json_bot['task_status'], json_bot['last_beat_time']
+    else:
+        return None
 
 
 def get_task(platform) -> Task:
@@ -347,7 +351,7 @@ def get_fuzzer(fuzzer_name) -> Fuzzer:
     result = json.loads(response.content.decode('utf-8'))
     try:
         if response.status_code == 200 and len(result['results']) > 0:
-            json_fuzzer = result['results']
+            json_fuzzer = result['results'][0]
             return Fuzzer(**json_fuzzer)
     except ValidationError as e:
         logs.log_error(e)
@@ -359,7 +363,7 @@ def get_fuzzer_by_id(fuzzer_id) -> Fuzzer:
     try:
         result = json.loads(response.content.decode('utf-8'))
         if response.status_code == 200 and len(result['results']) > 0:
-            json_fuzzer = result['results']
+            json_fuzzer = result['results'][0]
             return Fuzzer(**json_fuzzer)
     except ValidationError as e:
         logs.log_error(e)
@@ -386,11 +390,14 @@ def get_fuzz_target_job_by_job_fuzztarget(job_id, fuzzTarget_id) -> list[FuzzTar
     response = requests.get(
         f'{api_host}/api/fuzztargetjob/?job={job_id}&fuzzing_target={fuzzTarget_id}',
         headers=headers)
-    json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))['results']
-
     try:
-        fuzzTargetJobs = [FuzzTargetJob(**json_fuzzTargetJob) for json_fuzzTargetJob in json_fuzzTargetJobs]
-        return fuzzTargetJobs
+        if response.status_code == 200:
+            json_fuzzTargetJobs = json.loads(response.content.decode('utf-8'))['results']
+            fuzzTargetJobs = [FuzzTargetJob(**json_fuzzTargetJob) for json_fuzzTargetJob in json_fuzzTargetJobs]
+            return fuzzTargetJobs
+        else:
+            logs.log_warn("FuzzTarget Job not found")
+            return None
     except ValidationError as e:
         logs.log_error(e)
 
@@ -546,19 +553,29 @@ def record_fuzz_target(engine_name, binary_name, job_type) -> FuzzTarget:
 
 
 # ------------------------------------------------------------------------------
-# Testcase, TestcaseUploadMetadata database related functions
+# Testcase database related functions
 # ------------------------------------------------------------------------------
 
-def find_testcase(project_name, crash_type, crash_state, security_flag):
+def find_testcase(project_name, crash_type, crash_state, security_flag, testcase_to_exclude=None) -> Testcase:
     api_host, headers = api_headers()
+    if security_flag:
+        command = f'{api_host}/api/testcase/?job_id__project={project_name}&crash_testcase__crash_type={crash_type}&crash_testcase__crash_state={crash_state}&crash_testcase__security_flag'
+    else:
+        command = f'{api_host}/api/testcase/?job_id__project={project_name}&crash_testcase__crash_type={crash_type}&crash_testcase__crash_state={crash_state}'
     response = requests.get(
-        f'{api_host}/api/testcase/?job_id__project={project_name}&crash_testcase__crash_type={crash_type}&crash_testcase__crash_state={crash_state}',
+        command,
         headers=headers) #&security_flag={security_flag} There is a bug in Djongo with filtering Bool values for now lest avoid it
     try:
         result = json.loads(response.content.decode('utf-8'))
         if response.status_code == 200 and len(result['results']) > 0:
-            json_testcase = result['results'][0]
-            logs.log("Main Testcase Identified")
+            if testcase_to_exclude:
+                for result in result['results']:
+                    current_testcase =  Testcase(**result)
+                    if current_testcase != testcase_to_exclude:
+                        return current_testcase
+            else:
+                json_testcase = result['results'][0]
+                logs.log("Main Testcase Identified")
             return Testcase(**json_testcase)
         else:
             logs.log("Testcase Not Found")
@@ -607,7 +624,7 @@ def store_testcase(crash, fuzzed_keys, minimized_keys, regression, fixed,
         test_case = f.read()
 
     fuzzer = get_fuzzer(fuzzer_name)
-    testcase = data_types.Testcase(test_case=test_case, fixed=fixed, one_time_crasher_flag=one_time_crasher_flag,
+    testcase = data_types.Testcase(test_case=base64.b64encode(test_case).decode(), fixed=fixed, one_time_crasher_flag=one_time_crasher_flag,
                                    comments=comment, fuzzed_keys=fuzzed_keys,
                                    absolute_path=absolute_path,
                                    queue=job_type, archived=False,
@@ -694,7 +711,7 @@ def set_initial_testcase_metadata(testcase):
     # estcase.platform_id = environment.get_platform_id()
 
 
-def update_testcase_comment(testcase, task_state, message=None):
+def update_testcase_comment(testcase: Testcase, task_state, message=None):
     """Add task status and message to the test case's comment field."""
     bot_name = environment.get_value('BOT_NAME', 'Unknown')
     task_name = environment.get_value('TASK_NAME', 'Unknown')
@@ -718,7 +735,7 @@ def update_testcase_comment(testcase, task_state, message=None):
     if len(testcase.comments) > data_types.TESTCASE_COMMENTS_LENGTH_LIMIT:
         logs.log_error(
             'Testcase comments truncated (testcase {testcase_id}, job {job_type}).'.
-                format(testcase_id=testcase.id, job_type=testcase.job_id))
+                format(testcase_id=str(testcase.id), job_type=str(testcase.job_id)))
         testcase.comments = testcase.comments[
                             -data_types.TESTCASE_COMMENTS_LENGTH_LIMIT:]
 
@@ -730,8 +747,51 @@ def update_testcase_comment(testcase, task_state, message=None):
             if task_state == data_types.TaskState.ERROR else logs.log)
         log_func('{message} (testcase {testcase_id}, job {job_type}).'.format(
             message=message,
-            testcase_id=testcase.id,
-            job_type=testcase.job_id))
+            testcase_id=str(testcase.id),
+            job_type=str(testcase.job_id)))
+        
+    
+def close_invalid_uploaded_testcase(testcase: Testcase, status):
+    testcase.open = False
+    mark_invalid_uploaded_testcase(testcase, status)
+
+
+def mark_invalid_uploaded_testcase(testcase: Testcase, status):
+    """Closes an invalid testcase and updates metadata."""
+    testcase.status = status
+    testcase.minimized_keys = 'NA'
+    testcase.regression = 'NA'
+    testcase.fixed = 'NA'
+    testcase.triaged = True
+    update_testcase(testcase=testcase)
+
+def check_uploaded_testcase_duplicate(testcase: Testcase, crash: Crash):
+    """Check if the uploaded testcase is a duplicate."""
+    project_name = get_project_name(testcase.job_id)
+    existing_testcase = find_testcase(project_name, crash.crash_type,
+                                    crash.crash_state,
+                                    crash.security_flag)
+
+    if not existing_testcase or existing_testcase.id == testcase.id:
+        return False
+
+    # If the existing test case is unreproducible and we are, replace the
+    # existing test case with this one.
+    if (existing_testcase.one_time_crasher_flag and
+        not testcase.one_time_crasher_flag):
+        duplicate_testcase = existing_testcase
+        original_testcase = testcase
+    else:
+        duplicate_testcase = testcase
+        original_testcase = existing_testcase
+        testcase.status = 'Duplicate'
+        testcase.duplicate_of = existing_testcase.id
+
+    duplicate_testcase.status = 'Duplicate'
+    duplicate_testcase.duplicate_of = original_testcase.id
+    update_testcase(duplicate_testcase)
+
+    return duplicate_testcase.id == testcase.id
 
 
 # ------------------------------------------------------------------------------
@@ -834,7 +894,9 @@ def store_crash(crash_obj, job_type, testcase_id, one_time_crasher_flag, crash_r
                   should_be_ignored=crash_obj.should_be_ignored,
                   application_command_line=crash_obj.application_command_line,
                   unsymbolized_crash_stacktrace=unsymbolized_crash_stacktrace,
-                  crash_info=crash_obj.crash_info)
+                  crash_info=crash_obj.crash_info,
+                  crash_revision=crash_revision,
+                  one_time_crasher_flag=one_time_crasher_flag)
 
     crash.testcase_id = testcase_id
 
@@ -847,33 +909,35 @@ def store_crash(crash_obj, job_type, testcase_id, one_time_crasher_flag, crash_r
         logs.log("Crash already Registered")
 
 
+def update_crash(crash):
+    api_host, headers = api_headers()
+
+    crash.crash_hash = hashlib.sha256(crash.crash_stacktrace.encode()).hexdigest()
+    crash.crash_stacktrace = base64.b64encode(filter_stacktrace(crash.crash_stacktrace).encode()).decode()
+    crash.unsymbolized_crash_stacktrace = base64.b64encode(crash.unsymbolized_crash_stacktrace.encode()).decode()
+    
+    payload = json.loads(crash.json())
+    response = requests.patch(f'{api_host}/api/crash/{crash.id}/', json=payload,
+                             headers=headers)
+    try:
+        if response.status_code == 200:
+            return True
+    except ValidationError as e:
+        logs.log_error(errors.InvalidTestcaseError)
+
 # ------------------------------------------------------------------------------
 # Extra Functions
 # ------------------------------------------------------------------------------
 
-def get_fuzzer_display(testcase):
+def get_fuzzer_display(testcase: Testcase):
     """Return FuzzerDisplay tuple."""
-    if (testcase.overridden_fuzzer_name == testcase.fuzzer_name or
-            not testcase.overridden_fuzzer_name):
-        return FuzzerDisplay(
-            engine=None,
-            target=None,
-            name=testcase.fuzzer_name,
-            fully_qualified_name=testcase.fuzzer_name)
-
-    fuzz_target = get_fuzz_target_by_keyName(testcase.overridden_fuzzer_name)
-    if not fuzz_target:
-        # Legacy testcases.
-        return FuzzerDisplay(
-            engine=testcase.fuzzer_name,
-            target=testcase.get_metadata('fuzzer_binary_name'),
-            name=testcase.fuzzer_name,
-            fully_qualified_name=testcase.overridden_fuzzer_name)
+    fuzzer_name = get_fuzzer_by_id(str(testcase.fuzzer_id)).name
+    fuzz_target = get_fuzz_target_by_keyName(fuzzer_name, environment.get_value("FUZZ_TARGET"))
 
     return FuzzerDisplay(
-        engine=fuzz_target.engine,
+        engine=fuzz_target.fuzzer_engine,
         target=fuzz_target.binary,
-        name=fuzz_target.engine,
+        name=fuzz_target.fuzzer_engine,
         fully_qualified_name=fuzz_target.fully_qualified_name())
 
 
@@ -1003,7 +1067,7 @@ def get_plaintext_help_text(testcase, config):
     return ''
 
 
-def handle_duplicate_entry(testcase):
+def handle_duplicate_entry(testcase: Testcase, crash: Crash):
     """Handles duplicates and deletes unreproducible one."""
     # Caller ensures that our testcase object is up-to-date. If someone else
     # already marked us as a duplicate, no more work to do.
@@ -1011,11 +1075,12 @@ def handle_duplicate_entry(testcase):
         return
 
     existing_testcase = find_testcase(
-        testcase.project_name,
-        testcase.crash_type,
-        testcase.crash_state,
-        testcase.security_flag,
+        testcase.job_id,
+        crash.crash_type,
+        crash.crash_state,
+        crash.security_flag,
         testcase_to_exclude=testcase)
+        
     if not existing_testcase:
         return
 
@@ -1026,37 +1091,23 @@ def handle_duplicate_entry(testcase):
     if not existing_testcase.minimized_keys:
         return
 
-    testcase_id = testcase.key.id()
-    existing_testcase_id = existing_testcase.key.id()
+    testcase_id = str(testcase.id)
+    existing_testcase_id = str(existing_testcase.id)
     if (not testcase.bug_information and
             not existing_testcase.one_time_crasher_flag):
-        metadata = data_types.TestcaseUploadMetadata.query(
-            data_types.TestcaseUploadMetadata.testcase_id == testcase_id).get()
-        if metadata:
-            metadata.status = 'Duplicate'
-            metadata.duplicate_of = existing_testcase_id
-            metadata.security_flag = existing_testcase.security_flag
-            metadata.put()
 
         testcase.status = 'Duplicate'
         testcase.duplicate_of = existing_testcase_id
-        testcase.put()
+        update_testcase(testcase=testcase)
         logs.log('Marking testcase %d as duplicate of testcase %d.' %
                  (testcase_id, existing_testcase_id))
 
     elif (not existing_testcase.bug_information and
           not testcase.one_time_crasher_flag):
-        metadata = data_types.TestcaseUploadMetadata.query(
-            data_types.TestcaseUploadMetadata.testcase_id == testcase_id).get()
-        if metadata:
-            metadata.status = 'Duplicate'
-            metadata.duplicate_of = testcase_id
-            metadata.security_flag = testcase.security_flag
-            metadata.put()
-
+        
         existing_testcase.status = 'Duplicate'
         existing_testcase.duplicate_of = testcase_id
-        existing_testcase.put()
+        update_testcase(testcase=existing_testcase)
         logs.log('Marking testcase %d as duplicate of testcase %d.' %
                  (existing_testcase_id, testcase_id))
 

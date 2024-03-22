@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for data_handler."""
 
 import datetime
@@ -73,10 +61,10 @@ class DataHandlerTest(unittest.TestCase):
     helpers.patch_environ(self)
     project_config_get = local_config.ProjectConfig.get
     helpers.patch(self, [
-        'src.bot.base.utils.default_project_name',
-        'src.bot.config.db_config.get',
+        'bot.base.utils.default_project_name',
+        'bot.config.db_config.get',
         ('project_config_get',
-         'src.bot.config.local_config.ProjectConfig.get'),
+         'bot.config.local_config.ProjectConfig.get'),
     ])
 
     self.job = data_types.Job(
@@ -541,7 +529,7 @@ class GetSecuritySeverityTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.crash_analysis.severity_analyzer.get_security_severity',
+        'bot.crash_analysis.severity_analyzer.get_security_severity',
     ])
     self.gestures = ''
     self.mock.get_security_severity.return_value = 'Low'
@@ -573,7 +561,7 @@ class UpdateTestcaseCommentTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'src.bot.base.utils.current_date_time',
+        'bot.base.utils.current_date_time',
     ])
 
     os.environ['BOT_NAME'] = 'bot_working_directory'
@@ -787,8 +775,8 @@ class RecordFuzzTargetTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'src.bot.base.utils.is_oss_fuzz',
-        'src.bot.base.utils.utcnow',
+        'bot.base.utils.is_oss_fuzz',
+        'bot.base.utils.utcnow',
     ])
 
     self.mock.is_oss_fuzz.return_value = False

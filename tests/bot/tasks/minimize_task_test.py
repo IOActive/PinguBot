@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """Tests for corpus_pruning_task."""
 import os
 import shutil
@@ -42,8 +30,8 @@ class LibFuzzerMinimizeTaskTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'src.bot.bot_working_directory.tasks.minimize_task._run_libfuzzer_testcase',
-        'src.bot.bot_working_directory.tasks.minimize_task._run_libfuzzer_tool',
+        'bot.bot_working_directory.tasks.minimize_task._run_libfuzzer_testcase',
+        'bot.bot_working_directory.tasks.minimize_task._run_libfuzzer_tool',
     ])
 
     test_utils.setup_pubsub(utils.get_application_id())
@@ -107,7 +95,7 @@ class MinimizeTaskTestUntrusted(
     environment.set_value('JOB_NAME', 'libfuzzer_asan_job')
 
     patcher = mock.patch(
-        'src.bot.bot_working_directory.fuzzers.libFuzzer.fuzzer.LibFuzzer.fuzzer_directory',
+        'bot.bot_working_directory.fuzzers.libFuzzer.fuzzer.LibFuzzer.fuzzer_directory',
         new_callable=mock.PropertyMock)
 
     mock_fuzzer_directory = patcher.start()
@@ -151,7 +139,7 @@ class MinimizeTaskTestUntrusted(
 
   def test_minimize(self):
     """Test minimize."""
-    helpers.patch(self, ['src.bot.base.utils.is_oss_fuzz'])
+    helpers.patch(self, ['bot.base.utils.is_oss_fuzz'])
     self.mock.is_oss_fuzz.return_value = True
 
     testcase_file_path = os.path.join(self.temp_dir, 'testcase')

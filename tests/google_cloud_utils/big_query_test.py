@@ -1,16 +1,4 @@
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 """big_query tests."""
 
 import datetime
@@ -29,7 +17,7 @@ class InitTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.base.utils.get_application_id',
+        'bot.base.utils.get_application_id',
         'googleapiclient.discovery.build',
         'httplib2.Http',
     ])
@@ -58,8 +46,8 @@ class RawQueryTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.base.utils.get_application_id',
-        'src.bot.google_cloud_utils.big_query.get_api_client',
+        'bot.base.utils.get_application_id',
+        'bot.google_cloud_utils.big_query.get_api_client',
     ])
     self.mock.get_application_id.return_value = 'project'
 
@@ -92,8 +80,8 @@ class InsertTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.base.utils.get_application_id',
-        'src.bot.google_cloud_utils.big_query.get_api_client',
+        'bot.base.utils.get_application_id',
+        'bot.google_cloud_utils.big_query.get_api_client',
     ])
     self.mock.get_application_id.return_value = 'project'
 
@@ -379,8 +367,8 @@ class QueryTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'src.bot.base.utils.get_application_id',
-        'src.bot.google_cloud_utils.big_query.get_api_client',
+        'bot.base.utils.get_application_id',
+        'bot.google_cloud_utils.big_query.get_api_client',
         'time.time', 'time.sleep'
     ])
     self.mock.time.return_value = 1
@@ -652,8 +640,8 @@ class WriteRangeTest(unittest.TestCase):
   def setUp(self):
     self.client = mock.Mock(spec_set=big_query.Client)
     helpers.patch(self, [
-        'src.bot.metrics.logs.log_error',
-        'src.bot.google_cloud_utils.big_query.Client',
+        'bot.metrics.logs.log_error',
+        'bot.google_cloud_utils.big_query.Client',
         'time.time',
     ])
     self.mock.time.return_value = 99
