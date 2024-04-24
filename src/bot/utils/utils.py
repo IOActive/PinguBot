@@ -735,7 +735,7 @@ def write_data_to_file(content, file_path, append=False):
             # If we saw a TypeError, content was not bytes-like. Convert it.
             content = str(content).encode('utf-8')
             continue
-        except EnvironmentError:
+        except EnvironmentError as e:
             # An EnvironmentError signals a problem writing the file. Retry in case
             # it was a spurious error.
             logs.log_warn('Error occurred while writing %s, retrying.' % file_path)

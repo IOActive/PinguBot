@@ -931,8 +931,9 @@ def test_for_crash_with_retries(testcase,
     @return CrashResult(return_code=0, crash_time=0, output='')
     """
     gestures = crash.gestures if use_gestures else None
+    fuzzer = data_handler.get_fuzzer_by_id(str(testcase.fuzzer_id))
     try:
-        fuzz_target = data_handler.get_fuzz_target_by_keyName("libFuzzer", environment.get_value("FUZZ_TARGET"))
+        fuzz_target = data_handler.get_fuzz_target_by_keyName(fuzzer_engine=fuzzer.name, binary=environment.get_value("FUZZ_TARGET"))
         if testcase.fuzzer_id and not fuzz_target:
             raise TargetNotFoundError
 
@@ -943,8 +944,8 @@ def test_for_crash_with_retries(testcase,
             crash_retries = environment.get_value('CRASH_RETRIES')
 
         if compare_crash:
-            expected_state = testcase.crash_state
-            expected_security_flag = testcase.security_flag
+            expected_state = crash.crash_state
+            expected_security_flag = crash.security_flag
         else:
             expected_state = None
             expected_security_flag = None

@@ -457,8 +457,8 @@ class Testcase(BaseModel):
 
     def _ensure_metadata_is_cached(self):
         """Ensure that the metadata for this has been cached."""
-        if hasattr(self, '__metadata_cache__'):
-            return
+        #if hasattr(self, '__metadata_cache__'):
+        #    return
 
         try:
             cache = json_utils.loads(self.additional_metadata)
