@@ -8,15 +8,15 @@ import os
 import mock
 from pyfakefs import fake_filesystem_unittest
 
-from bot.fuzzers import engine_common
+from bot.fuzzers.utils import engine_common
 from bot.fuzzers.afl import fuzzer
 from bot.fuzzers.afl import launcher
 from bot.system import environment
 from bot.system import new_process
-from bot.tests.core.bot.fuzzers.engine_common_test import \
+from tests.bot.fuzzers.engine_common_test import \
     GetTimeoutTestBase
-from bot.tests.test_libs import helpers as test_helpers
-from bot.tests.test_libs import test_utils
+from tests.test_libs import helpers as test_helpers
+from tests.test_libs import test_utils
 
 
 class LauncherTestBase(fake_filesystem_unittest.TestCase):
@@ -809,6 +809,6 @@ class CorpusTest(fake_filesystem_unittest.TestCase):
 def dont_use_strategies(obj):
   """Helper function to prevent using fuzzing strategies, unless asked for."""
   test_helpers.patch(obj, [
-      'bot.bot_working_directory.fuzzers.engine_common.decide_with_probability',
+      'bot.fuzzers.utils.engine_common.decide_with_probability',
   ])
   obj.mock.decide_with_probability.return_value = False

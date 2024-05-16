@@ -19,6 +19,7 @@ from bot.metrics import logs
 from bot.platforms import android
 from bot.system import environment, shell, archive, new_process, errors, minijail
 from bot.utils import utils
+from bot.datastore import blobs_manager as blobs
 
 DEFAULT_BUILD_BUCKET_PATH_ENV_VARS = (
     'RELEASE_BUILD_BUCKET_PATH',
@@ -1152,8 +1153,8 @@ class CustomBuild(Build):
 
         build_local_archive = os.path.join(self.build_dir,
                                            self.custom_binary_filename)
-        # if not blobs.read_blob_to_disk(self.custom_binary_key, build_local_archive):
-        #     return False
+        if not blobs.read_blob_to_disk(self.custom_binary_key, build_local_archive):
+             return False
 
         # If custom binary is an archive, then unpack it.
         if archive.is_archive(self.custom_binary_filename):

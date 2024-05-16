@@ -20,9 +20,8 @@ import unittest
 from bot.fuzzers.afl import engine
 from bot.fuzzers.afl import launcher
 from bot.system import environment
-from bot.tests.core.bot.fuzzers.afl import \
-    afl_launcher_integration_test
-from bot.tests.test_libs import helpers as test_helpers
+from tests.bot.fuzzers.afl import afl_launcher_integration_test
+from tests.test_libs import helpers as test_helpers
 
 # TODO(mbarbella): Break dependency on afl_launcher_integration_test once
 # everything has been fully converted to the new pipeline.

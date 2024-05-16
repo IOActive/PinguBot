@@ -196,7 +196,7 @@ class MinioProvider(StorageProvider):
         try:
             # Download data of an object.
             for item in client.list_objects(bucket_name, recursive=True):
-                blob = client.fget_object(bucket_name, item.object_name, local_path)
+                blob = client.fget_object(bucket_name, item.object_name, f'{local_path}/{item.object_name}')
                 logs.log(
                     "downloaded {0} object; etag: {1}, version-id: {2}".format(blob.object_name, blob.etag,
                                                                                blob.version_id))
