@@ -8,15 +8,14 @@ import unittest
 
 import mock
 
-from bot.fuzzers import engine_common
+from bot.fuzzers.utils import engine_common
 from bot.fuzzers.afl import fuzzer
 from bot.fuzzers.afl import launcher
 from bot.system import environment
 from bot.system import new_process
-from bot.tests.core.bot.fuzzers.afl.afl_launcher_test import \
-    dont_use_strategies
-from bot.tests.test_libs import helpers as test_helpers
-from bot.tests.test_libs import test_utils
+from tests.test_libs import helpers as test_helpers
+from tests.test_libs import test_utils
+from tests.bot.fuzzers.afl.afl_launcher_test import dont_use_strategies
 
 TEST_PATH = os.path.abspath(os.path.dirname(__file__))
 TEMP_DIRECTORY = os.path.join(TEST_PATH, 'temp')
@@ -133,8 +132,8 @@ class BaseLauncherTest(unittest.TestCase):
     # Make it easy to assert if things were logged.
     test_helpers.patch(self, [
         'bot.metrics.logs.log', 'os.getpid',
-        'bot.bot_working_directory.fuzzers.afl.launcher.rand_cmplog_level',
-        'bot.bot_working_directory.fuzzers.afl.launcher.rand_schedule'
+        'bot_working_directory.fuzzers.afl.launcher.rand_cmplog_level',
+        'bot_working_directory.fuzzers.afl.launcher.rand_schedule'
     ])
     self.mock.rand_cmplog_level.return_value = '2'
     self.mock.rand_schedule.return_value = 'fast'
@@ -177,8 +176,8 @@ class BaseLauncherTest(unittest.TestCase):
       shutil.copy(src, dst)
 
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.afl.launcher.AflRunnerCommon.fuzz',
-        'bot.bot_working_directory.fuzzers.afl.launcher.AflFuzzOutputDirectory.is_testcase'
+        'bot_working_directory.fuzzers.afl.launcher.AflRunnerCommon.fuzz',
+        'bot_working_directory.fuzzers.afl.launcher.AflFuzzOutputDirectory.is_testcase'
     ])
 
     self.mock.fuzz.side_effect = mocked_fuzz

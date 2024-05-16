@@ -2,8 +2,8 @@
 """Fuzzing module."""
 
 PUBLIC_ENGINES = [
-    'libFuzzer']
-   # 'afl',
+    'libFuzzer',
+    'afl',]
    # 'honggfuzz',
    # 'googlefuzztest',
 #)

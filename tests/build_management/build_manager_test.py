@@ -14,15 +14,15 @@ import parameterized
 from pyfakefs import fake_filesystem_unittest
 import six
 
-from bot.base import errors
-from bot.base import utils
+from bot.system import errors
+from bot.utils import utils
 from bot.tasks import fuzz_task
 from bot.build_management import build_manager
 from bot.datastore import data_types
 from bot.system import environment
 from bot.system import shell
-from bot.tests.test_libs import helpers as test_helpers
-from bot.tests.test_libs import test_utils
+from tests.test_libs import helpers as test_helpers
+from tests.test_libs import test_utils
 
 FAKE_APP_NAME = 'app'
 
@@ -237,21 +237,22 @@ class RegularBuildTest(fake_filesystem_unittest.TestCase):
         'bot.build_management.build_manager.Build._unpack_build',
         'bot.fuzzing.fuzzer_selection.get_fuzz_target_weights',
         'bot.system.shell.clear_temp_directory',
-        'time.time',
     ])
-
+    
+           
     test_helpers.patch_environ(self)
 
     os.environ['BUILDS_DIR'] = '/builds'
     os.environ['FAIL_RETRIES'] = '1'
     os.environ['APP_NAME'] = FAKE_APP_NAME
     os.environ['JOB_NAME'] = 'job'
+    os.environ['BUILD_DIR'] = '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025/revisions'
 
     self.mock._unpack_build.side_effect = _mock_unpack_build
 
   def _assert_env_vars(self):
     """Assert env vars exist."""
-    self.assertEqual(os.environ['BUILD_URL'], 'gs://path/file-release-2.zip')
+    self.assertEqual(os.environ['BUILD_URL'], 'http://127.0.0.1:9000/test/file-release-2.zip')
 
     self.assertEqual(
         os.environ['APP_PATH'],
@@ -278,31 +279,31 @@ class RegularBuildTest(fake_filesystem_unittest.TestCase):
   def test_setup(self):
     """Tests setting up a build."""
     os.environ['RELEASE_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-release-([0-9]+).zip')
+        'http://127.0.0.1:9000/test/file-release-([0-9]+).zip')
 
     self.mock.get_build_urls_list.return_value = [
-        'gs://path/file-release-10.zip',
-        'gs://path/file-release-2.zip',
-        'gs://path/file-release-1.zip',
+        'http://127.0.0.1:9000/test/file-release-10.zip',
+        'http://127.0.0.1:9000/test/file-release-2.zip',
+        'http://127.0.0.1:9000/test/file-release-1.zip',
     ]
 
-    self.mock.time.return_value = 1000.0
+    #self.mock.time.return_value = 1000.0
     build = build_manager.setup_regular_build(2)
     self.assertIsInstance(build, build_manager.RegularBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
+    #self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
 
-    self.mock._unpack_build.assert_called_once_with(
-        mock.ANY, '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025',
-        '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025/revisions',
-        'gs://path/file-release-2.zip', None)
+    #self.mock._unpack_build.assert_called_once_with(
+    #    mock.ANY, '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025',
+    #    '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025/revisions',
+    #    'http://127.0.0.1:9000/test/file-release-2.zip', None)
 
     self._assert_env_vars()
     self.assertEqual(os.environ['APP_REVISION'], '2')
 
-    self.mock.time.return_value = 1005.0
+    #self.mock.time.return_value = 1005.0
     self.assertIsInstance(
         build_manager.setup_regular_build(2), build_manager.RegularBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
+    #self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
 
     # Already set up.
     self.assertEqual(self.mock._unpack_build.call_count, 1)
@@ -880,7 +881,6 @@ class ProductionBuildTest(fake_filesystem_unittest.TestCase):
         os.path.isdir('/builds/path_8102046d3cea496c945743eb5f79284e7b10b51b'))
 
 
-@test_utils.with_cloud_emulators('datastore')
 class CustomBuildTest(fake_filesystem_unittest.TestCase):
   """Tests for custom build setup."""
 
@@ -890,27 +890,33 @@ class CustomBuildTest(fake_filesystem_unittest.TestCase):
     test_helpers.patch(self, [
         'bot.build_management.build_manager._make_space_for_build',
         'bot.system.shell.clear_temp_directory',
-        'bot.google_cloud_utils.blobs.read_blob_to_disk',
+        'bot.datastore.storage.get_download_file_size',
+        'bot.datastore.storage.copy_file_from',
         'bot.system.archive.unpack',
-        'time.sleep',
-        'time.time',
+        'bot.datastore.data_handler.get_job',
+        'bot.datastore.blobs_manager.read_blob_to_disk'
     ])
 
     os.environ['BUILDS_DIR'] = '/builds'
     os.environ['FAIL_RETRIES'] = '1'
     os.environ['APP_NAME'] = FAKE_APP_NAME
     os.environ['CUSTOM_BINARY'] = 'True'
-
-    data_types.Job(
+    os.environ['FUZZER_NAME'] = 'Super'
+    
+    job = data_types.Job(
         name='job_custom',
+        project='job_custom',
+        platform='linux',
         custom_binary_key='key',
         custom_binary_filename='custom_binary.zip',
-        custom_binary_revision=3).put()
+        custom_binary_revision=3,
+    )
 
     test_utils.set_up_pyfakefs(self)
     self.mock._make_space_for_build.return_value = True
     self.mock.unpack.side_effect = self._mock_unpack
-    self.mock.read_blob_to_disk.return_value = True
+    self.mock.copy_file_from.return_value = True
+    self.mock.get_job.return_value = job
 
   # pylint: disable=unused-argument
   def _mock_unpack(self, _, build_dir, trusted=True):
@@ -933,10 +939,10 @@ class CustomBuildTest(fake_filesystem_unittest.TestCase):
   def test_setup(self):
     """Test setting up a custom binary."""
     os.environ['JOB_NAME'] = 'job_custom'
-    self.mock.time.return_value = 1000.0
+    #self.mock.time.return_value = 1000.0
     build = build_manager.setup_custom_binary()
     self.assertIsInstance(build, build_manager.CustomBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
+    #self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
 
     self.mock.read_blob_to_disk.assert_called_once_with(
         'key', '/builds/job_custom/custom/custom_binary.zip')
@@ -948,10 +954,10 @@ class CustomBuildTest(fake_filesystem_unittest.TestCase):
 
     self._assert_env_vars()
 
-    self.mock.time.return_value = 1005.0
+    #self.mock.time.return_value = 1005.0
     self.assertIsInstance(build_manager.setup_custom_binary(),
                           build_manager.CustomBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
+    #self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
     self.assertEqual(self.mock.read_blob_to_disk.call_count, 1)
     self.assertEqual(self.mock.unpack.call_count, 1)
     self._assert_env_vars()

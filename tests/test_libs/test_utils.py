@@ -109,8 +109,9 @@ def set_up_pyfakefs(test_self, allow_root_user=True):
     real_cwd = os.path.realpath(os.getcwd())
     config_dir = os.path.realpath(environment.get_config_directory())
     test_self.setUpPyfakefs(allow_root_user=allow_root_user)
-    test_self.fs.add_real_directory(config_dir, lazy_read=False)
-    os.chdir(real_cwd)
+    #test_self.fs.add_real_directory(real_cwd, lazy_read=False)
+    test_self.fs.add_real_directory(config_dir, target_path='config', lazy_read=False)
+    #os.chdir(real_cwd)
 
 
 def supported_platforms(*platforms):

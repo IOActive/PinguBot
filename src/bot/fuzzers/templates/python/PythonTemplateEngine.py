@@ -56,7 +56,7 @@ class PythonFuzzerEngine(multiprocessing.Process):
     '''
     Use this base class to derive your
     Python-based fuzzer from. It allows
-    you to quickly enhance Lucky CAT with
+    you to quickly enhance PinguBot with
     a new fuzzer.
     '''
 

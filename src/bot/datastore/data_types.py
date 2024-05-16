@@ -209,6 +209,9 @@ class Fuzzer(BaseModel):
 
     # Revision number of the fuzzer.
     revision: float = 1.0
+    
+    # Data bundel Name
+    data_bundle_name: str = ""
 
     class Config:
         allow_population_by_field_name = True
@@ -237,10 +240,10 @@ class Job(BaseModel):
     id: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     name: str
     project: str
-    description: str
-    date: datetime
-    enabled: bool
-    archived: bool
+    description: str = ''
+    date: datetime = datetime.now()
+    enabled: bool = True
+    archived: bool = False
     #fuzzing_target: UUID  #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzing_target")
     #owner: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default=None, alias="owner")
     templates: UUID = None #PyObjectId = Field(default=None, alias="template")
