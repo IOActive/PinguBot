@@ -153,7 +153,7 @@ class MinioProvider(StorageProvider):
 
         if recursive:
             # List objects information recursively.
-            objects = client.list_objects(bucket_name, recursive=True)
+            objects = client.list_objects(bucket_name, prefix=path, recursive=True)
             for obj in objects:
                 properties['bucket'] = obj.bucket_name
                 properties['name'] = obj.object_name
@@ -163,7 +163,7 @@ class MinioProvider(StorageProvider):
 
         if not recursive:
             # When doing delimiter listings, the "directories" will be in `prefixes`.
-            objects = client.list_objects(bucket_name)
+            objects = client.list_objects(bucket_name, prefix=path)
             for obj in objects:
                 properties['bucket'] = obj.bucket_name
                 properties['name'] = obj.object_name
@@ -195,7 +195,7 @@ class MinioProvider(StorageProvider):
 
         try:
             # Download data of an object.
-            for item in client.list_objects(bucket_name, recursive=True):
+            for item in client.list_objects(bucket_name, prefix=path, recursive=True):
                 blob = client.fget_object(bucket_name, item.object_name, f'{local_path}/{item.object_name}')
                 logs.log(
                     "downloaded {0} object; etag: {1}, version-id: {2}".format(blob.object_name, blob.etag,
