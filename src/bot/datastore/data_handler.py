@@ -118,10 +118,11 @@ def register_bot():
                'task_payload': "",
                'task_end_time': None,
                'last_beat_time': datetime.now().strftime(DATETIME_FORMAT),
-               'platform': environment.get_platform()}
+               'platform': environment.get_platform(),
+               'bot_logs': ""}
 
     response = requests.post(f'{api_host}/api/bot/', json=payload, headers=headers)
-    if response.status_code == 200:
+    if response.status_code == 201:
         logs.log("Bot Registered")
     elif response.status_code == 500:
         logs.log("Bot already Registered")
