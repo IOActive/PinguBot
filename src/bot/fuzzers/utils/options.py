@@ -11,11 +11,12 @@ import six
 from bot.fuzzers.utils import fuzzer_utils
 from bot.metrics import logs
 from bot.system import environment
+from bot.fuzzers.afl import constants as afl_constants
 
 OPTIONS_FILE_EXTENSION = '.options'
 
 # Whitelist for env variables .options files can set.
-#ENV_VAR_WHITELIST = set([afl_constants.DONT_DEFER_ENV_VAR])
+ENV_VAR_WHITELIST = set([afl_constants.DONT_DEFER_ENV_VAR])
 
 
 class FuzzerOptionsException(Exception):
@@ -102,8 +103,8 @@ class FuzzerOptions(object):
     for var_name, var_value in six.iteritems(self._get_option_section('env')):
 
       var_name = var_name.upper()
-      #if var_name in ENV_VAR_WHITELIST:
-      #  env[var_name] = var_value
+      if var_name in ENV_VAR_WHITELIST:
+        env[var_name] = var_value
 
     return env
 

@@ -124,3 +124,5 @@ def supported_platforms(*platforms):
             func)
 
     return decorator
+
+MockStdout = io.StringIO  # pylint: disable=invalid-name

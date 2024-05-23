@@ -121,7 +121,7 @@ class AflConfig:
     self.additional_env_vars = fuzzer_options.get_env()
 
     # Try to convert libFuzzer arguments to AFL arguments or env vars.
-    libfuzzer_options = fuzzer_options.get_engine_arguments('libfuzzer')
+    libfuzzer_options = fuzzer_options.get_engine_arguments('libFuzzer')
     for libfuzzer_name, value in libfuzzer_options.dict().items():
       if libfuzzer_name not in self.LIBFUZZER_TO_AFL_OPTIONS:
         continue
@@ -699,8 +699,8 @@ class AflRunnerCommon:
     # testcase mutations are properly generated, set generator strategy
     # accordingly.
     generator_used = engine_common.generate_new_testcase_mutations(
-        self.afl_input.input_directory, self.afl_input.input_directory,
-        self.strategies.candidate_generator)
+        corpus_directory=self.afl_input.input_directory, new_testcase_mutations_directory=self.afl_input.input_directory,
+        fuzzer_name="", candidate_generator=self.strategies.candidate_generator)
 
     if generator_used:
       self.strategies.generator_strategy = self.strategies.candidate_generator
@@ -1227,7 +1227,7 @@ class AflRunnerCommon:
     showmap_args = [
         f'{constants.OUTPUT_FLAG}{self.showmap_output_path}',
         f'{constants.MEMORY_LIMIT_FLAG}{constants.MAX_MEMORY_LIMIT}',
-        self.target_path, '-'
+        self.target_path, '-1'
     ]
     input_dir = self.afl_input.input_directory
     corpus = Corpus()
@@ -1548,9 +1548,13 @@ def _verify_system_config():
           path=constants.CORE_PATTERN_FILE_PATH),
       shell=True)
   if return_code or not _check_core_pattern_file():
-    logs.log_fatal_and_exit(
+    logs.log_error(
         'Failed to set {path}. AFL needs {path} to be set to core.'.format(
             path=constants.CORE_PATTERN_FILE_PATH))
+    logs.log_warn(f'To bypass the use of other crash manager for core dump notifications to an external utility \
+      {constants.AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES} is going to be set')
+    environment.set_value(constants.AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES, 1)
+
 
 
 def load_testcase_if_exists(fuzzer_runner, testcase_file_path):

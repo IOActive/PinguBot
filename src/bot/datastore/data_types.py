@@ -311,9 +311,10 @@ class Job(BaseModel):
 class FuzzStrategyProbability(BaseModel):
     """Mapping between fuzz strategies and probabilities with which they
   should be selected."""
-    strategy_name: str
-    probability: float
-    engine: UUID #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzer_id")
+    id: UUID = Field(default_factory=uuid4)
+    strategy_name: str = ''
+    probability: float = 1.0
+    engine: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzer_id")
 
 
 class Status(str, Enum):
