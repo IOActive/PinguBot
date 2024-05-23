@@ -24,7 +24,7 @@ from bot.system import shell, environment
 from bot.utils import utils
 
 # Prefix for MINIO urls.
-MINIO_PREFIX = environment.get_value("MINIO_HOST")
+#MINIO_PREFIX = environment.get_value("MINIO_HOST")
 
 AUTH_TOKEN_EXPIRY_TIME = 10 * 60
 
@@ -572,7 +572,7 @@ def _storage_client():
 
 def get_bucket_name_and_path(cloud_storage_file_path):
     """Return bucket name and path given a full cloud storage path."""
-    filtered_path = utils.strip_from_left(cloud_storage_file_path, "http://" + MINIO_PREFIX)
+    filtered_path = utils.strip_from_left(cloud_storage_file_path, "http://" + environment.get_value("MINIO_HOST"))
     _, bucket_name_and_path = filtered_path.split('/', 1)
 
     if '/' in bucket_name_and_path:
@@ -586,7 +586,7 @@ def get_bucket_name_and_path(cloud_storage_file_path):
 
 def get_cloud_storage_file_path(bucket, path):
     """Get the full GCS file path."""
-    return MINIO_PREFIX + '/' + bucket + '/' + path
+    return environment.get_value("MINIO_HOST") + '/' + bucket + '/' + path
 
 
 def _get_error_reason(http_error):
