@@ -5,7 +5,7 @@ import unittest
 
 from bot.platforms.android import adb
 from bot.system import environment
-from test_libs import helpers, test_utils
+from tests.test_libs import helpers, test_utils
 
 
 @test_utils.android_device_required

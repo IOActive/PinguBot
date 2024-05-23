@@ -74,7 +74,7 @@ class StatsGetter:
         'crash_count': 0,
         'dict_used': 0,
         'log_lines_unwanted': 0,
-        'manual_dict_size': 0,
+        'manual_dict_size': (0, 0),
         'new_units_added': 0,
         'new_units_generated': 0,
         'stability': 0.0,
@@ -242,3 +242,6 @@ class StatsGetter:
        ):
       self.stats['strategy_' +
                  strategy.CORPUS_MUTATION_RADAMSA_STRATEGY.name] = 1
+    if (fuzzing_strategies.generator_strategy == engine_common.Generator.ML_RNN):
+      self.stats['strategy_' +
+                 strategy.CORPUS_MUTATION_ML_RNN_STRATEGY.name] = 1

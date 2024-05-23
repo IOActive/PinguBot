@@ -6,7 +6,7 @@ import unittest
 
 from bot.fuzzers import libfuzzer
 from bot.fuzzers.libFuzzer import stats
-from bot.tests.test_libs import helpers as test_helpers
+from tests.test_libs import helpers as test_helpers
 
 
 class PerformanceStatsTest(unittest.TestCase):
