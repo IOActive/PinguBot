@@ -577,6 +577,8 @@ def get_bucket_name_and_path(cloud_storage_file_path):
 
     if '/' in bucket_name_and_path:
         bucket_name, path = bucket_name_and_path.split('/', 1)
+        if '(' in path:
+            path = path.split('(', 1)[0]
     else:
         bucket_name = bucket_name_and_path
         path = ""
