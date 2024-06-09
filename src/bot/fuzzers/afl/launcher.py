@@ -989,13 +989,15 @@ class AflRunnerCommon:
       if self.prepare_retry_if_cpu_error(fuzz_result):
         continue  # Try fuzzing again with the cpu error fixed.
       
+      # if False: then prepare_retry_if_skip_cpu_freq
+      if self.prepare_retry_if_skip_cpu_freq(fuzz_result):
+          continue
+        
       # if False: then prepare_retry_if_core_dump_to_external_utility
       if self.prepare_retry_if_core_dump_to_external_utility(fuzz_result):
           continue
         
-      # if False: then prepare_retry_if_skip_cpu_freq
-      if self.prepare_retry_if_skip_cpu_freq(fuzz_result):
-          continue
+
       # If we can't do anything useful about the error, log it and don't try to
       # fuzz again.
       logs.log_error(

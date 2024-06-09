@@ -240,12 +240,15 @@ def _get_build_directory(bucket_path, job_name):
         path = bucket_path.split(environment.get_value("MINIO_HOST"))[1]
         bucket_path, file_pattern = path.rsplit('/', 1)
         bucket_path = bucket_path.replace('/', '_')
+        bucket_path = bucket_path.split("_")[-1]
 
         # Remove similar build types to force them in same directory.
         file_pattern = utils.remove_sub_strings(file_pattern, BUILD_TYPE_SUBSTRINGS)
 
         file_pattern_hash = utils.string_hash(file_pattern)
-        job_directory = '%s_%s' % (bucket_path, file_pattern_hash)
+        #job_directory = '%s_%s' % (bucket_path, file_pattern_hash)
+        job_directory = '%s' % (bucket_path)
+
     else:
         job_directory = job_name
 
