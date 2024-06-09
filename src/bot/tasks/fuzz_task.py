@@ -1592,14 +1592,14 @@ class FuzzingSession(object):
         # TODO: Remove environment variable once fuzzing engine refactor is
         # complete. Set multi-armed bandit strategy selection distribution as an
         # environment variable so we can access it in launcher.
-        if environment.get_value('USE_BANDIT_STRATEGY_SELECTION'):
-            selection_method = utils.random_weighted_choice(
-                SELECTION_METHOD_DISTRIBUTION, 'probability')
-            environment.set_value('STRATEGY_SELECTION_METHOD',
-                                  selection_method.method_name)
-            distribution = get_strategy_distribution_from_ndb()
-            if distribution:
-                environment.set_value('STRATEGY_SELECTION_DISTRIBUTION', distribution)
+        #if environment.get_value('USE_BANDIT_STRATEGY_SELECTION'):
+        #    selection_method = utils.random_weighted_choice(
+        #        SELECTION_METHOD_DISTRIBUTION, 'probability')
+        #    environment.set_value('STRATEGY_SELECTION_METHOD',
+        #                          selection_method.method_name)
+        #    distribution = get_strategy_distribution_from_ndb()
+        #    if distribution:
+        #        environment.set_value('STRATEGY_SELECTION_DISTRIBUTION', distribution)
 
         # Reset memory tool options.
         environment.reset_current_memory_tool_options(

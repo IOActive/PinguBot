@@ -82,7 +82,15 @@ PLATFORMS = [
     'ANDROID_KERNEL',
     'ANDROID_AUTO',
 ]
-
+# Type of builds enum
+class Supported_Builds(Enum):
+        RELEASE = 'Release'
+        SYM_RELEASE = 'SYM_Release'
+        SYM_DEBUG = 'SYM_Debug'
+        STABLE = 'Stable'
+        BETA = 'Beta'
+        NA = 'NA'
+        
 # Maximum size allowed for an appengine pubsub request.
 # Explicily kept slightly lower than 1 MB.
 PUBSUB_REQUEST_LIMIT = 900000
@@ -247,7 +255,7 @@ class Job(BaseModel):
     #fuzzing_target: UUID  #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzing_target")
     #owner: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default=None, alias="owner")
     templates: UUID = None #PyObjectId = Field(default=None, alias="template")
-    environment_string: str = "CUSTOM_BINARY=true"
+    environment_string: str = "CUSTOM_BINARY=false"
     platform: str
     # Blobstore key of the custom binary for this job.
     custom_binary_key: str = ''
@@ -311,9 +319,10 @@ class Job(BaseModel):
 class FuzzStrategyProbability(BaseModel):
     """Mapping between fuzz strategies and probabilities with which they
   should be selected."""
-    strategy_name: str
-    probability: float
-    engine: UUID #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzer_id")
+    id: UUID = Field(default_factory=uuid4)
+    strategy_name: str = ''
+    probability: float = 1.0
+    engine: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzer_id")
 
 
 class Status(str, Enum):

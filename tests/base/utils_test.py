@@ -11,7 +11,7 @@ import mock
 from pyfakefs import fake_filesystem_unittest
 
 from bot.system import utils
-from test_libs import test_utils, helpers
+from tests.test_libs import test_utils, helpers
 
 
 class GetSizeStringTest(unittest.TestCase):
@@ -312,6 +312,7 @@ class GetApplicationIDTest(unittest.TestCase):
 
   def test_no_app_id(self):
     """Test with no app id set in environment."""
+    os.environ['APPLICATION_ID'] = 'app_id'
     del os.environ['APPLICATION_ID']
     self.assertEqual(None, utils.get_application_id())
 

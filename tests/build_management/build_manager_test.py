@@ -75,36 +75,36 @@ class TrunkBuildTest(unittest.TestCase):
 
     os.environ['BUILDS_DIR'] = '/builds'
     os.environ['RELEASE_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-release-([0-9]+).zip')
+        'http://path/file-release-([0-9]+).zip')
     os.environ['SYM_RELEASE_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-sym-release-([0-9]+).zip')
+        'http://path/file-sym-release-([0-9]+).zip')
     os.environ['SYM_DEBUG_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-sym-debug-([0-9]+).zip')
+        'http://path/file-sym-debug-([0-9]+).zip')
 
   def test_setup_success(self):
     """Test successful setup."""
     self.mock.get_build_urls_list.side_effect = (
         [
-            'gs://path/file-release-10.zip',
-            'gs://path/file-release-2.zip',
-            'gs://path/file-release-1.zip',
+            'http://path/file-release-10.zip',
+            'http://path/file-release-2.zip',
+            'http://path/file-release-1.zip',
         ],
         [
-            'gs://path/file-sym-release-10.zip',
-            'gs://path/file-sym-release-2.zip',
-            'gs://path/file-sym-release-1.zip',
+            'http://path/file-sym-release-10.zip',
+            'http://path/file-sym-release-2.zip',
+            'http://path/file-sym-release-1.zip',
         ],
         [
-            'gs://path/file-sym-debug-10.zip',
-            'gs://path/file-sym-debug-2.zip',
-            'gs://path/file-sym-debug-1.zip',
+            'http://path/file-sym-debug-10.zip',
+            'http://path/file-sym-debug-2.zip',
+            'http://path/file-sym-debug-1.zip',
         ],
     )
 
     build_manager.setup_build()
     self.mock.setup_regular_build.assert_called_with(
         10,
-        'gs://path/file-release-([0-9]+).zip',
+        'http://path/file-release-([0-9]+).zip',
         build_prefix=None,
         target_weights=None)
 
@@ -112,26 +112,26 @@ class TrunkBuildTest(unittest.TestCase):
     """Test setup finding the first matching revision."""
     self.mock.get_build_urls_list.side_effect = (
         [
-            'gs://path/file-release-10.zip',
-            'gs://path/file-release-2.zip',
-            'gs://path/file-release-1.zip',
+            'http://path/file-release-10.zip',
+            'http://path/file-release-2.zip',
+            'http://path/file-release-1.zip',
         ],
         [
-            'gs://path/file-sym-release-11.zip',
-            'gs://path/file-sym-release-2.zip',
-            'gs://path/file-sym-release-1.zip',
+            'http://path/file-sym-release-11.zip',
+            'http://path/file-sym-release-2.zip',
+            'http://path/file-sym-release-1.zip',
         ],
         [
-            'gs://path/file-sym-debug-10.zip',
-            'gs://path/file-sym-debug-2.zip',
-            'gs://path/file-sym-debug-1.zip',
+            'http://path/file-sym-debug-10.zip',
+            'http://path/file-sym-debug-2.zip',
+            'http://path/file-sym-debug-1.zip',
         ],
     )
 
     build_manager.setup_build()
     self.mock.setup_regular_build.assert_called_with(
         2,
-        'gs://path/file-release-([0-9]+).zip',
+        'http://path/file-release-([0-9]+).zip',
         build_prefix=None,
         target_weights=None)
 
@@ -139,19 +139,19 @@ class TrunkBuildTest(unittest.TestCase):
     """Test setup failing to find any matching revisions."""
     self.mock.get_build_urls_list.side_effect = (
         [
-            'gs://path/file-release-10.zip',
-            'gs://path/file-release-3.zip',
-            'gs://path/file-release-1.zip',
+            'http://path/file-release-10.zip',
+            'http://path/file-release-3.zip',
+            'http://path/file-release-1.zip',
         ],
         [
-            'gs://path/file-sym-release-11.zip',
-            'gs://path/file-sym-release-2.zip',
-            'gs://path/file-sym-release-1.zip',
+            'http://path/file-sym-release-11.zip',
+            'http://path/file-sym-release-2.zip',
+            'http://path/file-sym-release-1.zip',
         ],
         [
-            'gs://path/file-sym-debug-10.zip',
-            'gs://path/file-sym-debug-2.zip',
-            'gs://path/file-sym-debug-0.zip',
+            'http://path/file-sym-debug-10.zip',
+            'http://path/file-sym-debug-2.zip',
+            'http://path/file-sym-debug-0.zip',
         ],
     )
 
@@ -184,7 +184,7 @@ class FuchsiaBuildTest(unittest.TestCase):
     environment.set_value('UNPACK_ALL_FUZZ_TARGETS_AND_FILES', True)
     environment.set_value(
         'RELEASE_BUILD_BUCKET_PATH',
-        'gs://clusterfuchsia-builds-test/libFuzzer/'
+        'http://clusterfuchsia-builds-test/libFuzzer/'
         'fuchsia-([0-9]+).zip')
     environment.set_value('OS_OVERRIDE', 'FUCHSIA')
 
@@ -247,12 +247,13 @@ class RegularBuildTest(fake_filesystem_unittest.TestCase):
     os.environ['APP_NAME'] = FAKE_APP_NAME
     os.environ['JOB_NAME'] = 'job'
     os.environ['BUILD_DIR'] = '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025/revisions'
+    os.environ['FUZZER_NAME'] = 'test_fuzzzer'
 
     self.mock._unpack_build.side_effect = _mock_unpack_build
 
   def _assert_env_vars(self):
     """Assert env vars exist."""
-    self.assertEqual(os.environ['BUILD_URL'], 'http://127.0.0.1:9000/test/file-release-2.zip')
+    self.assertEqual(os.environ['BUILD_URL'], 'http://path/file-release-2.zip')
 
     self.assertEqual(
         os.environ['APP_PATH'],
@@ -279,31 +280,27 @@ class RegularBuildTest(fake_filesystem_unittest.TestCase):
   def test_setup(self):
     """Tests setting up a build."""
     os.environ['RELEASE_BUILD_BUCKET_PATH'] = (
-        'http://127.0.0.1:9000/test/file-release-([0-9]+).zip')
+        'http://path/file-release-([0-9]+).zip')
 
     self.mock.get_build_urls_list.return_value = [
-        'http://127.0.0.1:9000/test/file-release-10.zip',
-        'http://127.0.0.1:9000/test/file-release-2.zip',
-        'http://127.0.0.1:9000/test/file-release-1.zip',
+        'http://path/file-release-10.zip',
+        'http://path/file-release-2.zip',
+        'http://path/file-release-1.zip',
     ]
 
-    #self.mock.time.return_value = 1000.0
     build = build_manager.setup_regular_build(2)
     self.assertIsInstance(build, build_manager.RegularBuild)
-    #self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
 
-    #self.mock._unpack_build.assert_called_once_with(
-    #    mock.ANY, '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025',
-    #    '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025/revisions',
-    #    'http://127.0.0.1:9000/test/file-release-2.zip', None)
+    self.mock._unpack_build.assert_called_once_with(
+        mock.ANY, '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025',
+        '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025/revisions',
+        'http://path/file-release-2.zip', None)
 
     self._assert_env_vars()
     self.assertEqual(os.environ['APP_REVISION'], '2')
 
-    #self.mock.time.return_value = 1005.0
     self.assertIsInstance(
         build_manager.setup_regular_build(2), build_manager.RegularBuild)
-    #self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
 
     # Already set up.
     self.assertEqual(self.mock._unpack_build.call_count, 1)
@@ -316,10 +313,10 @@ class RegularBuildTest(fake_filesystem_unittest.TestCase):
   def test_delete(self):
     """Test deleting this build."""
     os.environ['RELEASE_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-release-([0-9]+).zip')
+        'http://path/file-release-([0-9]+).zip')
 
     self.mock.get_build_urls_list.return_value = [
-        'gs://path/file-release-2.zip',
+        'http://path/file-release-2.zip',
     ]
 
     build = build_manager.setup_regular_build(2)
@@ -340,27 +337,26 @@ class RegularLibFuzzerBuildTest(fake_filesystem_unittest.TestCase):
   def setUp(self):
     """Setup for regular libFuzzer build test."""
     test_utils.set_up_pyfakefs(self)
-
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.utils.get_fuzz_targets',
+        'bot.fuzzers.utils.fuzzer_utils.get_fuzz_targets',
         'bot.build_management.build_manager.get_build_urls_list',
         'bot.build_management.build_manager.Build.'
         '_get_fuzz_targets_from_archive',
         'bot.build_management.build_manager._make_space',
         'bot.build_management.build_manager._make_space_for_build',
         'bot.system.shell.clear_temp_directory',
-        'bot.google_cloud_utils.storage.copy_file_from',
-        'bot.google_cloud_utils.storage.get_download_file_size',
+        'bot.datastore.storage.copy_file_from',
+        'bot.datastore.storage.get_download_file_size',
         'bot.system.archive.unpack',
-        'time.time',
     ])
-
+    
     test_helpers.patch_environ(self)
 
     os.environ['BUILDS_DIR'] = '/builds'
     os.environ['FAIL_RETRIES'] = '1'
     os.environ['APP_NAME'] = FAKE_APP_NAME
     os.environ['JOB_NAME'] = 'libfuzzer_job'
+    os.environ['FUZZER_NAME'] = 'libFuzzer'
 
     self.target_weights = {
         'target1': 0.0,
@@ -380,19 +376,18 @@ class RegularLibFuzzerBuildTest(fake_filesystem_unittest.TestCase):
     self.mock._make_space.return_value = True
     self.mock._make_space_for_build.return_value = True
     self.mock.unpack.return_value = True
-    self.mock.time.return_value = 1000.0
 
     os.environ['RELEASE_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-release-([0-9]+).zip')
+        'http://path/file-release-([0-9]+).zip')
 
     self.mock.get_build_urls_list.return_value = [
-        'gs://path/file-release-10.zip',
-        'gs://path/file-release-2.zip',
-        'gs://path/file-release-1.zip',
+        'http://path/file-release-10.zip',
+        'http://path/file-release-2.zip',
+        'http://path/file-release-1.zip',
     ]
 
   def _assert_env_vars(self):
-    self.assertEqual(os.environ['BUILD_URL'], 'gs://path/file-release-2.zip')
+    self.assertEqual(os.environ['BUILD_URL'], 'http://path/file-release-2.zip')
     self.assertEqual(
         os.environ['BUILD_DIR'],
         '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025/revisions')
@@ -402,13 +397,11 @@ class RegularLibFuzzerBuildTest(fake_filesystem_unittest.TestCase):
     """Tests setting up a build during fuzzing."""
     os.environ['UNPACK_ALL_FUZZ_TARGETS_AND_FILES'] = unpack_all
     os.environ['TASK_NAME'] = 'fuzz'
-
-    self.mock.time.return_value = 1000.0
+    
     build = build_manager.setup_regular_build(
         2, target_weights=self.target_weights)
     self.assertIsInstance(build, build_manager.RegularBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
-
+    
     self.assertEqual('target2', os.environ['FUZZ_TARGET'])
     self._assert_env_vars()
     self.assertEqual(os.environ['APP_REVISION'], '2')
@@ -417,11 +410,9 @@ class RegularLibFuzzerBuildTest(fake_filesystem_unittest.TestCase):
 
     # Test setting up build again.
     os.environ['FUZZ_TARGET'] = ''
-    self.mock.time.return_value = 1005.0
     self.assertIsInstance(
         build_manager.setup_regular_build(
             2, target_weights=self.target_weights), build_manager.RegularBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
 
     # If it was a partial build, the unpack should be called again.
     if unpack_all == 'True':
@@ -491,10 +482,10 @@ class RegularLibFuzzerBuildTest(fake_filesystem_unittest.TestCase):
     """Test deleting this build."""
     os.environ['FUZZ_TARGET'] = 'fuzz_target'
     os.environ['RELEASE_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-release-([0-9]+).zip')
+        'http://path/file-release-([0-9]+).zip')
 
     self.mock.get_build_urls_list.return_value = [
-        'gs://path/file-release-2.zip',
+        'http://path/file-release-2.zip',
     ]
 
     build = build_manager.setup_regular_build(2)
@@ -519,7 +510,7 @@ class SymbolizedBuildTest(fake_filesystem_unittest.TestCase):
     test_helpers.patch(self, [
         'bot.build_management.build_manager.get_build_urls_list',
         'bot.build_management.build_manager.Build._unpack_build',
-        'bot.system.shell.clear_temp_directory', 'time.time'
+        'bot.system.shell.clear_temp_directory',
     ])
 
     test_helpers.patch_environ(self)
@@ -548,18 +539,18 @@ class SymbolizedBuildTest(fake_filesystem_unittest.TestCase):
 
     if release_urls:
       os.environ['SYM_RELEASE_BUILD_BUCKET_PATH'] = (
-          'gs://path/file-release-([0-9]+).zip')
+          'http://path/file-release-([0-9]+).zip')
 
     if debug_urls:
       os.environ['SYM_DEBUG_BUILD_BUCKET_PATH'] = (
-          'gs://path/file-debug-([0-9]+).zip')
+          'http://path/file-debug-([0-9]+).zip')
 
     self.release_urls = release_urls
     self.debug_urls = debug_urls
 
   def _assert_env_vars_both(self):
     """Assert env vars."""
-    self.assertEqual(os.environ['BUILD_URL'], 'gs://path/file-release-2.zip')
+    self.assertEqual(os.environ['BUILD_URL'], 'http://path/file-release-2.zip')
 
     self.assertEqual(
         os.environ['APP_PATH'],
@@ -588,7 +579,7 @@ class SymbolizedBuildTest(fake_filesystem_unittest.TestCase):
 
   def _assert_env_vars_release(self):
     """Assert env vars for release."""
-    self.assertEqual(os.environ['BUILD_URL'], 'gs://path/file-release-2.zip')
+    self.assertEqual(os.environ['BUILD_URL'], 'http://path/file-release-2.zip')
 
     self.assertEqual(
         os.environ['APP_PATH'],
@@ -614,37 +605,33 @@ class SymbolizedBuildTest(fake_filesystem_unittest.TestCase):
   def test_setup_both(self):
     """Tests setting up both release and debug builds."""
     self._prepare_test([
-        'gs://path/file-release-10.zip',
-        'gs://path/file-release-2.zip',
-        'gs://path/file-release-1.zip',
+        'http://path/file-release-10.zip',
+        'http://path/file-release-2.zip',
+        'http://path/file-release-1.zip',
     ], [
-        'gs://path/file-debug-10.zip',
-        'gs://path/file-debug-2.zip',
-        'gs://path/file-debug-1.zip',
+        'http://path/file-debug-10.zip',
+        'http://path/file-debug-2.zip',
+        'http://path/file-debug-1.zip',
     ])
 
-    self.mock.time.return_value = 1000.0
     build = build_manager.setup_symbolized_builds(2)
     self.assertIsInstance(build, build_manager.SymbolizedBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
 
     self.mock._unpack_build.assert_has_calls([
         mock.call(
             mock.ANY, '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025',
             '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025/'
-            'symbolized/release', 'gs://path/file-release-2.zip'),
+            'symbolized/release', 'http://path/file-release-2.zip'),
         mock.call(
             mock.ANY, '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025',
             '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025/'
-            'symbolized/debug', 'gs://path/file-debug-2.zip'),
+            'symbolized/debug', 'http://path/file-debug-2.zip'),
     ])
     self._assert_env_vars_both()
     self.assertEqual(os.environ['APP_REVISION'], '2')
 
-    self.mock.time.return_value = 1005.0
     build = build_manager.setup_symbolized_builds(2)
     self.assertIsInstance(build, build_manager.SymbolizedBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
 
     self._assert_env_vars_both()
     self.assertEqual(os.environ['APP_REVISION'], '2')
@@ -655,27 +642,23 @@ class SymbolizedBuildTest(fake_filesystem_unittest.TestCase):
   def test_setup_release_only(self):
     """Tests setting up release builds."""
     self._prepare_test([
-        'gs://path/file-release-10.zip',
-        'gs://path/file-release-2.zip',
-        'gs://path/file-release-1.zip',
+        'http://path/file-release-10.zip',
+        'http://path/file-release-2.zip',
+        'http://path/file-release-1.zip',
     ], None)
 
-    self.mock.time.return_value = 1000.0
     build = build_manager.setup_symbolized_builds(2)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
 
     self.assertIsInstance(build, build_manager.SymbolizedBuild)
     self.mock._unpack_build.assert_called_once_with(
         mock.ANY, '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025',
         '/builds/path_be4c9ca0267afcd38b7c1a3eebb5998d0908f025/'
-        'symbolized/release', 'gs://path/file-release-2.zip')
+        'symbolized/release', 'http://path/file-release-2.zip')
     self._assert_env_vars_release()
     self.assertEqual(os.environ['APP_REVISION'], '2')
 
-    self.mock.time.return_value = 1005.0
     self.assertIsInstance(
         build_manager.setup_symbolized_builds(2), build_manager.SymbolizedBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
     self._assert_env_vars_release()
     self.assertEqual(os.environ['APP_REVISION'], '2')
     self.assertTrue(self.mock._unpack_build.call_count, 1)
@@ -685,13 +668,13 @@ class SymbolizedBuildTest(fake_filesystem_unittest.TestCase):
   def test_delete(self):
     """Test deleting this build."""
     self._prepare_test([
-        'gs://path/file-release-10.zip',
-        'gs://path/file-release-2.zip',
-        'gs://path/file-release-1.zip',
+        'http://path/file-release-10.zip',
+        'http://path/file-release-2.zip',
+        'http://path/file-release-1.zip',
     ], [
-        'gs://path/file-debug-10.zip',
-        'gs://path/file-debug-2.zip',
-        'gs://path/file-debug-1.zip',
+        'http://path/file-debug-10.zip',
+        'http://path/file-debug-2.zip',
+        'http://path/file-debug-1.zip',
     ])
 
     build = build_manager.setup_symbolized_builds(2)
@@ -723,8 +706,6 @@ class ProductionBuildTest(fake_filesystem_unittest.TestCase):
         'bot.build_management.build_manager.get_build_urls_list',
         'bot.build_management.build_manager.Build._unpack_build',
         'bot.system.shell.clear_temp_directory',
-        'time.sleep',
-        'time.time',
     ])
 
     test_helpers.patch_environ(self)
@@ -736,8 +717,8 @@ class ProductionBuildTest(fake_filesystem_unittest.TestCase):
     os.environ['VERSION_PATTERN'] = r'.*-([0-9.]+).zip'
 
     os.environ['STABLE_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-stable-([0-9.]+).zip')
-    os.environ['BETA_BUILD_BUCKET_PATH'] = ('gs://path/file-beta-([0-9.]+).zip')
+        'http://path/file-stable-([0-9.]+).zip')
+    os.environ['BETA_BUILD_BUCKET_PATH'] = ('http://path/file-beta-([0-9.]+).zip')
 
     self.mock._unpack_build.side_effect = _mock_unpack_build
     self.mock.get_build_urls_list.side_effect = self._mock_get_build_urls_list
@@ -749,28 +730,28 @@ class ProductionBuildTest(fake_filesystem_unittest.TestCase):
 
     if 'extended_stable' in bucket_path:
       return [
-          'gs://path/file-extended_stable-45.0.1824.2.zip',
-          'gs://path/file-extended_stable-44.0.1824.1.zip',
-          'gs://path/file-extended_stable-44.0.1822.2.zip',
+          'http://path/file-extended_stable-45.0.1824.2.zip',
+          'http://path/file-extended_stable-44.0.1824.1.zip',
+          'http://path/file-extended_stable-44.0.1822.2.zip',
       ]
 
     if 'stable' in bucket_path:
       return [
-          'gs://path/file-stable-45.0.1824.2.zip',
-          'gs://path/file-stable-44.0.1824.1.zip',
-          'gs://path/file-stable-44.0.1822.2.zip',
+          'http://path/file-stable-45.0.1824.2.zip',
+          'http://path/file-stable-44.0.1824.1.zip',
+          'http://path/file-stable-44.0.1822.2.zip',
       ]
 
     return [
-        'gs://path/file-beta-45.0.1824.2.zip',
-        'gs://path/file-beta-44.0.1824.1.zip',
-        'gs://path/file-beta-44.0.1822.2.zip',
+        'http://path/file-beta-45.0.1824.2.zip',
+        'http://path/file-beta-44.0.1824.1.zip',
+        'http://path/file-beta-44.0.1822.2.zip',
     ]
 
   def _assert_env_vars(self, build_type):
     """Assert env vars."""
     self.assertEqual(os.environ['BUILD_URL'],
-                     'gs://path/file-%s-45.0.1824.2.zip' % build_type)
+                     'http://path/file-%s-45.0.1824.2.zip' % build_type)
 
     self.assertEqual(
         os.environ['APP_PATH'],
@@ -794,10 +775,8 @@ class ProductionBuildTest(fake_filesystem_unittest.TestCase):
 
   def test_setup_stable(self):
     """Test setting up a stable build."""
-    self.mock.time.return_value = 1000.0
     build = build_manager.setup_production_build('stable')
     self.assertIsInstance(build, build_manager.ProductionBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
 
     self.assertEqual(build.revision, '45.0.1824.2')
     self.assertEqual(os.environ['APP_REVISION'], '45.0.1824.2')
@@ -806,12 +785,10 @@ class ProductionBuildTest(fake_filesystem_unittest.TestCase):
     self.mock._unpack_build.assert_called_once_with(
         mock.ANY, '/builds/path_8102046d3cea496c945743eb5f79284e7b10b51b',
         '/builds/path_8102046d3cea496c945743eb5f79284e7b10b51b/stable',
-        'gs://path/file-stable-45.0.1824.2.zip')
+        'http://path/file-stable-45.0.1824.2.zip')
 
-    self.mock.time.return_value = 1005.0
     self.assertEqual(
         build_manager.setup_production_build('stable').revision, '45.0.1824.2')
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
     self._assert_env_vars('stable')
     self.assertEqual(self.mock._unpack_build.call_count, 1)
 
@@ -819,34 +796,28 @@ class ProductionBuildTest(fake_filesystem_unittest.TestCase):
 
   def test_setup_beta(self):
     """Test setting up a stable build."""
-    self.mock.time.return_value = 1000.0
     build = build_manager.setup_production_build('beta')
     self.assertIsInstance(build, build_manager.ProductionBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
     self.assertEqual(os.environ['APP_REVISION'], '45.0.1824.2')
     self._assert_env_vars('beta')
 
     self.mock._unpack_build.assert_called_once_with(
         mock.ANY, '/builds/path_8102046d3cea496c945743eb5f79284e7b10b51b',
         '/builds/path_8102046d3cea496c945743eb5f79284e7b10b51b/beta',
-        'gs://path/file-beta-45.0.1824.2.zip')
+        'http://path/file-beta-45.0.1824.2.zip')
 
-    self.mock.time.return_value = 1005.0
     self.assertEqual(
         build_manager.setup_production_build('beta').revision, '45.0.1824.2')
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
     self._assert_env_vars('beta')
     self.assertEqual(self.mock._unpack_build.call_count, 1)
 
   def test_setup_extended_stable(self):
     """Test setting up an extended stable build."""
     os.environ['EXTENDED_STABLE_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-extended_stable-([0-9.]+).zip')
+        'http://path/file-extended_stable-([0-9.]+).zip')
 
-    self.mock.time.return_value = 1000.0
     build = build_manager.setup_production_build('extended_stable')
     self.assertIsInstance(build, build_manager.ProductionBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
 
     self.assertEqual(build.revision, '45.0.1824.2')
     self.assertEqual(os.environ['APP_REVISION'], '45.0.1824.2')
@@ -855,13 +826,11 @@ class ProductionBuildTest(fake_filesystem_unittest.TestCase):
     self.mock._unpack_build.assert_called_once_with(
         mock.ANY, '/builds/path_8102046d3cea496c945743eb5f79284e7b10b51b',
         '/builds/path_8102046d3cea496c945743eb5f79284e7b10b51b/extended_stable',
-        'gs://path/file-extended_stable-45.0.1824.2.zip')
+        'http://path/file-extended_stable-45.0.1824.2.zip')
 
-    self.mock.time.return_value = 1005.0
     self.assertEqual(
         build_manager.setup_production_build('extended_stable').revision,
         '45.0.1824.2')
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
     self._assert_env_vars('extended_stable')
     self.assertEqual(self.mock._unpack_build.call_count, 1)
 
@@ -939,10 +908,8 @@ class CustomBuildTest(fake_filesystem_unittest.TestCase):
   def test_setup(self):
     """Test setting up a custom binary."""
     os.environ['JOB_NAME'] = 'job_custom'
-    #self.mock.time.return_value = 1000.0
     build = build_manager.setup_custom_binary()
     self.assertIsInstance(build, build_manager.CustomBuild)
-    #self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
 
     self.mock.read_blob_to_disk.assert_called_once_with(
         'key', '/builds/job_custom/custom/custom_binary.zip')
@@ -954,10 +921,8 @@ class CustomBuildTest(fake_filesystem_unittest.TestCase):
 
     self._assert_env_vars()
 
-    #self.mock.time.return_value = 1005.0
     self.assertIsInstance(build_manager.setup_custom_binary(),
                           build_manager.CustomBuild)
-    #self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
     self.assertEqual(self.mock.read_blob_to_disk.call_count, 1)
     self.assertEqual(self.mock.unpack.call_count, 1)
     self._assert_env_vars()
@@ -967,10 +932,8 @@ class CustomBuildTest(fake_filesystem_unittest.TestCase):
     os.environ['JOB_NAME'] = 'job_share'
     os.environ['SHARE_BUILD_WITH_JOB_TYPE'] = 'job_custom'
 
-    self.mock.time.return_value = 1000.0
     build = build_manager.setup_custom_binary()
     self.assertIsInstance(build, build_manager.CustomBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
 
     self.mock.read_blob_to_disk.assert_called_once_with(
         'key', '/builds/job_custom/custom/custom_binary.zip')
@@ -1040,7 +1003,6 @@ class AuxiliaryRegularBuildTest(fake_filesystem_unittest.TestCase):
         'bot.build_management.build_manager.get_build_urls_list',
         'bot.build_management.build_manager.Build._unpack_build',
         'bot.system.shell.clear_temp_directory',
-        'time.time',
     ])
 
     test_helpers.patch_environ(self)
@@ -1049,6 +1011,7 @@ class AuxiliaryRegularBuildTest(fake_filesystem_unittest.TestCase):
     os.environ['FAIL_RETRIES'] = '1'
     os.environ['APP_NAME'] = FAKE_APP_NAME
     os.environ['JOB_NAME'] = 'job'
+    os.environ['FUZZER_NAME'] = 'test_fuzzer'
 
     self.mock._unpack_build.side_effect = _mock_unpack_build
 
@@ -1066,38 +1029,34 @@ class AuxiliaryRegularBuildTest(fake_filesystem_unittest.TestCase):
         os.environ['DATAFLOW_BUILD_DIR'],
         '/builds/path_2992e823e35fd34a63e0f8733cdafd6875036a1d/dataflow')
     self.assertEqual(os.environ['DATAFLOW_BUILD_URL'],
-                     'gs://path/file-dataflow-10.zip')
+                     'http://path/file-dataflow-10.zip')
 
   def test_setup(self):
     """Tests setting up a build."""
     os.environ['DATAFLOW_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-dataflow-([0-9]+).zip')
+        'http://path/file-dataflow-([0-9]+).zip')
 
     self.mock.get_build_urls_list.return_value = [
-        'gs://path/file-dataflow-10.zip',
-        'gs://path/file-dataflow-2.zip',
-        'gs://path/file-dataflow-1.zip',
+        'http://path/file-dataflow-10.zip',
+        'http://path/file-dataflow-2.zip',
+        'http://path/file-dataflow-1.zip',
     ]
 
-    self.mock.time.return_value = 1000.0
     build = build_manager.setup_trunk_build(
         [os.environ['DATAFLOW_BUILD_BUCKET_PATH']], build_prefix='DATAFLOW')
     self.assertIsInstance(build, build_manager.RegularBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
 
     self.mock._unpack_build.assert_called_once_with(
         mock.ANY, '/builds/path_2992e823e35fd34a63e0f8733cdafd6875036a1d',
         '/builds/path_2992e823e35fd34a63e0f8733cdafd6875036a1d/dataflow',
-        'gs://path/file-dataflow-10.zip', None)
+        'http://path/file-dataflow-10.zip', None)
 
     self._assert_env_vars()
 
-    self.mock.time.return_value = 1005.0
     self.assertIsInstance(
         build_manager.setup_trunk_build(
             [os.environ['DATAFLOW_BUILD_BUCKET_PATH']],
             build_prefix='DATAFLOW'), build_manager.RegularBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
 
     # Already set up.
     self.assertEqual(self.mock._unpack_build.call_count, 1)
@@ -1106,10 +1065,10 @@ class AuxiliaryRegularBuildTest(fake_filesystem_unittest.TestCase):
   def test_delete(self):
     """Test deleting this build."""
     os.environ['DATAFLOW_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-dataflow-([0-9]+).zip')
+        'http://path/file-dataflow-([0-9]+).zip')
 
     self.mock.get_build_urls_list.return_value = [
-        'gs://path/file-dataflow-2.zip',
+        'http://path/file-dataflow-2.zip',
     ]
 
     build = fuzz_task.build_manager.setup_trunk_build(
@@ -1133,17 +1092,16 @@ class AuxiliaryRegularLibFuzzerBuildTest(fake_filesystem_unittest.TestCase):
     test_utils.set_up_pyfakefs(self)
 
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.utils.get_fuzz_targets',
+        'bot.fuzzers.utils.fuzzer_utils.get_fuzz_targets',
         'bot.build_management.build_manager.get_build_urls_list',
         'bot.build_management.build_manager.Build.'
         '_get_fuzz_targets_from_archive',
         'bot.build_management.build_manager._make_space',
         'bot.build_management.build_manager._make_space_for_build',
         'bot.system.shell.clear_temp_directory',
-        'bot.google_cloud_utils.storage.copy_file_from',
-        'bot.google_cloud_utils.storage.get_download_file_size',
+        'bot.datastore.storage.copy_file_from',
+        'bot.datastore.storage.get_download_file_size',
         'bot.system.archive.unpack',
-        'time.time',
     ])
 
     test_helpers.patch_environ(self)
@@ -1152,6 +1110,8 @@ class AuxiliaryRegularLibFuzzerBuildTest(fake_filesystem_unittest.TestCase):
     os.environ['FAIL_RETRIES'] = '1'
     os.environ['APP_NAME'] = FAKE_APP_NAME
     os.environ['JOB_NAME'] = 'libfuzzer_job'
+    os.environ['FUZZER_NAME'] = 'libFuzzer'
+
 
     self.target_weights = {
         'target1': 0.0,
@@ -1171,15 +1131,14 @@ class AuxiliaryRegularLibFuzzerBuildTest(fake_filesystem_unittest.TestCase):
     self.mock._make_space.return_value = True
     self.mock._make_space_for_build.return_value = True
     self.mock.unpack.return_value = True
-    self.mock.time.return_value = 1000.0
 
     os.environ['DATAFLOW_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-dataflow-([0-9]+).zip')
+        'http://path/file-dataflow-([0-9]+).zip')
 
     self.mock.get_build_urls_list.return_value = [
-        'gs://path/file-dataflow-10.zip',
-        'gs://path/file-dataflow-2.zip',
-        'gs://path/file-dataflow-1.zip',
+        'http://path/file-dataflow-10.zip',
+        'http://path/file-dataflow-2.zip',
+        'http://path/file-dataflow-1.zip',
     ]
 
   def _assert_env_vars(self):
@@ -1192,14 +1151,13 @@ class AuxiliaryRegularLibFuzzerBuildTest(fake_filesystem_unittest.TestCase):
         os.environ['DATAFLOW_BUILD_DIR'],
         '/builds/path_2992e823e35fd34a63e0f8733cdafd6875036a1d/dataflow')
     self.assertEqual(os.environ['DATAFLOW_BUILD_URL'],
-                     'gs://path/file-dataflow-10.zip')
+                     'http://path/file-dataflow-10.zip')
 
   @parameterized.parameterized.expand(['True', 'False'])
   def test_setup_fuzz(self, unpack_all):
     """Tests setting up a build during fuzzing."""
     os.environ['UNPACK_ALL_FUZZ_TARGETS_AND_FILES'] = unpack_all
     os.environ['TASK_NAME'] = 'fuzz'
-    self.mock.time.return_value = 1000.0
 
     class FileMatchCallbackChecker(object):
       """Used to verify that the callback passed to unpack is what we expect."""
@@ -1230,7 +1188,6 @@ class AuxiliaryRegularLibFuzzerBuildTest(fake_filesystem_unittest.TestCase):
         build_prefix='DATAFLOW',
         target_weights=self.target_weights)
     self.assertIsInstance(build, build_manager.RegularBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
     self.assertEqual('target1', os.environ['FUZZ_TARGET'])
     self._assert_env_vars()
 
@@ -1244,13 +1201,11 @@ class AuxiliaryRegularLibFuzzerBuildTest(fake_filesystem_unittest.TestCase):
         trusted=True)
 
     os.environ['FUZZ_TARGET'] = 'target3'
-    self.mock.time.return_value = 1005.0
     self.assertIsInstance(
         build_manager.setup_trunk_build(
             [os.environ['DATAFLOW_BUILD_BUCKET_PATH']],
             build_prefix='DATAFLOW',
             target_weights=self.target_weights), build_manager.RegularBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1005.0)
 
     # An auxiliary build set up should not choose and overwrite the fuzz target.
     self.assertEqual('target3', os.environ['FUZZ_TARGET'])
@@ -1272,10 +1227,10 @@ class AuxiliaryRegularLibFuzzerBuildTest(fake_filesystem_unittest.TestCase):
     """Test deleting this build."""
     os.environ['FUZZ_TARGET'] = 'fuzz_target'
     os.environ['DATAFLOW_BUILD_BUCKET_PATH'] = (
-        'gs://path/file-dataflow-([0-9]+).zip')
+        'http://path/file-dataflow-([0-9]+).zip')
 
     self.mock.get_build_urls_list.return_value = [
-        'gs://path/file-dataflow-2.zip',
+        'http://path/file-dataflow-2.zip',
     ]
 
     build = build_manager.setup_trunk_build(
@@ -1301,7 +1256,7 @@ class BuildEvictionTests(fake_filesystem_unittest.TestCase):
     """Setup for build eviction tests."""
     test_utils.set_up_pyfakefs(self)
     test_helpers.patch(self, [
-        'bot.base.utils.is_chromium',
+        'bot.utils.utils.is_chromium',
         'bot.system.shell.get_free_disk_space',
         'bot.system.archive.extracted_size',
     ])
@@ -1330,7 +1285,7 @@ class BuildEvictionTests(fake_filesystem_unittest.TestCase):
 
   def test_make_space_for_build_remove_one_build(self):
     """Test make_space_for_build (remove 1 build)."""
-    self.mock.extracted_size.return_value = 1 * 1024 * 1024 * 1024  # 1 GB
+    self.mock.extracted_size.return_value = 10 * 1024 * 1024 * 1024  # 1 GB
     self.mock.get_free_disk_space.side_effect = self._mock_free_disk_space
     self.free_disk_space = [
         9 * 1024 * 1024 * 1024,
@@ -1347,12 +1302,12 @@ class BuildEvictionTests(fake_filesystem_unittest.TestCase):
 
   def test_make_space_for_build_remove_two_builds(self):
     """Test make_space_for_build (remove 2 builds)."""
-    self.mock.extracted_size.return_value = 1 * 1024 * 1024 * 1024  # 1 GB
+    self.mock.extracted_size.return_value = 14 * 1024 * 1024 * 1024  # 1 GB
     self.mock.get_free_disk_space.side_effect = self._mock_free_disk_space
     self.free_disk_space = [
         8 * 1024 * 1024 * 1024,
         9 * 1024 * 1024 * 1024,
-        12 * 1024 * 1024 * 1024,
+        24 * 1024 * 1024 * 1024,
     ]
 
     self.assertTrue(
@@ -1365,7 +1320,7 @@ class BuildEvictionTests(fake_filesystem_unittest.TestCase):
 
   def test_make_space_for_build_remove_three_builds(self):
     """Test make_space_for_build (remove 3 builds)."""
-    self.mock.extracted_size.return_value = 1 * 1024 * 1024 * 1024  # 1 GB
+    self.mock.extracted_size.return_value = 8 * 1024 * 1024 * 1024  # 1 GB
     self.mock.get_free_disk_space.side_effect = self._mock_free_disk_space
     self.free_disk_space = [
         7 * 1024 * 1024 * 1024,
@@ -1681,10 +1636,12 @@ class RpathsTest(unittest.TestCase):
 
 class SortBuildUrlsByRevisionTest(unittest.TestCase):
   """Test _sort_build_urls_by_revision."""
-
+  def setUp(self):
+    os.environ['MINIO_HOST'] = 'minio_domain'
+    
   def test_simple(self):
     """Tests regular case with and without reverse flag set."""
-    bucket_path = ('gs://chromium-browser-libFuzzer/'
+    bucket_path = ('http://minio_domain/chromium-browser-libFuzzer/'
                    'linux-release-asan/libFuzzer-linux-release-([0-9]+).zip')
     build_urls = [
         'linux-release-asan/libFuzzer-linux-release-359936.zip',
@@ -1693,13 +1650,13 @@ class SortBuildUrlsByRevisionTest(unittest.TestCase):
         'linux-release-asan/libFuzzer-linux-release-359953.zip',
     ]
     expected_result = [
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-359953.zip',
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-359950.zip',
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-359945.zip',
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-359936.zip'
     ]
     actual_result = build_manager._sort_build_urls_by_revision(
@@ -1707,13 +1664,13 @@ class SortBuildUrlsByRevisionTest(unittest.TestCase):
     self.assertEqual(expected_result, actual_result)
 
     expected_result = [
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-359936.zip',
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-359945.zip',
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-359950.zip',
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-359953.zip',
     ]
     actual_result = build_manager._sort_build_urls_by_revision(
@@ -1722,7 +1679,7 @@ class SortBuildUrlsByRevisionTest(unittest.TestCase):
 
   def test_duplicate_revision(self):
     """Tests that duplicate revision filename results in an exception."""
-    bucket_path = ('gs://chromium-browser-libFuzzer/'
+    bucket_path = ('http://minio_domain/chromium-browser-libFuzzer/'
                    'linux-release-asan/libFuzzer-linux-release-(35)[0-9]+.zip')
     build_urls = [
         'linux-release-asan/libFuzzer-linux-release-359936.zip',
@@ -1736,7 +1693,7 @@ class SortBuildUrlsByRevisionTest(unittest.TestCase):
   def test_revision_in_revision(self):
     """Tests that if a revision is a substring of another revision, then it is
     only shown once and not repeated."""
-    bucket_path = ('gs://chromium-browser-libFuzzer/'
+    bucket_path = ('http://minio_domain/chromium-browser-libFuzzer/'
                    'linux-release-asan/libFuzzer-linux-release-([0-9]+).zip')
     build_urls = [
         'linux-release-asan/libFuzzer-linux-release-359936.zip',
@@ -1746,13 +1703,13 @@ class SortBuildUrlsByRevisionTest(unittest.TestCase):
     ]
 
     expected_result = [
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-359945.zip',
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-359936.zip',
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-936.zip',
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-599.zip'
     ]
     actual_result = build_manager._sort_build_urls_by_revision(
@@ -1762,7 +1719,7 @@ class SortBuildUrlsByRevisionTest(unittest.TestCase):
   def test_duplicate_different_prefix(self):
     """Test that we handle duplicate filenames with different prefixes
     properly."""
-    bucket_path = ('gs://chromium-browser-libFuzzer/'
+    bucket_path = ('http://minio_domain/chromium-browser-libFuzzer/'
                    'linux-release-asan/libFuzzer-linux-release-([0-9]+).zip')
     build_urls = [
         'linux-release-asan/libFuzzer-linux-release-359936.zip',
@@ -1773,9 +1730,9 @@ class SortBuildUrlsByRevisionTest(unittest.TestCase):
     ]
 
     expected_result = [
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-359936.zip',
-        'gs://chromium-browser-libFuzzer/'
+        'http://minio_domain/chromium-browser-libFuzzer/'
         'linux-release-asan/libFuzzer-linux-release-936.zip',
     ]
     actual_result = build_manager._sort_build_urls_by_revision(
@@ -1784,7 +1741,7 @@ class SortBuildUrlsByRevisionTest(unittest.TestCase):
 
   def test_bucket_root(self):
     """Tests regular case on bucket root with and without reverse flag set."""
-    bucket_path = ('gs://chromium-browser-libFuzzer/'
+    bucket_path = ('http://minio_domain/chromium-browser-libFuzzer/'
                    'libFuzzer-linux-release-([0-9]+).zip')
     build_urls = [
         'libFuzzer-linux-release-359936.zip',
@@ -1793,20 +1750,20 @@ class SortBuildUrlsByRevisionTest(unittest.TestCase):
         'libFuzzer-linux-release-359953.zip',
     ]
     expected_result = [
-        'gs://chromium-browser-libFuzzer/libFuzzer-linux-release-359953.zip',
-        'gs://chromium-browser-libFuzzer/libFuzzer-linux-release-359950.zip',
-        'gs://chromium-browser-libFuzzer/libFuzzer-linux-release-359945.zip',
-        'gs://chromium-browser-libFuzzer/libFuzzer-linux-release-359936.zip'
+        'http://minio_domain/chromium-browser-libFuzzer/libFuzzer-linux-release-359953.zip',
+        'http://minio_domain/chromium-browser-libFuzzer/libFuzzer-linux-release-359950.zip',
+        'http://minio_domain/chromium-browser-libFuzzer/libFuzzer-linux-release-359945.zip',
+        'http://minio_domain/chromium-browser-libFuzzer/libFuzzer-linux-release-359936.zip'
     ]
     actual_result = build_manager._sort_build_urls_by_revision(
         build_urls, bucket_path, reverse=True)
     self.assertEqual(expected_result, actual_result)
 
     expected_result = [
-        'gs://chromium-browser-libFuzzer/libFuzzer-linux-release-359936.zip',
-        'gs://chromium-browser-libFuzzer/libFuzzer-linux-release-359945.zip',
-        'gs://chromium-browser-libFuzzer/libFuzzer-linux-release-359950.zip',
-        'gs://chromium-browser-libFuzzer/libFuzzer-linux-release-359953.zip',
+        'http://minio_domain/chromium-browser-libFuzzer/libFuzzer-linux-release-359936.zip',
+        'http://minio_domain/chromium-browser-libFuzzer/libFuzzer-linux-release-359945.zip',
+        'http://minio_domain/chromium-browser-libFuzzer/libFuzzer-linux-release-359950.zip',
+        'http://minio_domain/chromium-browser-libFuzzer/libFuzzer-linux-release-359953.zip',
     ]
     actual_result = build_manager._sort_build_urls_by_revision(
         build_urls, bucket_path, reverse=False)
@@ -1825,12 +1782,11 @@ class SplitFuzzTargetsBuildTest(fake_filesystem_unittest.TestCase):
         'bot.build_management.build_manager._make_space',
         'bot.build_management.build_manager._make_space_for_build',
         'bot.system.shell.clear_temp_directory',
-        'bot.google_cloud_utils.storage.copy_file_from',
-        'bot.google_cloud_utils.storage.get_download_file_size',
-        'bot.google_cloud_utils.storage.list_blobs',
-        'bot.google_cloud_utils.storage.read_data',
+        'bot.datastore.storage.copy_file_from',
+        'bot.datastore.storage.get_download_file_size',
+        'bot.datastore.storage.list_blobs',
+        'bot.datastore.storage.read_data',
         'bot.system.archive.unpack',
-        'time.time',
     ])
 
     test_helpers.patch_environ(self)
@@ -1839,8 +1795,9 @@ class SplitFuzzTargetsBuildTest(fake_filesystem_unittest.TestCase):
     os.environ['FAIL_RETRIES'] = '1'
     os.environ['JOB_NAME'] = 'libfuzzer_job'
     os.environ['UNPACK_ALL_FUZZ_TARGETS_AND_FILES'] = 'True'
+    os.environ['FUZZER_NAME'] = 'libFuzzer'
     os.environ['FUZZER_DIR'] = os.path.join(os.environ['ROOT_DIR'], 'src',
-                                            'clusterfuzz', '_internal', 'bot_working_directory',
+                                            'bot',
                                             'fuzzers', 'libFuzzer')
     self.fs.add_real_directory(os.environ['FUZZER_DIR'])
 
@@ -1863,21 +1820,20 @@ class SplitFuzzTargetsBuildTest(fake_filesystem_unittest.TestCase):
     self.mock._make_space.return_value = True
     self.mock._make_space_for_build.return_value = True
     self.mock.unpack.return_value = True
-    self.mock.time.return_value = 1000.0
 
     os.environ['FUZZ_TARGET_BUILD_BUCKET_PATH'] = (
-        'gs://bucket/subdir/%TARGET%/([0-9]+).zip')
+        'http://bucket/subdir/%TARGET%/([0-9]+).zip')
 
     self.mock.get_build_urls_list.return_value = [
-        'gs://bucket/subdir/target2/10.zip',
-        'gs://bucket/subdir/target2/2.zip',
-        'gs://bucket/subdir/target2/1.zip',
+        'http://bucket/subdir/target2/10.zip',
+        'http://bucket/subdir/target2/2.zip',
+        'http://bucket/subdir/target2/1.zip',
     ]
 
   def _assert_env_vars(self, target, revision):
     """Assert the expected values of environment variables."""
     self.assertEqual(
-        'gs://bucket/subdir/{target}/{revision}.zip'.format(
+        'http://bucket/subdir/{target}/{revision}.zip'.format(
             target=target, revision=revision), os.environ.get('BUILD_URL'))
     self.assertEqual(str(revision), os.environ['APP_REVISION'])
     self.assertEqual(
@@ -1890,11 +1846,9 @@ class SplitFuzzTargetsBuildTest(fake_filesystem_unittest.TestCase):
   def test_setup_fuzz(self):
     """Tests setting up a build during fuzzing."""
     os.environ['TASK_NAME'] = 'fuzz'
-    self.mock.time.return_value = 1000.0
 
     build = build_manager.setup_build(target_weights=self.target_weights)
     self.assertIsInstance(build, build_manager.RegularBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
     self.assertEqual('target2', os.environ['FUZZ_TARGET'])
     self._assert_env_vars('target2', 10)
 
@@ -1911,16 +1865,14 @@ class SplitFuzzTargetsBuildTest(fake_filesystem_unittest.TestCase):
   def test_setup_nonfuzz(self):
     """Tests setting up a build during a non-fuzz task."""
     os.environ['FUZZ_TARGET'] = 'target1'
-    self.mock.time.return_value = 1000.0
 
     self.mock.get_build_urls_list.return_value = [
-        'gs://bucket/subdir/target1/10.zip',
-        'gs://bucket/subdir/target1/8.zip',
+        'http://bucket/subdir/target1/10.zip',
+        'http://bucket/subdir/target1/8.zip',
     ]
 
     build = build_manager.setup_build(8)
     self.assertIsInstance(build, build_manager.RegularBuild)
-    self.assertEqual(_get_timestamp(build.base_build_dir), 1000.0)
     self.assertEqual('target1', os.environ['FUZZ_TARGET'])
     self._assert_env_vars('target1', 8)
 
@@ -1973,32 +1925,32 @@ class GetPrimaryBucketPathTest(unittest.TestCase):
 
   def test_release_bucket_path(self):
     """Test primary bucket being a RELEASE_BUILD_BUCKET_PATH."""
-    os.environ['RELEASE_BUILD_BUCKET_PATH'] = 'gs://release_build'
-    self.assertEqual('gs://release_build',
+    os.environ['RELEASE_BUILD_BUCKET_PATH'] = 'http://release_build'
+    self.assertEqual('http://release_build',
                      build_manager.get_primary_bucket_path())
 
   def test_fuzz_target_bucket_path(self):
     """Test primary bucket being a FUZZ_TARGET_BUILD_BUCKET_PATH."""
     os.environ[
-        'FUZZ_TARGET_BUILD_BUCKET_PATH'] = 'gs://fuzz_target/%TARGET%/path'
+        'FUZZ_TARGET_BUILD_BUCKET_PATH'] = 'http://fuzz_target/%TARGET%/path'
     os.environ['FUZZ_TARGET'] = 'test_target'
-    self.assertEqual('gs://fuzz_target/test_target/path',
+    self.assertEqual('http://fuzz_target/test_target/path',
                      build_manager.get_primary_bucket_path())
 
   def test_fuzz_target_bucket_path_multi_target(self):
     """Test primary bucket being a FUZZ_TARGET_BUILD_BUCKET_PATH with a multi
     target binary."""
     os.environ[
-        'FUZZ_TARGET_BUILD_BUCKET_PATH'] = 'gs://fuzz_target/%TARGET%/path'
+        'FUZZ_TARGET_BUILD_BUCKET_PATH'] = 'http://fuzz_target/%TARGET%/path'
     os.environ['FUZZ_TARGET'] = 'test_target@target'
-    self.assertEqual('gs://fuzz_target/test_target/path',
+    self.assertEqual('http://fuzz_target/test_target/path',
                      build_manager.get_primary_bucket_path())
 
   def test_fuzz_target_bucket_path_no_fuzz_target(self):
     """Test primary bucket being a FUZZ_TARGET_BUILD_BUCKET_PATH with no fuzz
     target defined."""
     os.environ[
-        'FUZZ_TARGET_BUILD_BUCKET_PATH'] = 'gs://fuzz_target/%TARGET%/path'
+        'FUZZ_TARGET_BUILD_BUCKET_PATH'] = 'http://fuzz_target/%TARGET%/path'
     with self.assertRaises(build_manager.BuildManagerException):
       build_manager.get_primary_bucket_path()
 

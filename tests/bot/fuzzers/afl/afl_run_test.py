@@ -4,8 +4,8 @@
 import os
 
 from bot.fuzzers.afl import fuzzer
-from bot.tests.core.bot.fuzzers import builtin_test
-from bot.tests.test_libs import helpers
+from tests.bot.fuzzers import builtin_test
+from tests.test_libs import helpers
 
 
 class FuzzerTest(builtin_test.BaseEngineFuzzerTest):

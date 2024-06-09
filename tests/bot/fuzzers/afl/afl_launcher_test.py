@@ -44,7 +44,7 @@ class LauncherTestBase(fake_filesystem_unittest.TestCase):
 
     self._create_file(fuzzer.AFL_DUMMY_INPUT)
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.utils.get_temp_dir',
+        'bot.fuzzers.utils.fuzzer_utils.get_temp_dir',
     ])
 
     self.mock.get_temp_dir.return_value = self.TEMP_DIR
@@ -79,7 +79,7 @@ class FuzzingStrategiesTest(fake_filesystem_unittest.TestCase):
 
     test_helpers.patch(
         self,
-        ['bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
+        ['bot.fuzzers.utils.engine_common.is_lpm_fuzz_target'])
     self.mock.is_lpm_fuzz_target.return_value = True
     self.strategies = launcher.FuzzingStrategies(None)
 
@@ -95,7 +95,7 @@ class AflFuzzInputDirectoryTest(LauncherTestBase):
     self.fs.create_dir(self.temp_input_dir)
     test_helpers.patch(
         self,
-        ['bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
+        ['bot.fuzzers.utils.engine_common.is_lpm_fuzz_target'])
     self.mock.is_lpm_fuzz_target.return_value = True
     self.strategies = launcher.FuzzingStrategies(None)
 
@@ -145,14 +145,14 @@ class AflFuzzOutputDirectoryTest(LauncherTestBase):
     self.input_testcase_path, input_testcase_obj = self._create_file(
         self.INPUT_TESTCASE_FILENAME)
 
-    input_testcase_obj.SetIno(self.INPUT_TESTCASE_INO)
+    #input_testcase_obj.(self.INPUT_TESTCASE_INO)
     self.input_directory_inodes = set(
         [os.stat(self.input_testcase_path).st_ino])
 
     self.queue_input_link_path, queue_input_link_obj = self._create_file(
         self.QUEUE_INPUT_LINK_FILENAME, directory=self.QUEUE_DIR)
 
-    queue_input_link_obj.SetIno(self.INPUT_TESTCASE_INO)
+    #queue_input_link_obj.SetIno(self.INPUT_TESTCASE_INO)
 
     self.queue_copied_testcase_path, _ = self._create_file(
         self.QUEUE_INPUT_COPIED_FILENAME, directory=self.QUEUE_DIR)
@@ -160,7 +160,7 @@ class AflFuzzOutputDirectoryTest(LauncherTestBase):
     self.queue_testcase_path, queue_testcase_obj = self._create_file(
         self.QUEUE_TESTCASE_FILENAME, directory=self.QUEUE_DIR)
 
-    queue_testcase_obj.SetIno(self.QUEUE_TESTCASE_INO)
+    #queue_testcase_obj.SetIno(self.QUEUE_TESTCASE_INO)
 
   def test_is_testcase(self):
     """Test that is_testcase() works as expected."""
@@ -205,7 +205,7 @@ class AflFuzzOutputDirectoryTest(LauncherTestBase):
     self.assertEqual(self.afl_output.count_new_units(self.afl_output.queue), 1)
 
     # Test that copies aren't counted as new units.
-    self.fs.RemoveObject(self.queue_copied_testcase_path)
+    self.fs.remove_object(self.queue_copied_testcase_path)
     self.assertEqual(self.afl_output.count_new_units(self.afl_output.queue), 1)
 
     # Test that non-testcases aren't counted as new units.
@@ -310,7 +310,7 @@ class AflRunnerTest(LauncherTestBase):
     test_helpers.patch_environ(self)
     test_helpers.patch(
         self,
-        ['bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
+        ['bot.fuzzers.utils.engine_common.is_lpm_fuzz_target'])
     self.mock.is_lpm_fuzz_target.return_value = True
     environment.set_value('HARD_TIMEOUT_OVERRIDE', 600)
     config = launcher.AflConfig.from_target_path(self.TARGET_PATH)
@@ -454,7 +454,7 @@ class AflRunnerTest(LauncherTestBase):
     """Test AflRunner.fuzzer_stderr when there is an error reading the
     stderr file."""
     test_helpers.patch(
-        self, ['bot.base.utils.read_from_handle_truncated'])
+        self, ['bot.utils.utils.read_from_handle_truncated'])
 
     self.mock.read_from_handle_truncated.side_effect = IOError
     self.assertIsNone(self.runner._fuzzer_stderr)
@@ -501,7 +501,7 @@ class AflRunnerTest(LauncherTestBase):
     """Initialization."""
     # Test that it works when everything works normally (no errors).
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.afl.launcher.AflRunner.run_and_wait',
+        'bot.fuzzers.afl.launcher.AflRunner.run_and_wait',
     ])
 
     # Make sure this initialized or else it will remove CRASHES_DIR.

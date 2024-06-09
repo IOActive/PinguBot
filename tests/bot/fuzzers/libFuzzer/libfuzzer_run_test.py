@@ -6,8 +6,8 @@ import unittest
 
 from bot.fuzzers.libFuzzer import fuzzer
 from bot.system import environment
-from bot.tests.core.bot.fuzzers import builtin_test
-from bot.tests.test_libs import helpers as test_helpers
+from tests.bot.fuzzers import builtin_test
+from tests.test_libs import helpers as test_helpers
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 

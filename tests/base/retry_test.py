@@ -7,7 +7,7 @@ import mock
 
 from bot.metrics import monitor, monitoring_metrics
 from bot.system import retry
-from test_libs import helpers
+from tests.test_libs import helpers
 
 
 class WrapTest(unittest.TestCase):

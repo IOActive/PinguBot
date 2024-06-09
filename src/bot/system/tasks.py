@@ -352,9 +352,9 @@ def track_task_start(task, task_duration):
     # Clean Bot log before the task is started
     log_directory = environment.get_value('LOG_DIR')
     bot_log = os.path.join(log_directory, 'bot.log')
-    open(bot_log, "wb").close()
     from bot.datastore import data_handler
-    data_handler.update_heartbeat(force_update=True)
+    data_handler.update_heartbeat(log_filename=bot_log, force_update=True)
+    open(bot_log, "wb").close()
 
 
 def track_task_end():

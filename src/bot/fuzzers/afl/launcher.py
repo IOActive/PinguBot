@@ -121,7 +121,7 @@ class AflConfig:
     self.additional_env_vars = fuzzer_options.get_env()
 
     # Try to convert libFuzzer arguments to AFL arguments or env vars.
-    libfuzzer_options = fuzzer_options.get_engine_arguments('libfuzzer')
+    libfuzzer_options = fuzzer_options.get_engine_arguments('libFuzzer')
     for libfuzzer_name, value in libfuzzer_options.dict().items():
       if libfuzzer_name not in self.LIBFUZZER_TO_AFL_OPTIONS:
         continue
@@ -699,8 +699,8 @@ class AflRunnerCommon:
     # testcase mutations are properly generated, set generator strategy
     # accordingly.
     generator_used = engine_common.generate_new_testcase_mutations(
-        self.afl_input.input_directory, self.afl_input.input_directory,
-        self.strategies.candidate_generator)
+        corpus_directory=self.afl_input.input_directory, new_testcase_mutations_directory=self.afl_input.input_directory,
+        fuzzer_name="", candidate_generator=self.strategies.candidate_generator)
 
     if generator_used:
       self.strategies.generator_strategy = self.strategies.candidate_generator
@@ -781,7 +781,7 @@ class AflRunnerCommon:
       return False
 
     return True
-
+  
   def run_afl_fuzz(self, fuzz_args):
     """Run afl-fuzz and if there is an input that causes afl-fuzz to hang
     or if it can't bind to a cpu, try fixing the issue and running afl-fuzz
@@ -841,7 +841,7 @@ class AflRunnerCommon:
 
       # Randomly select a scheduler.
       self.set_arg(fuzz_args, constants.SCHEDULER_FLAG,
-                   rand_schedule(self.strategies.SCHEDULER_PROBS))
+                    rand_schedule(self.strategies.SCHEDULER_PROBS))
 
       # Randomly set trimming vs no trimming.
       if engine_common.decide_with_probability(
@@ -881,25 +881,25 @@ class AflRunnerCommon:
 
       # Select the CMPLOG level (even if no cmplog is used, it does not hurt).
       self.set_arg(fuzz_args, constants.CMPLOG_LEVEL_FLAG,
-                   rand_cmplog_level(self.strategies))
+                    rand_cmplog_level(self.strategies))
 
-      if engine_common.decide_with_probability(self.strategies.MUTATION_PROB):
-        if engine_common.decide_with_probability(
-            self.strategies.MUTATION_EXPLORE_PROB):
-          self.set_arg(fuzz_args, constants.MUTATION_STATE_FLAG,
-                       constants.MUTATION_EXPLORE)
-        else:
-          self.set_arg(fuzz_args, constants.MUTATION_STATE_FLAG,
-                       constants.MUTATION_EXPLOIT)
+#      if engine_common.decide_with_probability(self.strategies.MUTATION_PROB):
+#        if engine_common.decide_with_probability(
+#            self.strategies.MUTATION_EXPLORE_PROB):
+#          self.set_arg(fuzz_args, constants.MUTATION_STATE_FLAG,
+#                        constants.MUTATION_EXPLORE)
+#        else:
+#          self.set_arg(fuzz_args, constants.MUTATION_STATE_FLAG,
+#                        constants.MUTATION_EXPLOIT)
 
-      if engine_common.decide_with_probability(self.strategies.INPUT_PROB):
-        if engine_common.decide_with_probability(
-            self.strategies.INPUT_ASCII_PROB):
-          self.set_arg(fuzz_args, constants.INPUT_TYPE_FLAG,
-                       constants.INPUT_ASCII)
-        else:
-          self.set_arg(fuzz_args, constants.INPUT_TYPE_FLAG,
-                       constants.INPUT_BINARY)
+#      if engine_common.decide_with_probability(self.strategies.INPUT_PROB):
+#        if engine_common.decide_with_probability(
+#            self.strategies.INPUT_ASCII_PROB):
+#          self.set_arg(fuzz_args, constants.INPUT_TYPE_FLAG,
+#                        constants.INPUT_ASCII)
+#        else:
+#          self.set_arg(fuzz_args, constants.INPUT_TYPE_FLAG,
+#                        constants.INPUT_BINARY)
 
       if not environment.is_android():
         # Attempt to start the fuzzer.
@@ -908,6 +908,7 @@ class AflRunnerCommon:
             timeout=max_total_time,
             terminate_before_kill=True,
             terminate_wait_time=self.SIGTERM_WAIT_TIME,
+            extra_env = os.environ.copy()
         )
       else:
         android_params = []
@@ -920,6 +921,7 @@ class AflRunnerCommon:
             timeout=max_total_time,
             terminate_before_kill=True,
             terminate_wait_time=self.SIGTERM_WAIT_TIME,
+            extra_env = os.environ.copy()
         )
 
       # Reduce max_total_time by the amount of time the last attempt took.
@@ -940,7 +942,7 @@ class AflRunnerCommon:
       # If there was a crash in the input/corpus, afl-fuzz won't run, so let
       # ClusterFuzz know about this and quit.
       crash_filename = check_error_and_log(self.CRASH_REGEX,
-                                           self.CRASH_LOG_MESSAGE)
+                                            self.CRASH_LOG_MESSAGE)
 
       if crash_filename:
         crash_path = os.path.join(self.afl_input.input_directory,
@@ -979,7 +981,7 @@ class AflRunnerCommon:
         if num_retries - 1 > self.MAX_FUZZ_RETRIES_WITH_STRICT_TIMEOUT:
           skip_hangs = True
           self.set_timeout_arg(fuzz_args, self.MANUAL_TIMEOUT_MILLISECONDS,
-                               skip_hangs)
+                                skip_hangs)
 
         continue
 
@@ -994,12 +996,11 @@ class AflRunnerCommon:
       # if False: then prepare_retry_if_skip_cpu_freq
       if self.prepare_retry_if_skip_cpu_freq(fuzz_result):
           continue
-
       # If we can't do anything useful about the error, log it and don't try to
       # fuzz again.
       logs.log_error(
           ('Afl exited with a non-zero exitcode: %s. Cannot recover.' %
-           fuzz_result.return_code),
+            fuzz_result.return_code),
           engine_output=fuzz_result.output)
 
       break
@@ -1026,13 +1027,13 @@ class AflRunnerCommon:
 
     # If we have already tried fixing this error but it is still happening,
     # log it and don't try again.
-    current_no_affinity_value = environment.get_value(
-        constants.NO_AFFINITY_ENV_VAR)
+    afl_skip_cpufreq = environment.get_value(
+        constants.AFL_SKIP_CPUFREQ)
 
-    if current_no_affinity_value is not None:
+    if afl_skip_cpufreq is not None:
       logs.log_warn(('Already tried fixing CPU Frequencie error\n'
                      '$AFL_NO_AFFINITY: %s\n'
-                     'Not retrying.') % current_no_affinity_value)
+                     'Not retrying.') % afl_skip_cpufreq)
 
       return False  # return False so this error is considered unhandled.
 
@@ -1065,13 +1066,13 @@ class AflRunnerCommon:
 
     # If we have already tried fixing this error but it is still happening,
     # log it and don't try again.
-    current_no_affinity_value = environment.get_value(
-        constants.NO_AFFINITY_ENV_VAR)
+    afl_i_dont_care_abou_missing_crashes = environment.get_value(
+        constants.AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES)
 
-    if current_no_affinity_value is not None:
+    if afl_i_dont_care_abou_missing_crashes is not None:
       logs.log_warn(('Already tried fixing Core Dump error\n'
                      '$AFL_NO_AFFINITY: %s\n'
-                     'Not retrying.') % current_no_affinity_value)
+                     'Not retrying.') % afl_i_dont_care_abou_missing_crashes)
 
       return False  # return False so this error is considered unhandled.
 
@@ -1227,7 +1228,7 @@ class AflRunnerCommon:
     showmap_args = [
         f'{constants.OUTPUT_FLAG}{self.showmap_output_path}',
         f'{constants.MEMORY_LIMIT_FLAG}{constants.MAX_MEMORY_LIMIT}',
-        self.target_path, '-'
+        self.target_path, '-1'
     ]
     input_dir = self.afl_input.input_directory
     corpus = Corpus()
@@ -1548,9 +1549,13 @@ def _verify_system_config():
           path=constants.CORE_PATTERN_FILE_PATH),
       shell=True)
   if return_code or not _check_core_pattern_file():
-    logs.log_fatal_and_exit(
+    logs.log_error(
         'Failed to set {path}. AFL needs {path} to be set to core.'.format(
             path=constants.CORE_PATTERN_FILE_PATH))
+    logs.log_warn(f'To bypass the use of other crash manager for core dump notifications to an external utility \
+      {constants.AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES} is going to be set')
+    environment.set_value(constants.AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES, 1)
+
 
 
 def load_testcase_if_exists(fuzzer_runner, testcase_file_path):

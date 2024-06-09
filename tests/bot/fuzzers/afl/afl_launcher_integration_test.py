@@ -132,8 +132,8 @@ class BaseLauncherTest(unittest.TestCase):
     # Make it easy to assert if things were logged.
     test_helpers.patch(self, [
         'bot.metrics.logs.log', 'os.getpid',
-        'bot_working_directory.fuzzers.afl.launcher.rand_cmplog_level',
-        'bot_working_directory.fuzzers.afl.launcher.rand_schedule'
+        'bot.fuzzers.afl.launcher.rand_cmplog_level',
+        'bot.fuzzers.afl.launcher.rand_schedule'
     ])
     self.mock.rand_cmplog_level.return_value = '2'
     self.mock.rand_schedule.return_value = 'fast'
@@ -176,8 +176,8 @@ class BaseLauncherTest(unittest.TestCase):
       shutil.copy(src, dst)
 
     test_helpers.patch(self, [
-        'bot_working_directory.fuzzers.afl.launcher.AflRunnerCommon.fuzz',
-        'bot_working_directory.fuzzers.afl.launcher.AflFuzzOutputDirectory.is_testcase'
+        'bot.fuzzers.afl.launcher.AflRunnerCommon.fuzz',
+        'bot.fuzzers.afl.launcher.AflFuzzOutputDirectory.is_testcase'
     ])
 
     self.mock.fuzz.side_effect = mocked_fuzz
@@ -213,6 +213,7 @@ class BaseLauncherTest(unittest.TestCase):
         ]),
         sorted(os.listdir(input_corpus)))
     self.assertIn('Merge completed successfully.', self.logged_messages)
+    self.mock.log_error.call_count = 0
 
 
 class TestLauncher(BaseLauncherTest):
@@ -240,7 +241,7 @@ class TestLauncher(BaseLauncherTest):
     self.assertIn('Assertion `false\' failed.', output)
     self.assertIn('ERROR: AddressSanitizer: ABRT on unknown address', output)
 
-  @mock.patch('bot.bot.fuzzers.afl.launcher.get_fuzz_timeout')
+  @mock.patch('bot.fuzzers.afl.launcher.get_fuzz_timeout')
   def test_fuzz_no_crash(self, mock_get_timeout):
     """Tests fuzzing (no crash)."""
     mock_get_timeout.return_value = get_fuzz_timeout(5.0)
@@ -256,7 +257,7 @@ class TestLauncher(BaseLauncherTest):
     self.assertNotEqual(len(os.listdir(os.environ['FUZZ_CORPUS_DIR'])), 0)
 
   @unittest.skip('AFL++ does not handle crashes in input corpus properly.')
-  @mock.patch('bot.bot.fuzzers.afl.launcher.get_fuzz_timeout')
+  @mock.patch('bot.fuzzers.afl.launcher.get_fuzz_timeout')
   def test_fuzz_input_crash(self, mock_get_timeout):
     """Tests fuzzing (crash in input)."""
     mock_get_timeout.return_value = get_fuzz_timeout(5.0)
@@ -274,7 +275,7 @@ class TestLauncher(BaseLauncherTest):
     # No testcase should have been copied back.
     self.assertEqual(os.path.getsize(testcase_path), 0)
 
-  @mock.patch('bot.bot.fuzzers.afl.launcher.get_fuzz_timeout')
+  @mock.patch('bot.fuzzers.afl.launcher.get_fuzz_timeout')
   def test_fuzz_crash(self, mock_get_timeout):
     """Tests fuzzing (crash)."""
     # *WARNING* Do not lower the fuzz timeout unless you really know what you
@@ -301,7 +302,7 @@ class TestLauncher(BaseLauncherTest):
 
   @no_errors
   @unittest.skip('AFL++ cant consistently find testcases fast enough for test.')
-  @mock.patch('bot.bot.fuzzers.afl.launcher.get_fuzz_timeout')
+  @mock.patch('bot.fuzzers.afl.launcher.get_fuzz_timeout')
   def test_fuzz_merge(self, mock_get_timeout):
     """Tests fuzzing with merge."""
     mock_get_timeout.return_value = get_fuzz_timeout(15.0)
@@ -325,6 +326,6 @@ class TestLauncher(BaseLauncherTest):
     self.assertIn('Merge completed successfully.', self.logged_messages)
 
   @no_errors
-  @mock.patch('bot.bot.fuzzers.afl.launcher.get_fuzz_timeout')
+  @mock.patch('bot.fuzzers.afl.launcher.get_fuzz_timeout')
   def test_libfuzzerize_corpus(self, mock_get_timeout):
     self._test_libfuzzerize_corpus(mock_get_timeout)

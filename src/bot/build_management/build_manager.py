@@ -237,6 +237,7 @@ def _get_build_directory(bucket_path, job_name):
     # directory.
     if bucket_path:
         path = _remove_scheme(bucket_path).lstrip('/')
+        path = bucket_path.split(environment.get_value("MINIO_HOST"))[1]
         bucket_path, file_pattern = path.rsplit('/', 1)
         bucket_path = bucket_path.replace('/', '_')
 
@@ -1279,8 +1280,9 @@ def get_build_urls_list(bucket_path, reverse=True):
     """Returns a sorted list of build urls from a bucket path."""
     if not bucket_path:
         return []
-
+    
     base_url = bucket_path
+    
     if environment.is_running_on_app_engine():
         build_urls = list(storage.list_blobs(base_url))
     else:
@@ -1670,10 +1672,33 @@ def setup_build(revision=0, target_weights=None):
     for env_var in DEFAULT_BUILD_BUCKET_PATH_ENV_VARS:
         bucket_path = get_bucket_path(env_var)
         if bucket_path:
+            match env_var:
+                case 'RELEASE_BUILD_BUCKET_PATH':
+                    bucket_path = build_buckets_urls(bucket_path)
+                case 'SYM_RELEASE_BUILD_BUCKET_PATH':
+                    bucket_path = build_buckets_urls(bucket_path, data_types.Supported_Builds.SYM_RELEASE)
+                case 'SYM_DEBUG_BUILD_BUCKET_PATH':
+                    bucket_path = build_buckets_urls(bucket_path, data_types.Supported_Builds.SYM_DEBUG)
             bucket_paths.append(bucket_path)
-
+     
     return setup_trunk_build(bucket_paths, target_weights=target_weights)
 
+def build_buckets_urls(bucket_path, built_type=data_types.Supported_Builds.RELEASE):
+    # Switch case for each built_type:
+    bucket_host = environment.get_value("MINIO_HOST")
+    
+    match built_type:
+        case data_types.Supported_Builds.RELEASE:
+            return f'http://{bucket_host}/{environment.get_value("RELEASE_BUILD_BUCKET")}/{bucket_path}'
+        case data_types.Supported_Builds.SYM_RELEASE:
+            return  f'http://{bucket_host}/{environment.get_value("SYM_RELEASE_BUILD_BUCKET")}/{bucket_path}'
+        case data_types.Supported_Builds.SYM_DEBUG:
+            return  f'http://{bucket_host}/{environment.get_value("SYM_DEBUG_BUILD_BUCKET")}/{bucket_path}'
+        case data_types.Supported_Builds.STABLE:
+            return f'http://{bucket_host}/{environment.get_value("STABLE_BUILD_BUCKET")}/{bucket_path}'
+        case data_types.Supported_Builds.BETA:
+            return  f'http://{bucket_host}/{environment.get_value("BETA_BUILD_BUCKET")}/{bucket_path}'
+        
 
 def is_custom_binary():
     """Determine if this is a custom or preinstalled system binary."""

@@ -1,4 +1,4 @@
-[libfuzzer]
+[libFuzzer]
 max_len=31337
 timeout=11
 

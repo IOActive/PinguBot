@@ -9,13 +9,13 @@ import unittest
 
 import pyfakefs.fake_filesystem_unittest as fake_fs_unittest
 
-from bot.fuzzers import engine_common
-from bot.fuzzers import libfuzzer
-from bot.fuzzers import strategy_selection
+from bot.fuzzers.utils import engine_common
+from bot.fuzzers.libFuzzer import libfuzzer
+from bot.fuzzers.utils import strategy_selection
 from bot.fuzzing import strategy
 from bot.system import environment
-from bot.tests.test_libs import helpers as test_helpers
-from bot.tests.test_libs import test_utils
+from tests.test_libs import helpers as test_helpers
+from tests.test_libs import test_utils
 
 TESTDATA_PATH = os.path.join(os.path.dirname(__file__), 'libfuzzer_test_data')
 
@@ -162,7 +162,7 @@ class RecommendedDictionaryTest(fake_fs_unittest.TestCase):
         os.path.join(dictionaries_directory, 'fake_gcs_dictionary.dict'))
 
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
+        'bot.fuzzers.utils.dictionary_manager.DictionaryManager.'
         'download_recommended_dictionary_from_gcs',
         'os.getpid',
     ])
@@ -322,8 +322,8 @@ class SelectGeneratorTest(unittest.TestCase):
     self.pool = strategy_selection.generate_default_strategy_pool(
         strategy_list=strategy.LIBFUZZER_STRATEGY_LIST, use_generator=True)
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target',
-        'bot.bot_working_directory.fuzzers.strategy_selection.StrategyPool.do_strategy'
+        'bot.fuzzers.utils.engine_common.is_lpm_fuzz_target',
+        'bot.fuzzers.utils.strategy_selection.StrategyPool.do_strategy'
     ])
     self.mock.do_strategy.return_value = True
     self.mock.is_lpm_fuzz_target.return_value = True

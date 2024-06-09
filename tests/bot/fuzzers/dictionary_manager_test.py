@@ -4,10 +4,10 @@
 import os
 import unittest
 
-from bot.bot.fuzzers.utils import dictionary_manager
-from bot.bot.system import environment
-from bot.bot.utils import utils
-from test_libs import helpers as test_helpers
+from bot.fuzzers.utils import dictionary_manager
+from bot.system import environment
+from bot.utils import utils
+from tests.test_libs import helpers as test_helpers
 
 DATA_DIRECTORY = os.path.join(
     os.path.dirname(__file__), 'dictionary_manager_data')
