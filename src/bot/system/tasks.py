@@ -369,5 +369,5 @@ def track_task_end():
     bot_log = os.path.join(log_directory, 'bot.log')
     data_handler.update_heartbeat(log_filename=bot_log, force_update=True)
     # Clean Bot log once the task is finished
-    open(bot_log, "wb").close()
+    #open(bot_log, "wb").close()
 

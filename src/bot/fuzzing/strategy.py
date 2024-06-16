@@ -18,7 +18,7 @@ CORPUS_SUBSET_NUM_TESTCASES = [10, 20, 50, 75, 75, 100, 100, 100, 125, 125, 150]
 CORPUS_MUTATION_RADAMSA_STRATEGY = Strategy(
     name='corpus_mutations_radamsa', probability=0.15, manually_enable=False)
 CORPUS_MUTATION_ML_RNN_STRATEGY = Strategy(
-    name='corpus_mutations_ml_rnn', probability=0.50, manually_enable=False)
+    name='corpus_mutations_ml_rnn', probability=0.0, manually_enable=False)
 DATAFLOW_TRACING_STRATEGY = Strategy(
     name='dataflow_tracing', probability=0.50, manually_enable=True)
 CORPUS_SUBSET_STRATEGY = Strategy(
