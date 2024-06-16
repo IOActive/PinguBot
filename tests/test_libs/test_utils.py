@@ -1,18 +1,3 @@
-# Copyright 2024 IOActive
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 
 """Generic helper functions useful in tests."""
 
@@ -124,8 +109,9 @@ def set_up_pyfakefs(test_self, allow_root_user=True):
     real_cwd = os.path.realpath(os.getcwd())
     config_dir = os.path.realpath(environment.get_config_directory())
     test_self.setUpPyfakefs(allow_root_user=allow_root_user)
-    test_self.fs.add_real_directory(config_dir, lazy_read=False)
-    os.chdir(real_cwd)
+    #test_self.fs.add_real_directory(real_cwd, lazy_read=False)
+    test_self.fs.add_real_directory(config_dir, target_path='config', lazy_read=False)
+    #os.chdir(real_cwd)
 
 
 def supported_platforms(*platforms):
@@ -138,3 +124,5 @@ def supported_platforms(*platforms):
             func)
 
     return decorator
+
+MockStdout = io.StringIO  # pylint: disable=invalid-name

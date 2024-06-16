@@ -1,18 +1,3 @@
-# Copyright 2024 IOActive
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 
 """Common functionality for engine fuzzers (ie: libFuzzer or AFL)."""
 
@@ -119,10 +104,10 @@ def generate_new_testcase_mutations(corpus_directory,
         generate_new_testcase_mutations_using_radamsa(
             corpus_directory, new_testcase_mutations_directory, generation_timeout)
     # Generate new testcase mutations using ML RNN model.
-    #elif candidate_generator == Generator.ML_RNN:
-    #    generate_new_testcase_mutations_using_ml_rnn(
-    #       corpus_directory, new_testcase_mutations_directory, fuzzer_name,
-    #       generation_timeout)
+    elif candidate_generator == Generator.ML_RNN:
+        generate_new_testcase_mutations_using_ml_rnn(
+           corpus_directory, new_testcase_mutations_directory, fuzzer_name,
+           generation_timeout)
 
     # If new mutations are successfully generated, return true.
     if shell.get_directory_file_count(

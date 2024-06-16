@@ -1,18 +1,3 @@
-# Copyright 2024 IOActive
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 
 """Fuzz task for handling fuzzing."""
 
@@ -1607,14 +1592,14 @@ class FuzzingSession(object):
         # TODO: Remove environment variable once fuzzing engine refactor is
         # complete. Set multi-armed bandit strategy selection distribution as an
         # environment variable so we can access it in launcher.
-        if environment.get_value('USE_BANDIT_STRATEGY_SELECTION'):
-            selection_method = utils.random_weighted_choice(
-                SELECTION_METHOD_DISTRIBUTION, 'probability')
-            environment.set_value('STRATEGY_SELECTION_METHOD',
-                                  selection_method.method_name)
-            distribution = get_strategy_distribution_from_ndb()
-            if distribution:
-                environment.set_value('STRATEGY_SELECTION_DISTRIBUTION', distribution)
+        #if environment.get_value('USE_BANDIT_STRATEGY_SELECTION'):
+        #    selection_method = utils.random_weighted_choice(
+        #        SELECTION_METHOD_DISTRIBUTION, 'probability')
+        #    environment.set_value('STRATEGY_SELECTION_METHOD',
+        #                          selection_method.method_name)
+        #    distribution = get_strategy_distribution_from_ndb()
+        #    if distribution:
+        #        environment.set_value('STRATEGY_SELECTION_DISTRIBUTION', distribution)
 
         # Reset memory tool options.
         environment.reset_current_memory_tool_options(

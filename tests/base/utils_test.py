@@ -1,18 +1,3 @@
-# Copyright 2024 IOActive
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 
 """utils tests."""
 import datetime
@@ -26,7 +11,7 @@ import mock
 from pyfakefs import fake_filesystem_unittest
 
 from bot.system import utils
-from test_libs import test_utils, helpers
+from tests.test_libs import test_utils, helpers
 
 
 class GetSizeStringTest(unittest.TestCase):
@@ -327,6 +312,7 @@ class GetApplicationIDTest(unittest.TestCase):
 
   def test_no_app_id(self):
     """Test with no app id set in environment."""
+    os.environ['APPLICATION_ID'] = 'app_id'
     del os.environ['APPLICATION_ID']
     self.assertEqual(None, utils.get_application_id())
 

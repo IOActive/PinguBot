@@ -1,18 +1,3 @@
-# Copyright 2024 IOActive
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 
 """Functions for managing Google Cloud Storage."""
 
@@ -39,7 +24,7 @@ from bot.system import shell, environment
 from bot.utils import utils
 
 # Prefix for MINIO urls.
-MINIO_PREFIX = environment.get_value("MINIO_HOST")
+#MINIO_PREFIX = environment.get_value("MINIO_HOST")
 
 AUTH_TOKEN_EXPIRY_TIME = 10 * 60
 
@@ -168,7 +153,7 @@ class MinioProvider(StorageProvider):
 
         if recursive:
             # List objects information recursively.
-            objects = client.list_objects(bucket_name, recursive=True)
+            objects = client.list_objects(bucket_name, prefix=path, recursive=True)
             for obj in objects:
                 properties['bucket'] = obj.bucket_name
                 properties['name'] = obj.object_name
@@ -178,7 +163,7 @@ class MinioProvider(StorageProvider):
 
         if not recursive:
             # When doing delimiter listings, the "directories" will be in `prefixes`.
-            objects = client.list_objects(bucket_name)
+            objects = client.list_objects(bucket_name, prefix=path)
             for obj in objects:
                 properties['bucket'] = obj.bucket_name
                 properties['name'] = obj.object_name
@@ -210,8 +195,8 @@ class MinioProvider(StorageProvider):
 
         try:
             # Download data of an object.
-            for item in client.list_objects(bucket_name, recursive=True):
-                blob = client.fget_object(bucket_name, item.object_name, local_path)
+            for item in client.list_objects(bucket_name, prefix=path, recursive=True):
+                blob = client.fget_object(bucket_name, item.object_name, f'{local_path}/{item.object_name}')
                 logs.log(
                     "downloaded {0} object; etag: {1}, version-id: {2}".format(blob.object_name, blob.etag,
                                                                                blob.version_id))
@@ -587,11 +572,13 @@ def _storage_client():
 
 def get_bucket_name_and_path(cloud_storage_file_path):
     """Return bucket name and path given a full cloud storage path."""
-    filtered_path = utils.strip_from_left(cloud_storage_file_path, "http://" + MINIO_PREFIX)
+    filtered_path = utils.strip_from_left(cloud_storage_file_path, "http://" + environment.get_value("MINIO_HOST"))
     _, bucket_name_and_path = filtered_path.split('/', 1)
 
     if '/' in bucket_name_and_path:
         bucket_name, path = bucket_name_and_path.split('/', 1)
+        if '(' in path:
+            path = path.split('(', 1)[0]
     else:
         bucket_name = bucket_name_and_path
         path = ""
@@ -601,7 +588,7 @@ def get_bucket_name_and_path(cloud_storage_file_path):
 
 def get_cloud_storage_file_path(bucket, path):
     """Get the full GCS file path."""
-    return MINIO_PREFIX + '/' + bucket + '/' + path
+    return environment.get_value("MINIO_HOST") + '/' + bucket + '/' + path
 
 
 def _get_error_reason(http_error):

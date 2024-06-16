@@ -1,18 +1,3 @@
-# Copyright 2024 IOActive
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 
 """Task queue functions."""
 
@@ -367,9 +352,9 @@ def track_task_start(task, task_duration):
     # Clean Bot log before the task is started
     log_directory = environment.get_value('LOG_DIR')
     bot_log = os.path.join(log_directory, 'bot.log')
-    open(bot_log, "wb").close()
     from bot.datastore import data_handler
-    data_handler.update_heartbeat(force_update=True)
+    data_handler.update_heartbeat(log_filename=bot_log, force_update=True)
+    open(bot_log, "wb").close()
 
 
 def track_task_end():
@@ -384,5 +369,5 @@ def track_task_end():
     bot_log = os.path.join(log_directory, 'bot.log')
     data_handler.update_heartbeat(log_filename=bot_log, force_update=True)
     # Clean Bot log once the task is finished
-    open(bot_log, "wb").close()
+    #open(bot_log, "wb").close()
 

@@ -1,18 +1,3 @@
-# Copyright 2024 IOActive
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 
 """Tests for libFuzzer engine."""
 # pylint: disable=unused-argument
@@ -27,9 +12,9 @@ import parameterized
 import pyfakefs.fake_filesystem_unittest as fake_fs_unittest
 import six
 
-from bot.fuzzers import engine_common
-from bot.fuzzers import libfuzzer
-from bot.fuzzers import strategy_selection
+from bot.fuzzers.utils import engine_common
+from bot.fuzzers.libFuzzer import libfuzzer
+from bot.fuzzers.utils import strategy_selection
 from bot.fuzzers import utils as fuzzer_utils
 from bot.fuzzers.libFuzzer import constants
 from bot.fuzzers.libFuzzer import engine
@@ -41,9 +26,9 @@ from bot.system import environment
 from bot.system import new_process
 from bot.system import process_handler
 from bot.system import shell
-from bot.tests.test_libs import android_helpers
-from bot.tests.test_libs import helpers as test_helpers
-from bot.tests.test_libs import test_utils
+from tests.test_libs import android_helpers
+from tests.test_libs import helpers as test_helpers
+from tests.test_libs import test_utils
 
 try:
   from shlex import quote
@@ -68,7 +53,7 @@ class PrepareTest(fake_fs_unittest.TestCase):
     test_utils.set_up_pyfakefs(self)
 
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.engine_common.unpack_seed_corpus_if_needed',
+        'bot.fuzzers.utils.engine_common.unpack_seed_corpus_if_needed',
     ])
 
     self.fs.create_dir('/inputs')
@@ -86,7 +71,7 @@ class PrepareTest(fake_fs_unittest.TestCase):
     os.environ['FUZZ_INPUTS_DISK'] = '/inputs'
 
     test_helpers.patch(
-        self, ['bot.bot_working_directory.fuzzers.libFuzzer.pick_strategies'])
+        self, ['bot.fuzzers.libFuzzer.libfuzzer.pick_strategies'])
 
     self.mock.pick_strategies.return_value = libfuzzer.StrategyInfo(
         fuzzing_strategies=[
@@ -186,7 +171,7 @@ class PickStrategiesTest(fake_fs_unittest.TestCase):
 
   def setUp(self):
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target',
+        'bot.fuzzers.utils.engine_common.is_lpm_fuzz_target',
         'random.SystemRandom.randint',
     ])
     self.mock.is_lpm_fuzz_target.return_value = False
@@ -226,9 +211,9 @@ class FuzzTest(fake_fs_unittest.TestCase):
     self.fs.add_real_directory(TEST_DIR)
 
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.libFuzzer.engine._is_multistep_merge_supported',
-        'bot.bot_working_directory.fuzzers.libFuzzer.LibFuzzerRunner.fuzz',
-        'bot.bot_working_directory.fuzzers.libFuzzer.LibFuzzerRunner.merge',
+        'bot.fuzzers.libFuzzer.engine._is_multistep_merge_supported',
+        'bot.fuzzers.libFuzzer.libfuzzer.LibFuzzerRunner.fuzz',
+        'bot.fuzzers.libFuzzer.libfuzzer.LibFuzzerRunner.merge',
         'os.getpid',
     ])
 
@@ -468,16 +453,16 @@ class BaseIntegrationTest(unittest.TestCase):
     os.environ['CACHE_DIR'] = TEMP_DIR
 
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
+        'bot.fuzzers.dictionary_manager.DictionaryManager.'
         'update_recommended_dictionary',
-        'bot.bot_working_directory.fuzzers.engine_common.get_merge_timeout',
-        'bot.bot_working_directory.fuzzers.engine_common.random_choice',
-        'bot.bot_working_directory.fuzzers.mutator_plugin._download_mutator_plugin_archive',
-        'bot.bot_working_directory.fuzzers.mutator_plugin._get_mutator_plugins_from_bucket',
-        'bot.bot_working_directory.fuzzers.strategy_selection.'
+        'bot.fuzzers.utils.engine_common.get_merge_timeout',
+        'bot.fuzzers.utils.engine_common.random_choice',
+        'bot.fuzzers.utils.mutator_plugin._download_mutator_plugin_archive',
+        'bot.fuzzers.utils.mutator_plugin._get_mutator_plugins_from_bucket',
+        'bot.fuzzers.utils.strategy_selection.'
         'generate_weighted_strategy_pool',
-        'bot.bot_working_directory.fuzzers.libFuzzer.get_dictionary_analysis_timeout',
-        'bot.bot_working_directory.fuzzers.libFuzzer.get_fuzz_timeout',
+        'bot.fuzzers.libFuzzer.libfuzzer.get_dictionary_analysis_timeout',
+        'bot.fuzzers.libFuzzer.libfuzzer.get_fuzz_timeout',
         'os.getpid',
         'bot.system.minijail.MinijailChroot._mknod',
     ])
@@ -694,7 +679,7 @@ class IntegrationTests(BaseIntegrationTest):
   def test_analyze_dict(self):
     """Tests recommended dictionary analysis."""
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
+        'bot.fuzzers.dictionary_manager.DictionaryManager.'
         'parse_recommended_dictionary_from_log_lines',
     ])
 
@@ -768,7 +753,7 @@ class IntegrationTests(BaseIntegrationTest):
     fuzz_target_name = 'analyze_dict_fuzzer'
 
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.libFuzzer.engine.Engine.'
+        'bot.fuzzers.libFuzzer.engine.Engine.'
         '_create_merge_corpus_dir',
         'bot.system.shell.get_directory_file_count',
     ])
@@ -968,7 +953,7 @@ class MinijailIntegrationTests(IntegrationTests):
 
 
 @test_utils.integration
-@test_utils.with_cloud_emulators('datastore')
+#@test_utils.with_cloud_emulators('datastore')
 class IntegrationTestsFuchsia(BaseIntegrationTest):
   """libFuzzer tests (Fuchsia)."""
 
@@ -1107,7 +1092,7 @@ class IntegrationTestsFuchsia(BaseIntegrationTest):
 
 
 @test_utils.integration
-@test_utils.with_cloud_emulators('datastore')
+#@test_utils.with_cloud_emulators('datastore')
 class IntegrationTestsAndroid(BaseIntegrationTest, android_helpers.AndroidTest):
   """libFuzzer tests (Android)."""
 
@@ -1314,7 +1299,7 @@ class IntegrationTestsAndroid(BaseIntegrationTest, android_helpers.AndroidTest):
   def test_analyze_dict(self):
     """Tests recommended dictionary analysis."""
     test_helpers.patch(self, [
-        'bot.bot_working_directory.fuzzers.dictionary_manager.DictionaryManager.'
+        'bot.fuzzers.dictionary_manager.DictionaryManager.'
         'parse_recommended_dictionary_from_log_lines',
     ])
 

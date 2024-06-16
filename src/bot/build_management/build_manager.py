@@ -1,18 +1,3 @@
-# Copyright 2024 IOActive
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 
 """Build manager."""
 import shutil
@@ -34,6 +19,7 @@ from bot.metrics import logs
 from bot.platforms import android
 from bot.system import environment, shell, archive, new_process, errors, minijail
 from bot.utils import utils
+from bot.datastore import blobs_manager as blobs
 
 DEFAULT_BUILD_BUCKET_PATH_ENV_VARS = (
     'RELEASE_BUILD_BUCKET_PATH',
@@ -251,14 +237,18 @@ def _get_build_directory(bucket_path, job_name):
     # directory.
     if bucket_path:
         path = _remove_scheme(bucket_path).lstrip('/')
+        path = bucket_path.split(environment.get_value("MINIO_HOST"))[1]
         bucket_path, file_pattern = path.rsplit('/', 1)
         bucket_path = bucket_path.replace('/', '_')
+        bucket_path = bucket_path.split("_")[-1]
 
         # Remove similar build types to force them in same directory.
         file_pattern = utils.remove_sub_strings(file_pattern, BUILD_TYPE_SUBSTRINGS)
 
         file_pattern_hash = utils.string_hash(file_pattern)
-        job_directory = '%s_%s' % (bucket_path, file_pattern_hash)
+        #job_directory = '%s_%s' % (bucket_path, file_pattern_hash)
+        job_directory = '%s' % (bucket_path)
+
     else:
         job_directory = job_name
 
@@ -1167,8 +1157,8 @@ class CustomBuild(Build):
 
         build_local_archive = os.path.join(self.build_dir,
                                            self.custom_binary_filename)
-        # if not blobs.read_blob_to_disk(self.custom_binary_key, build_local_archive):
-        #     return False
+        if not blobs.read_blob_to_disk(self.custom_binary_key, build_local_archive):
+             return False
 
         # If custom binary is an archive, then unpack it.
         if archive.is_archive(self.custom_binary_filename):
@@ -1293,8 +1283,9 @@ def get_build_urls_list(bucket_path, reverse=True):
     """Returns a sorted list of build urls from a bucket path."""
     if not bucket_path:
         return []
-
+    
     base_url = bucket_path
+    
     if environment.is_running_on_app_engine():
         build_urls = list(storage.list_blobs(base_url))
     else:
@@ -1684,10 +1675,33 @@ def setup_build(revision=0, target_weights=None):
     for env_var in DEFAULT_BUILD_BUCKET_PATH_ENV_VARS:
         bucket_path = get_bucket_path(env_var)
         if bucket_path:
+            match env_var:
+                case 'RELEASE_BUILD_BUCKET_PATH':
+                    bucket_path = build_buckets_urls(bucket_path)
+                case 'SYM_RELEASE_BUILD_BUCKET_PATH':
+                    bucket_path = build_buckets_urls(bucket_path, data_types.Supported_Builds.SYM_RELEASE)
+                case 'SYM_DEBUG_BUILD_BUCKET_PATH':
+                    bucket_path = build_buckets_urls(bucket_path, data_types.Supported_Builds.SYM_DEBUG)
             bucket_paths.append(bucket_path)
-
+     
     return setup_trunk_build(bucket_paths, target_weights=target_weights)
 
+def build_buckets_urls(bucket_path, built_type=data_types.Supported_Builds.RELEASE):
+    # Switch case for each built_type:
+    bucket_host = environment.get_value("MINIO_HOST")
+    
+    match built_type:
+        case data_types.Supported_Builds.RELEASE:
+            return f'http://{bucket_host}/{environment.get_value("RELEASE_BUILD_BUCKET")}/{bucket_path}'
+        case data_types.Supported_Builds.SYM_RELEASE:
+            return  f'http://{bucket_host}/{environment.get_value("SYM_RELEASE_BUILD_BUCKET")}/{bucket_path}'
+        case data_types.Supported_Builds.SYM_DEBUG:
+            return  f'http://{bucket_host}/{environment.get_value("SYM_DEBUG_BUILD_BUCKET")}/{bucket_path}'
+        case data_types.Supported_Builds.STABLE:
+            return f'http://{bucket_host}/{environment.get_value("STABLE_BUILD_BUCKET")}/{bucket_path}'
+        case data_types.Supported_Builds.BETA:
+            return  f'http://{bucket_host}/{environment.get_value("BETA_BUILD_BUCKET")}/{bucket_path}'
+        
 
 def is_custom_binary():
     """Determine if this is a custom or preinstalled system binary."""

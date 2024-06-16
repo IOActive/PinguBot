@@ -1,18 +1,3 @@
-# Copyright 2024 IOActive
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import re
 from datetime import time, datetime
 from enum import Enum
@@ -97,7 +82,15 @@ PLATFORMS = [
     'ANDROID_KERNEL',
     'ANDROID_AUTO',
 ]
-
+# Type of builds enum
+class Supported_Builds(Enum):
+        RELEASE = 'Release'
+        SYM_RELEASE = 'SYM_Release'
+        SYM_DEBUG = 'SYM_Debug'
+        STABLE = 'Stable'
+        BETA = 'Beta'
+        NA = 'NA'
+        
 # Maximum size allowed for an appengine pubsub request.
 # Explicily kept slightly lower than 1 MB.
 PUBSUB_REQUEST_LIMIT = 900000
@@ -224,6 +217,9 @@ class Fuzzer(BaseModel):
 
     # Revision number of the fuzzer.
     revision: float = 1.0
+    
+    # Data bundel Name
+    data_bundle_name: str = ""
 
     class Config:
         allow_population_by_field_name = True
@@ -252,14 +248,14 @@ class Job(BaseModel):
     id: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     name: str
     project: str
-    description: str
-    date: datetime
-    enabled: bool
-    archived: bool
+    description: str = ''
+    date: datetime = datetime.now()
+    enabled: bool = True
+    archived: bool = False
     #fuzzing_target: UUID  #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzing_target")
     #owner: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default=None, alias="owner")
     templates: UUID = None #PyObjectId = Field(default=None, alias="template")
-    environment_string: str = "CUSTOM_BINARY=true"
+    environment_string: str = "CUSTOM_BINARY=false"
     platform: str
     # Blobstore key of the custom binary for this job.
     custom_binary_key: str = ''
@@ -323,9 +319,10 @@ class Job(BaseModel):
 class FuzzStrategyProbability(BaseModel):
     """Mapping between fuzz strategies and probabilities with which they
   should be selected."""
-    strategy_name: str
-    probability: float
-    engine: UUID #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzer_id")
+    id: UUID = Field(default_factory=uuid4)
+    strategy_name: str = ''
+    probability: float = 1.0
+    engine: UUID = Field(default_factory=uuid4) #PyObjectId = Field(default_factory=PyObjectId, alias="fuzzer_id")
 
 
 class Status(str, Enum):

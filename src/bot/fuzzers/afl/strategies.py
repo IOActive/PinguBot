@@ -1,4 +1,3 @@
-# Copyright 2024 IOActive
 # Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""AFL-specific strategies."""
 
 
-"""Tests for compute_engine_projects."""
+class FastCal:
+  """Contains the different values FuzzingStrategies.fast_cal can store."""
 
-import unittest
-
-from bot.google_cloud_utils import compute_engine_projects
-
-
-class LoadProjectTest(unittest.TestCase):
-  """Tests load_project."""
-
-  def test_load_test_project(self):
-    """Test that test config (project test-clusterfuzz) loads without any
-    exceptions."""
-    self.assertIsNotNone(
-        compute_engine_projects.load_project('test-clusterfuzz'))
+  NOT_SET = 0
+  # OFF means we've explicitly decided *not* to use AFL_FAST_CAL. It doesn't
+  # mean that we haven't decided yet.
+  OFF = 1
+  RANDOM = 2
+  MANUAL = 3
