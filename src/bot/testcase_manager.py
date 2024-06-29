@@ -928,8 +928,8 @@ def test_for_crash_with_retries(testcase,
             crash_retries = environment.get_value('CRASH_RETRIES')
 
         if compare_crash:
-            expected_state = testcase.crash_state
-            expected_security_flag = testcase.security_flag
+            expected_state = crash.crash_state
+            expected_security_flag = crash.security_flag
         else:
             expected_state = None
             expected_security_flag = None
