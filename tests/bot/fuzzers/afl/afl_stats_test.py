@@ -1,18 +1,3 @@
-# Copyright 2024 IOActive
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 
 """Test the stats.py script for AFL-based fuzzers."""
 
@@ -23,13 +8,13 @@ import unittest
 import mock
 import six
 
-from bot.fuzzers import engine_common
+from bot.fuzzers.utils import engine_common
 from bot.fuzzers.afl import launcher
 from bot.fuzzers.afl import stats
 from bot.fuzzing import strategy
-from bot.tests.core.bot.fuzzers.afl.afl_launcher_test import \
+from tests.bot.fuzzers.afl.afl_launcher_test import \
     dont_use_strategies
-from bot.tests.test_libs import helpers as test_helpers
+from tests.test_libs import helpers as test_helpers
 
 
 def override_fail_retries(env_var, default_value=None):
@@ -68,7 +53,7 @@ class StatsGetterTests(unittest.TestCase):
     dont_use_strategies(self)
     test_helpers.patch(
         self,
-        ['bot.bot_working_directory.fuzzers.engine_common.is_lpm_fuzz_target'])
+        ['bot.fuzzers.utils.engine_common.is_lpm_fuzz_target'])
     self.mock.is_lpm_fuzz_target.return_value = True
     self.strategies = launcher.FuzzingStrategies(None)
 
@@ -128,7 +113,7 @@ class StatsGetterTests(unittest.TestCase):
     actual_stats = self._set_stats()
 
     self.assertEqual(actual_stats['dict_used'], 1)
-    self.assertEqual(actual_stats['manual_dict_size'], self.MANUAL_DICT_SIZE)
+    self.assertEqual(actual_stats['manual_dict_size'][0], self.MANUAL_DICT_SIZE)
 
   def test_stats_without_dict(self):
     """Tests that "dict_used" and "manual_dict_size" are set properly by
@@ -154,7 +139,7 @@ class StatsGetterTests(unittest.TestCase):
         'crash_count': 0,
         'dict_used': 1,
         'log_lines_unwanted': 0,
-        'manual_dict_size': 3,
+        'manual_dict_size': (3, 0),
         'new_units_added': 1,
         'new_units_generated': 2,
         'stability': 100.0,
@@ -181,7 +166,7 @@ class StatsGetterTests(unittest.TestCase):
         'crash_count': 0,
         'dict_used': 1,
         'log_lines_unwanted': 0,
-        'manual_dict_size': 3,
+        'manual_dict_size': (3, 0),
         'new_units_added': 1,
         'new_units_generated': 2,
         'stability': 0.0,
@@ -205,7 +190,7 @@ class StatsGetterTests(unittest.TestCase):
         'crash_count': 0,
         'dict_used': 1,
         'log_lines_unwanted': 0,
-        'manual_dict_size': 3,
+        'manual_dict_size': (3, 0),
         'new_units_added': 1,
         'new_units_generated': 2,
         'stability': 0.0,

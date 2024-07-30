@@ -1,18 +1,3 @@
-# Copyright 2024 IOActive
-# Copyright 2019 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 
 """Fuzzing strategies for fuzzing engines like libFuzzer, AFL, etc."""
 
@@ -33,7 +18,7 @@ CORPUS_SUBSET_NUM_TESTCASES = [10, 20, 50, 75, 75, 100, 100, 100, 125, 125, 150]
 CORPUS_MUTATION_RADAMSA_STRATEGY = Strategy(
     name='corpus_mutations_radamsa', probability=0.15, manually_enable=False)
 CORPUS_MUTATION_ML_RNN_STRATEGY = Strategy(
-    name='corpus_mutations_ml_rnn', probability=0.50, manually_enable=False)
+    name='corpus_mutations_ml_rnn', probability=0.0, manually_enable=False)
 DATAFLOW_TRACING_STRATEGY = Strategy(
     name='dataflow_tracing', probability=0.50, manually_enable=True)
 CORPUS_SUBSET_STRATEGY = Strategy(
