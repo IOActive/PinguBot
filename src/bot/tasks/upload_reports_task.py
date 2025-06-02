@@ -3,9 +3,10 @@
 
 import time
 
-from bot.datastore import data_types, crash_uploader, data_handler
-from bot.metrics import logs
-from bot.system import environment, errors
+from pingu_sdk.datastore import crash_uploader, data_handler
+from pingu_sdk.metrics import logs
+from pingu_sdk.system import environment, errors
+from pingu_sdk.datastore.models import ReportMetadata
 
 
 def execute_task(*_):
@@ -13,8 +14,7 @@ def execute_task(*_):
     logs.log('Uploading pending reports.')
 
     # Get metadata for reports requiring upload.
-    reports_metadata = data_types.ReportMetadata
-    reports_metadata = list(reports_metadata)
+    reports_metadata = list(ReportMetadata)
     if not reports_metadata:
         logs.log('No reports that need upload found.')
         return

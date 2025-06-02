@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  bot:
+    build: .
+    container_name: pingu_bot
+    volumes:
+      - ./config:/app/config:ro  # Mount the parent directory of the symlink
+      - ./test-bot:/app/test-bot
+    environment:
+      - PYTHONUNBUFFERED=1

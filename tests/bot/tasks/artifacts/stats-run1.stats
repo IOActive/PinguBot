@@ -1,0 +1,7 @@
+{
+  "executions": 2000,
+  "new_units": 50,
+  "crashes_found": 2,
+  "runtime_seconds": 60,
+  "coverage": 75.5
+}

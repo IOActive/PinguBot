@@ -76,9 +76,6 @@ def _setup():
     os.environ['PYTHONIOENCODING'] = 'UTF-8'
 
     sys.path.insert(0, os.path.abspath(os.path.join('src')))
-    from bot.system import modules
-    modules.fix_module_search_paths()
-
 
 if __name__ == '__main__':
     main()

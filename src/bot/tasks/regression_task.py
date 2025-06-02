@@ -8,12 +8,20 @@ import time
 # Number of revisions before the maximum to test before doing a bisect. This
 # is also used as a cap for revisions to test near the minimum if the minimum
 # happens to be a bad build.
-from bot import testcase_manager
-from bot.build_management import build_manager, revisions
-from bot.datastore import data_handler, data_types
-from bot.metrics import logs
-from bot.system import errors, environment, tasks
+from pingu_sdk import testcase_manager
+from pingu_sdk.build_management import revisions
+from pingu_sdk.datastore import data_handler
+from pingu_sdk.metrics import logs
+from pingu_sdk.system import errors, environment, tasks
 from bot.tasks import task_creation, setup
+from pingu_sdk.datastore.data_constants import TaskState
+from pingu_sdk.build_management.build_helper import BuildHelper
+from pingu_sdk.build_management.build_managers import build_utils
+from pingu_sdk.datastore.pingu_api.pingu_api_client import get_api_client
+from pingu_sdk.datastore.models import Testcase, Crash
+from pingu_sdk.datastore.pingu_api.storage.build_api import BuildType
+
+from bot.tasks.task_context import TaskContext
 
 EXTREME_REVISIONS_TO_TEST = 3
 
@@ -27,21 +35,21 @@ EARLIER_REVISIONS_TO_CONSIDER_FOR_VALIDATION = 10
 def _save_current_regression_range_indices(testcase_id, regression_range_start,
                                            regression_range_end):
     """Save current regression range indices in case we die in middle of task."""
-    testcase = data_handler.get_testcase_by_id(testcase_id)
+    testcase = get_api_client().testcase_api.get_testcase_by_id(testcase_id)
     testcase.set_metadata(
         'last_regression_min', regression_range_start, update_testcase=False)
     testcase.set_metadata(
         'last_regression_max', regression_range_end, update_testcase=False)
-    testcase.put()
+    get_api_client().testcase_api.update_testcase(testcase=testcase)
 
 
 def save_regression_range(testcase_id, regression_range_start,
                           regression_range_end):
     """Saves the regression range and creates blame and impact task if needed."""
-    testcase = data_handler.get_testcase_by_id(testcase_id)
+    testcase = get_api_client().testcase_api.get_testcase_by_id(testcase_id)
     testcase.regression = '%d:%d' % (regression_range_start, regression_range_end)
     data_handler.update_testcase_comment(
-        testcase, data_types.TaskState.FINISHED,
+        testcase, TaskState.FINISHED,
         'regressed in range %s' % testcase.regression)
 
     # Force impacts update after regression range is updated. In several cases,
@@ -50,14 +58,14 @@ def save_regression_range(testcase_id, regression_range_start,
     task_creation.create_impact_task_if_needed(testcase)
 
     # Get blame information using the regression range result.
-    task_creation.create_blame_task_if_needed(testcase)
+    #task_creation.create_blame_task_if_needed(testcase)
 
 
-def _testcase_reproduces_in_revision(testcase,
+def _testcase_reproduces_in_revision(testcase: Testcase,
                                      testcase_file_path,
-                                     job_type,
+                                     job_id,
                                      revision,
-                                     crash,
+                                     crash: Crash,
                                      should_log=True,
                                      min_revision=None,
                                      max_revision=None):
@@ -66,33 +74,34 @@ def _testcase_reproduces_in_revision(testcase,
         log_message = 'Testing r%d' % revision
         if min_revision is not None and max_revision is not None:
             log_message += ' (current range %d:%d)' % (min_revision, max_revision)
-
-        testcase = data_handler.get_testcase_by_id(testcase.key.id())
-        crash = data_handler.get_crash_by_testcase(str(testcase.id))
-        data_handler.update_testcase_comment(testcase, data_types.TaskState.WIP,
+        
+        api_client = get_api_client()
+        testcase = api_client.testcase_api.get_testcase_by_id(testcase.id)
+        crash = api_client.crash_api.get_crash_by_testcase(str(testcase.id))
+        data_handler.update_testcase_comment(testcase, TaskState.WIP,
                                              log_message)
+    build_helper = BuildHelper(job_id=job_id, revision=revision)
+    build_helper.setup_build()
+    if not build_utils.check_app_path():
+        raise errors.BuildSetupError(revision, job_id)
 
-    build_manager.setup_build(revision)
-    if not build_manager.check_app_path():
-        raise errors.BuildSetupError(revision, job_type)
-
-    if testcase_manager.check_for_bad_build(job_type, revision):
+    if testcase_manager.check_for_bad_build(job_id, revision):
         log_message = 'Bad build at r%d. Skipping' % revision
-        testcase = data_handler.get_testcase_by_id(testcase.key.id())
-        crash = data_handler.get_crash_by_testcase(str(testcase.id))
-        data_handler.update_testcase_comment(testcase, data_types.TaskState.WIP,
+        testcase = api_client.testcase_api.get_testcase_by_id(testcase.id)
+        crash = api_client.crash_api.get_crash_by_testcase(str(testcase.id))
+        data_handler.update_testcase_comment(testcase, TaskState.WIP,
                                              log_message)
-        raise errors.BadBuildError(revision, job_type)
+        raise errors.BadBuildError(revision, job_id)
 
     test_timeout = environment.get_value('TEST_TIMEOUT', 10)
     result = testcase_manager.test_for_crash_with_retries(
-        testcase, testcase_file_path, test_timeout, crash=crash, http_flag=testcase.http_flag)
+        testcase, testcase_file_path, test_timeout, crash=crash)
     return result.is_crash()
 
 
-def found_regression_near_extreme_revisions(testcase, testcase_file_path,
+def found_regression_near_extreme_revisions(testcase: Testcase, testcase_file_path,
                                             job_type, revision_list, min_index,
-                                            max_index, crash):
+                                            max_index, crash: Crash):
     """Test to see if we regressed near either the min or max revision."""
     # Test a few of the most recent revisions.
     last_known_crashing_revision = revision_list[max_index]
@@ -111,7 +120,7 @@ def found_regression_near_extreme_revisions(testcase, testcase_file_path,
             continue
 
         if not is_crash:
-            save_regression_range(testcase.key.id(), revision_list[current_index],
+            save_regression_range(testcase.id, revision_list[current_index],
                                   last_known_crashing_revision)
             return True
 
@@ -141,7 +150,7 @@ def found_regression_near_extreme_revisions(testcase, testcase_file_path,
             continue
 
         if crashes_in_min_revision:
-            save_regression_range(testcase.key.id(), 0, min_revision)
+            save_regression_range(testcase.id, 0, min_revision)
             return True
 
         return False
@@ -151,26 +160,27 @@ def found_regression_near_extreme_revisions(testcase, testcase_file_path,
     raise errors.BadBuildError(revision_list[min_index], job_type)
 
 
-def validate_regression_range(testcase, testcase_file_path, job_type,
-                              revision_list, min_index, crash):
+def validate_regression_range(testcase: Testcase, testcase_file_path, job_id,
+                              revision_list, min_index, crash: Crash):
     """Ensure that we found the correct min revision by testing earlier ones."""
     earlier_revisions = revision_list[
                         min_index - EARLIER_REVISIONS_TO_CONSIDER_FOR_VALIDATION:min_index]
     revision_count = min(len(earlier_revisions), REVISIONS_TO_TEST_FOR_VALIDATION)
 
     revisions_to_test = random.sample(earlier_revisions, revision_count)
+    api_client = get_api_client()
     for revision in revisions_to_test:
         try:
             if _testcase_reproduces_in_revision(testcase, testcase_file_path,
-                                                job_type, revision, crash=crash):
-                testcase = data_handler.get_testcase_by_id(testcase.key.id())
+                                                job_id, revision, crash=crash):
+                testcase = api_client.testcase_api.get_testcase_by_id(testcase.id)
                 testcase.regression = 'NA'
                 error_message = (
                         'Low confidence in regression range. Test case crashes in '
                         'revision r%d but not later revision r%d' %
                         (revision, revision_list[min_index]))
                 data_handler.update_testcase_comment(
-                    testcase, data_types.TaskState.ERROR, error_message)
+                    testcase, TaskState.ERROR, error_message)
                 return False
         except errors.BadBuildError:
             pass
@@ -178,11 +188,12 @@ def validate_regression_range(testcase, testcase_file_path, job_type,
     return True
 
 
-def find_regression_range(testcase_id, job_type):
+def find_regression_range(testcase_id, job_id, project_id):
     """Attempt to find when the testcase regressed."""
     deadline = tasks.get_task_completion_deadline()
-    testcase = data_handler.get_testcase_by_id(testcase_id)
-    crash = data_handler.get_crash_by_testcase(str(testcase.id))
+    api_client = get_api_client()
+    testcase = api_client.testcase_api.get_testcase_by_id(testcase_id)
+    crash = api_client.crash_api.get_crash_by_testcase(str(testcase.id))
     if not testcase:
         return
 
@@ -192,26 +203,25 @@ def find_regression_range(testcase_id, job_type):
         return
 
     # This task is not applicable for custom binaries.
-    if build_manager.is_custom_binary():
+    if build_utils.is_custom_binary():
         testcase.regression = 'NA'
-        data_handler.update_testcase_comment(testcase, data_types.TaskState.ERROR,
+        data_handler.update_testcase_comment(testcase, TaskState.ERROR,
                                              'Not applicable for custom binaries')
         return
 
-    data_handler.update_testcase_comment(testcase, data_types.TaskState.STARTED)
+    data_handler.update_testcase_comment(testcase, TaskState.STARTED)
 
     # Setup testcase and its dependencies.
-    file_list, _, testcase_file_path = setup.setup_testcase(testcase, job_type)
+    file_list, _, testcase_file_path = setup.setup_testcase(testcase, job_id)
     if not file_list:
-        testcase = data_handler.get_testcase_by_id(testcase_id)
-        data_handler.update_testcase_comment(testcase, data_types.TaskState.ERROR,
+        testcase = api_client.testcase_api.get_testcase_by_id(testcase_id)
+        data_handler.update_testcase_comment(testcase, TaskState.ERROR,
                                              'Failed to setup testcase')
-        tasks.add_task('regression', testcase_id, job_type)
+        tasks.add_task('regression', testcase_id, job_id)
         return
 
-    build_bucket_path = build_manager.get_primary_bucket_path()
-    revision_list = build_manager.get_revisions_list(
-        build_bucket_path, testcase=testcase)
+    revision_list = build_utils.get_revisions_list(project_id=project_id, build_type=BuildType.RELEASE.value, testcase=testcase)
+
     if not revision_list:
         data_handler.close_testcase_with_error(testcase_id,
                                                'Failed to fetch revision list')
@@ -227,24 +237,24 @@ def find_regression_range(testcase_id, job_type):
     if not min_revision:
         min_revision = revisions.get_first_revision_in_list(revision_list)
     if not max_revision:
-        max_revision = testcase.crash_revision
+        max_revision = crash.crash_revision
 
     min_index = revisions.find_min_revision_index(revision_list, min_revision)
     if min_index is None:
-        raise errors.BuildNotFoundError(min_revision, job_type)
+        raise errors.BuildNotFoundError(min_revision, job_id)
     max_index = revisions.find_max_revision_index(revision_list, max_revision)
     if max_index is None:
-        raise errors.BuildNotFoundError(max_revision, job_type)
+        raise errors.BuildNotFoundError(max_revision, job_id)
 
     # Make sure that the revision where we noticed the crash, still crashes at
     # that revision. Otherwise, our binary search algorithm won't work correctly.
     max_revision = revision_list[max_index]
     crashes_in_max_revision = _testcase_reproduces_in_revision(
-        testcase, testcase_file_path, job_type, max_revision, crash=crash, should_log=False)
+        testcase, testcase_file_path, job_id, max_revision, crash=crash, should_log=False)
     if not crashes_in_max_revision:
-        testcase = data_handler.get_testcase_by_id(testcase_id)
+        testcase = api_client.testcase_api.get_testcase_by_id(testcase_id)
         error_message = ('Known crash revision %d did not crash' % max_revision)
-        data_handler.update_testcase_comment(testcase, data_types.TaskState.ERROR,
+        data_handler.update_testcase_comment(testcase, TaskState.ERROR,
                                              error_message)
         task_creation.mark_unreproducible_if_flaky(testcase, True)
         return
@@ -256,7 +266,7 @@ def find_regression_range(testcase_id, job_type):
     # On the first run, check to see if we regressed near either the min or max
     # revision.
     if first_run and found_regression_near_extreme_revisions(
-            testcase, testcase_file_path, job_type, revision_list, min_index,
+            testcase, testcase_file_path, job_id, revision_list, min_index,
             max_index, crash=crash):
         return
 
@@ -268,7 +278,7 @@ def find_regression_range(testcase_id, job_type):
         # one build), this is as much as we can narrow the range.
         if max_index - min_index <= 1:
             # Verify that the regression range seems correct, and save it if so.
-            if not validate_regression_range(testcase, testcase_file_path, job_type,
+            if not validate_regression_range(testcase, testcase_file_path, job_id,
                                              revision_list, min_index, crash=crash):
                 return
 
@@ -281,7 +291,7 @@ def find_regression_range(testcase_id, job_type):
             is_crash = _testcase_reproduces_in_revision(
                 testcase,
                 testcase_file_path,
-                job_type,
+                job_id,
                 middle_revision,
                 crash=crash,
                 min_revision=min_revision,
@@ -302,34 +312,35 @@ def find_regression_range(testcase_id, job_type):
 
     # If we've broken out of the above loop, we timed out. We'll finish by
     # running another regression task and picking up from this point.
-    testcase = data_handler.get_testcase_by_id(testcase_id)
+    testcase = api_client.testcase_api.get_testcase_by_id(testcase_id)
     error_message = 'Timed out, current range r%d:r%d' % (
         revision_list[min_index], revision_list[max_index])
-    data_handler.update_testcase_comment(testcase, data_types.TaskState.ERROR,
+    data_handler.update_testcase_comment(testcase, TaskState.ERROR,
                                          error_message)
-    tasks.add_task('regression', testcase_id, job_type)
+    tasks.add_task('regression', testcase_id, job_id)
 
 
-def execute_task(testcase_id, job_type):
+def execute_task(context: TaskContext):
     """Run regression task and handle potential errors."""
     try:
-        find_regression_range(testcase_id, job_type)
+        testcase_id = context.task.argument
+        find_regression_range(testcase_id, context.job.id, context.project.id)
     except errors.BuildSetupError as error:
         # If we failed to setup a build, it is likely a bot error. We can retry
         # the task in this case.
-        testcase = data_handler.get_testcase_by_id(testcase_id)
+        testcase = get_api_client().testcase_api.get_testcase_by_id(testcase_id)
         error_message = 'Build setup failed r%d' % error.revision
-        data_handler.update_testcase_comment(testcase, data_types.TaskState.ERROR,
+        data_handler.update_testcase_comment(testcase, TaskState.ERROR,
                                              error_message)
         build_fail_wait = environment.get_value('FAIL_WAIT')
         tasks.add_task(
-            'regression', testcase_id, job_type, wait_time=build_fail_wait)
+            'regression', testcase_id, context.job.id, wait_time=build_fail_wait)
     except errors.BadBuildError:
         # Though bad builds when narrowing the range are recoverable, certain builds
         # being marked as bad may be unrecoverable. Recoverable ones should not
         # reach this point.
-        testcase = data_handler.get_testcase_by_id(testcase_id)
+        testcase = get_api_client().testcase_api.get_testcase_by_id(testcase_id)
         testcase.regression = 'NA'
         error_message = 'Unable to recover from bad build'
-        data_handler.update_testcase_comment(testcase, data_types.TaskState.ERROR,
+        data_handler.update_testcase_comment(testcase, TaskState.ERROR,
                                              error_message)

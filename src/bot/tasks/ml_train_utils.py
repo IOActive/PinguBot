@@ -15,7 +15,6 @@
 
 import os
 
-from bot.datastore import storage
 from bot.fuzzing import corpus_manager
 from bot.metrics import logs
 from bot.system import environment, archive, shell

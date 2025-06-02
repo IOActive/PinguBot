@@ -4,11 +4,10 @@
 import unittest
 
 from bot.tasks import analyze_task
-from bot.tests.test_libs import helpers
-from bot.tests.test_libs import test_utils
+from tests.test_libs import helpers
+from tests.test_libs import test_utils
 
 
-@test_utils.with_cloud_emulators('datastore')
 class AddDefaultIssueMetadataTest(unittest.TestCase):
   """Test _add_default_issue_metadata."""
 
@@ -16,11 +15,9 @@ class AddDefaultIssueMetadataTest(unittest.TestCase):
     helpers.patch(
         self,
         [
-            'bot.bot_working_directory.fuzzers.engine_common.'
-            'get_all_issue_metadata_for_testcase',
+            'pingu_sdk.fuzzers.engine_common.get_all_issue_metadata_for_testcase',
             # Disable logging.
-            'bot.datastore.data_types.Testcase._post_put_hook',
-            'bot.metrics.logs.log',
+            'pingu_sdk.metrics.logs.log',
         ])
 
   def test_union(self):

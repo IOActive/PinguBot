@@ -6,10 +6,10 @@ import unittest
 
 import mock
 
-from bot.metrics import monitor
-from bot.metrics import monitoring_metrics
-from bot.tests.test_libs import helpers
-from python.bot.startup import run_bot
+from pingu_sdk.metrics import monitor
+from pingu_sdk.metrics import monitoring_metrics
+from tests.test_libs import helpers
+from bot.startup import run_bot
 
 
 class MonitorTest(unittest.TestCase):
@@ -73,10 +73,8 @@ class TaskLoopTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'bot.base.tasks.get_task',
-        'bot.bot_working_directory.tasks.commands.process_command',
-        'bot.bot_working_directory.tasks.update_task.run',
-        'bot.bot_working_directory.tasks.update_task.track_revision',
+        'pingu_sdk.system.tasks.get_task',
+        'bot.tasks.commands.process_command',
     ])
 
     self.task = mock.MagicMock()

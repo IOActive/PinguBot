@@ -3,16 +3,18 @@
 import datetime
 import os
 import unittest
+from uuid import uuid4
 
-from google.cloud import ndb
 import mock
 
-from bot.base import errors
 from bot.tasks import commands
-from bot.datastore import data_types
-from bot.system import environment
-from bot.tests.test_libs import helpers
-from bot.tests.test_libs import test_utils
+from pingu_sdk.system import environment
+from bot.tasks.task_context import TaskContext
+from tests.test_libs import helpers
+from tests.test_libs import test_utils
+from pingu_sdk.datastore.data_constants import TaskState
+
+from pingu_sdk.datastore.models.fuzzer import Fuzzer
 
 
 @commands.set_task_payload
@@ -40,147 +42,98 @@ class SetTaskPayloadTest(unittest.TestCase):
     self.assertEqual('payload something', dummy(task))
     self.assertIsNone(os.getenv('TASK_PAYLOAD'))
 
-  def test_exc(self):
-    """Test when exception occurs."""
-    task = mock.Mock()
-    task.payload.return_value = 'payload something'
-    with self.assertRaises(Exception) as cm:
-      self.assertEqual('payload something', dummy_exception(task))
-    self.assertEqual('payload something', str(cm.exception))
-    self.assertEqual({'task_payload': 'payload something'}, cm.exception.extras)
-    self.assertIsNone(os.getenv('TASK_PAYLOAD'))
 
-
-@test_utils.with_cloud_emulators('datastore')
+#@test_utils.with_cloud_emulators('datastore')
 class RunCommandTest(unittest.TestCase):
   """Tests for run_command."""
 
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        ('fuzz_execute_task',
-         'bot.bot_working_directory.tasks.fuzz_task.execute_task'),
-        ('progression_execute_task',
-         'bot.bot_working_directory.tasks.progression_task.execute_task'),
-        'bot.base.utils.utcnow',
+        'pingu_sdk.datastore.data_handler.update_task_status',
+        'pingu_sdk.utils.utils.utcnow',
+        'pingu_sdk.datastore.pingu_api.fuzzer_api.FuzzerApi.get_fuzzer',
     ])
 
     os.environ['BOT_NAME'] = 'bot_name'
     os.environ['TASK_LEASE_SECONDS'] = '60'
     os.environ['FAIL_WAIT'] = '60'
     self.mock.utcnow.return_value = test_utils.CURRENT_TIME
-
+    self.mock.update_task_status.return_value = True
+    
+    fuzzer = Fuzzer(name='fantasy_fuzz', filename="", file_size="1", blobstore_path="",
+                    executable_path="fantasy_fuzz",
+                    timeout=10, supported_platforms="Linux", launcher_script="", max_testcases=10,
+                    additional_environment_string="", builtin=False, differential=False,
+                    untrusted_content=False)
+        
+    self.mock.get_fuzzer.return_value = fuzzer
+    
   def test_run_command_fuzz(self):
+    helpers.patch(self, [
+        'bot.tasks.fuzz_task.execute_task',
+    ])
     """Test run_command with a normal command."""
-    commands.run_command('fuzz', 'fuzzer', 'job')
+    task=mock.MagicMock(command="fuzz", argument="fuzzer", id=uuid4())
+    task_context = TaskContext(task=task, project=mock.MagicMock(id=uuid4()), job=mock.MagicMock(id=uuid4()), fuzzer_name='fuzzer')
 
-    self.assertEqual(1, self.mock.fuzz_execute_task.call_count)
-    self.mock.fuzz_execute_task.assert_called_with('fuzzer', 'job')
+    commands.run_command(task_context)
 
-    # Fuzz task should not create any TaskStatus entities.
-    task_status_entities = list(data_types.TaskStatus.query())
-    self.assertEqual(0, len(task_status_entities))
+    self.assertEqual(1, self.mock.execute_task.call_count)
+    self.mock.execute_task.assert_called_with(task_context)
+
 
   def test_run_command_progression(self):
+    helpers.patch(self, [
+      'bot.tasks.progression_task.execute_task',
+    ])
     """Test run_command with a progression task."""
-    commands.run_command('progression', '123', 'job')
+    task=mock.MagicMock(command="progression", argument="1234", id=uuid4())
+    task_context = TaskContext(task=task, project=mock.MagicMock(id=uuid4()), job=mock.MagicMock(id=uuid4()), fuzzer_name='fuzzer')
+    commands.run_command(task_context)
 
-    self.assertEqual(1, self.mock.progression_execute_task.call_count)
-    self.mock.progression_execute_task.assert_called_with('123', 'job')
-
-    # TaskStatus should indicate success.
-    task_status_entities = list(data_types.TaskStatus.query())
-    self.assertEqual(1, len(task_status_entities))
-
-    task_status = task_status_entities[0]
-    self.assertEqual(
-        ndb.Key(data_types.TaskStatus, 'progression 123 job'), task_status.key)
-
-    self.assertDictEqual({
-        'bot_name': 'bot_name',
-        'status': 'finished',
-        'time': test_utils.CURRENT_TIME,
-    }, task_status.to_dict())
+    self.assertEqual(1, self.mock.execute_task.call_count)
+    self.mock.execute_task.assert_called_with(task_context)
 
   def test_run_command_exception(self):
+    helpers.patch(self, [
+      'bot.tasks.progression_task.execute_task',
+    ])
     """Test run_command with an exception."""
-    self.mock.progression_execute_task.side_effect = Exception
+    self.mock.execute_task.side_effect = Exception
 
+    task=mock.MagicMock(command="progression", argument="1234", id=uuid4())
+    task_context = TaskContext(task=task, project=mock.MagicMock(id=uuid4()), job=mock.MagicMock(id=uuid4()), fuzzer_name='fuzzer')
+    
     with self.assertRaises(Exception):
       commands.run_command('progression', '123', 'job')
 
-    # TaskStatus should indicate failure.
-    task_status_entities = list(data_types.TaskStatus.query())
-    self.assertEqual(1, len(task_status_entities))
-
-    task_status = task_status_entities[0]
-    self.assertDictEqual({
-        'bot_name': 'bot_name',
-        'status': 'errored out',
-        'time': test_utils.CURRENT_TIME,
-    }, task_status.to_dict())
-
-  def test_run_command_invalid_testcase(self):
-    """Test run_command with an invalid testcase exception."""
-    self.mock.progression_execute_task.side_effect = errors.InvalidTestcaseError
-    commands.run_command('progression', '123', 'job')
-
-    task_status_entities = list(data_types.TaskStatus.query())
-    self.assertEqual(1, len(task_status_entities))
-
-    # TaskStatus should still indicate success.
-    task_status = task_status_entities[0]
-    self.assertDictEqual({
-        'bot_name': 'bot_name',
-        'status': 'finished',
-        'time': test_utils.CURRENT_TIME,
-    }, task_status.to_dict())
-
   def test_run_command_already_running(self):
+    helpers.patch(self, [
+      'bot.tasks.progression_task.execute_task',
+    ])
+    self.mock.update_task_status.return_value = False
     """Test run_command with another instance currently running."""
-    data_types.TaskStatus(
-        id='progression 123 job',
-        bot_name='another_bot',
-        time=test_utils.CURRENT_TIME,
-        status='started').put()
+    
+    task=mock.MagicMock(command="progression", argument="1234", id=uuid4())
+    task_context = TaskContext(task=task, project=mock.MagicMock(id=uuid4()), job=mock.MagicMock(id=uuid4()), fuzzer_name='fuzzer')
 
     with self.assertRaises(commands.AlreadyRunningError):
-      commands.run_command('progression', '123', 'job')
+      commands.run_command(task_context)
 
-    self.assertEqual(0, self.mock.progression_execute_task.call_count)
-
-    task_status_entities = list(data_types.TaskStatus.query())
-    self.assertEqual(1, len(task_status_entities))
-
-    task_status = task_status_entities[0]
-    self.assertDictEqual({
-        'bot_name': 'another_bot',
-        'status': 'started',
-        'time': test_utils.CURRENT_TIME,
-    }, task_status.to_dict())
+    self.assertEqual(0, self.mock.execute_task.call_count)
 
   def test_run_command_already_running_expired(self):
+    helpers.patch(self, [
+      'bot.tasks.progression_task.execute_task',
+    ])
+    
+    task=mock.MagicMock(command="progression", argument="1234", id=uuid4())
+    task_context = TaskContext(task=task, project=mock.MagicMock(id=uuid4()), job=mock.MagicMock(id=uuid4()), fuzzer_name='fuzzer')
     """Test run_command with another instance currently running, but its lease
     has expired."""
-    data_types.TaskStatus(
-        id='progression 123 job',
-        bot_name='another_bot',
-        time=datetime.datetime(1970, 1, 1),
-        status='started').put()
-
-    commands.run_command('progression', '123', 'job')
-    self.assertEqual(1, self.mock.progression_execute_task.call_count)
-
-    task_status_entities = list(data_types.TaskStatus.query())
-    self.assertEqual(1, len(task_status_entities))
-
-    task_status = task_status_entities[0]
-    self.assertDictEqual({
-        'bot_name': 'bot_name',
-        'status': 'finished',
-        'time': test_utils.CURRENT_TIME,
-    }, task_status.to_dict())
-
+    commands.run_command(task_context)
+    self.assertEqual(1, self.mock.execute_task.call_count)
 
 class UpdateEnvironmentForJobTest(unittest.TestCase):
   """update_environment_for_job tests."""

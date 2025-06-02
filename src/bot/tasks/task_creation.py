@@ -1,14 +1,15 @@
 
 """Common functions for task creation for test cases."""
-from bot.datastore.data_handler import get_fuzz_target_job_by_job
-from bot.datastore.data_types import Testcase
-from bot.build_management import build_manager
-from bot.datastore import data_handler, data_types
-from bot.system import environment, tasks
-from bot.utils import utils
+from pingu_sdk.datastore.models import Testcase
+from pingu_sdk.datastore.models.testcase_variant import TestcaseVariantStatus
+from pingu_sdk.build_management.build_managers import build_utils
+from pingu_sdk.datastore import data_handler
+from pingu_sdk.system import environment, tasks
+from pingu_sdk.utils import utils
+from pingu_sdk.datastore.data_constants import TaskState
+from pingu_sdk.datastore.pingu_api.pingu_api_client import get_api_client
 
-
-def mark_unreproducible_if_flaky(testcase, potentially_flaky):
+def mark_unreproducible_if_flaky(testcase: Testcase, potentially_flaky):
     """Check to see if a test case appears to be flaky."""
     task_name = environment.get_value('TASK_NAME')
 
@@ -41,7 +42,7 @@ def mark_unreproducible_if_flaky(testcase, potentially_flaky):
         testcase.fixed = 'NA'
 
     testcase.one_time_crasher_flag = True
-    data_handler.update_testcase_comment(testcase, data_types.TaskState.ERROR,
+    data_handler.update_testcase_comment(testcase, TaskState.ERROR,
                                          'Testcase appears to be flaky')
 
     # Issue update to flip reproducibility label is done in App Engine cleanup
@@ -58,13 +59,13 @@ def create_regression_task_if_needed(testcase):
     # We cannot run regression job for custom binaries since we don't have any
     # archived builds for previous revisions. We only track the last uploaded
     # custom build.
-    if build_manager.is_custom_binary():
+    if build_utils.is_custom_binary():
         return
 
     tasks.add_task('regression', str(testcase.id), testcase.job_id)
 
 
-def create_variant_tasks_if_needed(testcase):
+def create_variant_tasks_if_needed(testcase: Testcase):
     """Creates a variant task if needed."""
     if testcase.duplicate_of:
         # If another testcase exists with same params, no need to spend cycles on
@@ -72,18 +73,19 @@ def create_variant_tasks_if_needed(testcase):
         return
 
     testcase_id = str(testcase.id)
-    project = data_handler.get_project_name(testcase.job_type)
-    jobs = data_types.Job.query(data_types.Job.project == project)
+    project = data_handler.get_project_name(testcase.job_id)
+    api_client = get_api_client()
+    jobs = api_client.job_api.get_jobs()
     for job in jobs:
         # The variant needs to be tested in a different job type than us.
-        job_type = job.name
-        if testcase.job_type == job_type:
+        current_job_id = job.name
+        if testcase.job_id == current_job_id:
             continue
 
         # Don't try to reproduce engine fuzzer testcase with blackbox fuzzer
         # testcases and vice versa.
-        if (environment.is_engine_fuzzer_job(testcase.job_type) !=
-                environment.is_engine_fuzzer_job(job_type)):
+        if (environment.is_engine_fuzzer_job(testcase.job_id) !=
+                environment.is_engine_fuzzer_job(current_job_id)):
             continue
 
         # Skip experimental jobs.
@@ -92,28 +94,28 @@ def create_variant_tasks_if_needed(testcase):
             continue
 
         queue = tasks.queue_for_platform(job.platform)
-        tasks.add_task('variant', testcase_id, job_type, queue)
+        tasks.add_task('variant', testcase_id, current_job_id, queue)
 
-        variant = data_handler.get_testcase_variant(testcase_id, job_type)
-        variant.status = data_types.TestcaseVariantStatus.PENDING
-        variant.put()
+        variant = api_client.testcase_variant_api.get_testcase_variant(testcase_id, current_job_id)
+        variant.status = TestcaseVariantStatus.PENDING
+        api_client.testcase_variant_api.add_testcase_variant(variant)
 
 
-def create_symbolize_task_if_needed(testcase):
+def create_symbolize_task_if_needed(testcase: Testcase):
     """Creates a symbolize task if needed."""
     # We cannot run symbolize job for custom binaries since we don't have any
     # archived symbolized builds.
-    if build_manager.is_custom_binary():
+    if build_utils.is_custom_binary():
         return
 
     # Make sure we have atleast one symbolized url pattern defined in job type.
-    if not build_manager.has_symbolized_builds():
+    if not build_utils.has_symbolized_builds():
         return
 
     tasks.add_task('symbolize', str(testcase.id), testcase.job_id)
 
 
-def create_tasks(testcase):
+def create_tasks(testcase: Testcase):
     """Create tasks like minimization, regression, impact, progression, stack
   stack for a newly generated testcase."""
     # No need to create progression task. It is automatically created by the cron
@@ -133,10 +135,11 @@ def create_tasks(testcase):
     # on these jobs.
     testcase_id = testcase.id
     if environment.get_value('MIN') == 'No':
-        testcase = data_handler.get_testcase_by_id(testcase_id=testcase_id)
+        api_client = get_api_client()
+        testcase = api_client.testcase_api.get_testcase_by_id(testcase_id=testcase_id)
         testcase.minimized_keys = 'NA'
         testcase.regression = 'NA'
-        data_handler.update_testcase(testcase=testcase)
+        api_client.testcase_api.update_testcase(testcase=testcase)
         return
 
     # Just create the minimize task for now. Once minimization is complete, it
@@ -144,19 +147,11 @@ def create_tasks(testcase):
     create_minimize_task_if_needed(testcase=testcase)
 
 
-def create_impact_task_if_needed(testcase):
+def create_impact_task_if_needed(testcase: Testcase):
     """Creates an impact task if needed."""
-    # Impact doesn't make sense for non-chromium projects.
-    if not utils.is_chromium():
-        return
-
-    # Impact is only applicable to chromium project, otherwise bail out.
-    if testcase.project_name != 'chromium':
-        return
-
     # We cannot run impact job for custom binaries since we don't have any
     # archived production builds for these.
-    if build_manager.is_custom_binary():
+    if build_utils.is_custom_binary():
         return
 
-    tasks.add_task('impact', str(testcase.id), testcase.job_type)
+    tasks.add_task('impact', str(testcase.id), testcase.job_id)

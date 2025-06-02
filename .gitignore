@@ -5,7 +5,6 @@ test-bot*/
 .vscode copy/launch.json
 .vscode copy/settings.json
 third_party/*
-config/*
 
 Skip to content
 
@@ -224,4 +223,3 @@ gitignore/Python.gitignore at main · github/gitignore · GitHub
 
 tests/backend/api/__pycache__/__init__.cpython-310.pyc
 tests/backend/api/__pycache__/__init__.cpython-310.pyc
-config

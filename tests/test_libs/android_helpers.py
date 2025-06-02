@@ -3,8 +3,8 @@
 
 import unittest
 
-from bot.platforms.android import adb
-from bot.system import environment
+from pingu_sdk.platforms.android import adb
+from pingu_sdk.system import environment
 from tests.test_libs import helpers, test_utils
 
 

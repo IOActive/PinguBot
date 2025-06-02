@@ -9,10 +9,10 @@ import os
 import sys
 import time
 
-from bot.datastore import data_handler
-from bot.metrics import logs
-from bot.system import environment, tasks, process_handler, shell
-from bot.utils import dates
+from pingu_sdk.datastore import data_handler
+from pingu_sdk.metrics import logs
+from pingu_sdk.system import environment, tasks, process_handler, shell
+from pingu_sdk.utils import dates
 
 import psutil
 
@@ -21,7 +21,7 @@ import psutil
 HEARTBEAT_WAIT_INTERVAL = 10 * 60
 
 
-def beat(previous_state, log_filename):
+def beat(previous_state, log_directory):
     """Run a cycle of heartbeat checks to ensure bot is running."""
     # Handle case when run_bot.py script is stuck. If yes, kill its process.
     task_end_time = tasks.get_task_end_time()
@@ -57,10 +57,10 @@ def beat(previous_state, log_filename):
 
         # Concerned stale processes should be killed. Now, delete the stale task.
         tasks.track_task_end()
-
+    
     # Figure out when the log file was last modified.
     try:
-        current_state = str(os.path.getmtime(log_filename))
+        current_state = str(os.path.getmtime(log_directory))
     except Exception:
         current_state = None
 
@@ -68,7 +68,7 @@ def beat(previous_state, log_filename):
     if current_state and current_state != previous_state:
         # Try updating the heartbeat. If an error occurs, just
         # wait and return None.
-        if not data_handler.update_heartbeat(log_filename):
+        if not data_handler.update_heartbeat(log_directory):
             return None
         # Heartbeat is successfully updated.
 
@@ -85,10 +85,10 @@ def main():
     else:
         previous_state = sys.argv[1]
 
-    log_filename = sys.argv[2]
+    log_directory = sys.argv[2]
 
     try:
-        sys.stdout.write(str(beat(previous_state, log_filename)))
+        sys.stdout.write(str(beat(previous_state, log_directory)))
     except Exception as e:
         logs.log_error('Failed to beat.')
 

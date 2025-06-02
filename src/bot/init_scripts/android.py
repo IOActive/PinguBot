@@ -1,8 +1,8 @@
 
 """Android init scripts."""
 from bot.init_scripts import init_runner
-from bot.platforms import android
-from bot.system import environment
+from pingu_sdk.platforms import android
+from pingu_sdk.system import environment
 
 TIME_SINCE_REBOOT_MIN_THRESHOLD = 30 * 60  # 30 minutes.
 

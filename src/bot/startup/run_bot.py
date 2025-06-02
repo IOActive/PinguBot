@@ -5,24 +5,25 @@
 # to be able to import dependencies directly, but we must store these in
 # subdirectories of common so that they are shared with App Engine.
 import multiprocessing
-import os
-import sys
 import time
 import traceback
 
-from bot.datastore import data_handler
-from bot.datastore.data_handler import register_bot
-from bot.metrics import logs, monitoring_metrics
-from bot.system import environment, errors, tasks
-from bot.tasks import update_task
-from bot.utils import dates, utils
-from bot.fuzzers import init as fuzzers_init
+from pingu_sdk.datastore import data_handler
+from pingu_sdk.datastore.data_constants import TaskState
+from pingu_sdk.metrics import logs, monitoring_metrics
+from pingu_sdk.system import environment, errors, tasks
+from pingu_sdk.utils import dates, utils
+from pingu_sdk.fuzzers import init as fuzzers_init
+from pingu_sdk.datastore.pingu_api.pingu_api_client import get_api_client
+from pingu_sdk.datastore.data_handler import DATETIME_FORMAT
+from pingu_sdk.system.tasks import Task
 
+from pingu_sdk.datastore.pingu_api.bot_api import PinguAPIError
 
 class _Monitor(object):
     """Monitor one task."""
 
-    def __init__(self, task, time_module=time):
+    def __init__(self, task: Task, time_module=time):
         self.task = task
         self.time_module = time_module
         self.start_time = None
@@ -42,8 +43,8 @@ def task_loop():
     """Executes tasks indefinitely."""
     # Defer heavy task imports to prevent issues with multiprocessing.Process
     from bot.tasks import commands
-    # Register Bot
-    register_bot()
+            
+    # Main loop
     clean_exit = False
     while True:
         stacktrace = ''
@@ -53,14 +54,15 @@ def task_loop():
         environment.reset_environment()
         try:
             # Run regular updates.
-            update_task.run()
-
             task = tasks.get_task()
+
             if not task:
                 wait_next_loop()
                 continue
 
             with _Monitor(task):
+                # Set the current task ID in environment for use by commands.
+                environment.set_value('TASK_ID', task.id)
                 with task.lease():
                     # Execute the command and delete the task.
                     commands.process_command(task)
@@ -72,13 +74,19 @@ def task_loop():
 
             stacktrace = traceback.format_exc()
         except commands.AlreadyRunningError:
-            exception_occurred = False
+            exception_occurred = True
+            stacktrace = traceback.format_exc()
+        except PinguAPIError as err:
+            exception_occurred = True
+            logs.log_error('Pingu API error occurred while working on task: %s', str(err))
+            stacktrace = traceback.format_exc()
         except Exception as e:
             logs.log_error('Error occurred while working on task: %s' % e)
             exception_occurred = True
             stacktrace = traceback.format_exc()
 
         if exception_occurred:
+            data_handler.update_task_status(environment.get_value('TASK_ID'), TaskState.ERROR)
             wait_next_loop()
             break
 
@@ -99,7 +107,7 @@ def main():
     dates.initialize_timezone_from_environment()
     # monitor.initialize()
     fuzzers_init.run()
-
+    
     while True:
         # task_loop should be an infinite loop,
         # unless we run into an exception.

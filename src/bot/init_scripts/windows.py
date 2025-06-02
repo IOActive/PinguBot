@@ -5,9 +5,9 @@ import os
 import subprocess
 
 from bot.init_scripts import init_runner
-from bot.metrics import logs
-from bot.system import environment, shell
-from bot.utils import utils
+from pingu_sdk.metrics import logs
+from pingu_sdk.system import environment, shell
+from pingu_sdk.utils import utils
 
 DEFAULT_FAIL_RETRIES = 5
 DEFAULT_FAIL_WAIT = 5

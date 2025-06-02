@@ -6,7 +6,7 @@ import unittest
 import mock
 
 from bot.init_scripts import mac
-from bot.tests.test_libs import helpers
+from tests.test_libs import helpers
 
 
 class RunTest(unittest.TestCase):
@@ -14,9 +14,9 @@ class RunTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'bot.bot_working_directory.init_scripts.init_runner.run',
+        'bot.init_scripts.init_runner.run',
         'os.path.expanduser',
-        'bot.system.shell.remove_directory',
+        'pingu_sdk.system.shell.remove_directory',
         'shutil.rmtree',
         'subprocess.Popen',
         'os.path.exists',
@@ -31,7 +31,7 @@ class RunTest(unittest.TestCase):
     self.mock.Popen.return_value = self.popen
 
     def expanduser(path):
-      return path.replace('~', '/Users/chrome-bot_working_directory')
+      return path.replace('~', '/Users/chrome-working_directory')
 
     self.mock.expanduser.side_effect = expanduser
 

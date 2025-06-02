@@ -1,10 +1,11 @@
 
 """Tests for init_runner."""
 
+import os
 import unittest
 
 from bot.init_scripts import init_runner
-from bot.tests.test_libs import helpers
+from tests.test_libs import helpers
 
 
 class InitRunnerTest(unittest.TestCase):
@@ -12,16 +13,17 @@ class InitRunnerTest(unittest.TestCase):
 
   def setUp(self):
     helpers.patch(self, [
-        'bot.system.environment.platform',
-        'bot.system.process_handler.run_process',
+        'pingu_sdk.system.environment.platform',
+        'pingu_sdk.system.process_handler.run_process',
     ])
 
   def test_windows(self):
     """Test windows."""
     self.mock.platform.return_value = 'WINDOWS'
     init_runner.run()
+    expected_path = os.path.abspath('./config/bot/init/windows.ps1')
     self.mock.run_process.assert_called_with(
-        'powershell.exe ./configs/test/bot_working_directory/init/windows.ps1',
+        f"powershell.exe {expected_path}",
         ignore_children=True,
         need_shell=True,
         testcase_run=False,
@@ -31,8 +33,9 @@ class InitRunnerTest(unittest.TestCase):
     """Test posix."""
     self.mock.platform.return_value = 'LINUX'
     init_runner.run()
+    expected_path = os.path.abspath('./config/bot/init/linux.bash')
     self.mock.run_process.assert_called_with(
-        './configs/test/bot_working_directory/init/linux.bash',
+        expected_path,
         ignore_children=True,
         need_shell=True,
         testcase_run=False,

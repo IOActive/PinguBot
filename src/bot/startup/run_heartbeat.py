@@ -4,9 +4,9 @@
 # Before any other imports, we must fix the path. Some libraries might expect
 # to be able to import dependencies directly, but we must store these in
 # subdirectories of common so that they are shared with App Engine.
-from bot.datastore import data_handler
-from bot.metrics import logs
-from bot.system import environment, shell
+from pingu_sdk.datastore import data_handler
+from pingu_sdk.metrics import logs
+from pingu_sdk.system import environment, shell
 
 import os
 import subprocess
@@ -24,7 +24,7 @@ def main():
 
     logs.configure('run_heartbeat')
 
-    log_filename = sys.argv[1]
+    log_directory = sys.argv[1]
     previous_state = None
 
     # Get absolute path to heartbeat script and interpreter needed to execute it.
@@ -36,7 +36,7 @@ def main():
     while True:
         beat_command = [
             beat_interpreter, beat_script_path,
-            str(previous_state), log_filename
+            str(previous_state), log_directory
         ]
 
         try:

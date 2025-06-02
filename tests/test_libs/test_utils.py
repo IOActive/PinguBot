@@ -5,9 +5,10 @@ import datetime
 import io
 import os
 import unittest
+import uuid
 
-from bot.datastore import data_types
-from bot.system import environment
+from pingu_sdk.system import environment
+from pingu_sdk.datastore.models.testcase import Testcase
 
 from mockupdb import MockupDB
 
@@ -20,27 +21,20 @@ _emulators = {}
 
 def create_generic_testcase(created_days_ago=28):
     """Create a simple test case."""
-    testcase = data_types.Testcase()
+    now = datetime.datetime.now()
+    then = now - datetime.timedelta(days=created_days_ago)
+    testcase = Testcase(timestamp=then, job_id=uuid.uuid4(), fuzzer_id=uuid.uuid4())
 
     # Add more values here as needed. Intended to be the bare minimum for what we
     # need to simulate a test case.
     testcase.absolute_path = '/a/b/c/test.html'
-    testcase.crash_address = '0xdeadbeef'
-    testcase.crash_revision = 1
-    testcase.crash_state = 'crashy_function()'
-    testcase.crash_stacktrace = testcase.crash_state
-    testcase.crash_type = 'fake type'
     testcase.comments = 'Fuzzer: test'
     testcase.fuzzed_keys = 'abcd'
     testcase.minimized_keys = 'efgh'
-    testcase.fuzzer_name = 'fuzzer1'
     testcase.open = True
     testcase.one_time_crasher_flag = False
-    testcase.job_type = 'test_content_shell_drt'
     testcase.status = 'Processed'
     testcase.timestamp = CURRENT_TIME - datetime.timedelta(days=created_days_ago)
-    testcase.project_name = 'project'
-    testcase.platform = 'linux'
 
     return testcase
 

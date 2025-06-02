@@ -6,8 +6,8 @@ import unittest
 import mock
 
 from bot.init_scripts import windows
-from bot.system import environment
-from bot.tests.test_libs import helpers
+from pingu_sdk.system import environment
+from tests.test_libs import helpers
 
 
 class CleanTempDirectoriesTest(unittest.TestCase):
@@ -18,7 +18,7 @@ class CleanTempDirectoriesTest(unittest.TestCase):
         'os.path.abspath',
         'os.path.expandvars',
         'os.path.join',
-        'bot.system.shell.remove_directory',
+        'pingu_sdk.system.shell.remove_directory',
     ])
 
     def abspath(path):
@@ -72,9 +72,9 @@ class RemountIfNeededTest(unittest.TestCase):
   def setUp(self):
     helpers.patch_environ(self)
     helpers.patch(self, [
-        'bot.metrics.logs.log_error',
-        'bot.base.retry.sleep',
-        'bot.base.utils.write_data_to_file',
+        'pingu_sdk.metrics.logs.log_error',
+        'pingu_sdk.system.retry.sleep',
+        'pingu_sdk.utils.utils.write_data_to_file',
         'os.path.exists',
         'os.path.join',
         'subprocess.call',

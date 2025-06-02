@@ -3,8 +3,8 @@
 
 import os
 
-from bot.metrics import logs
-from bot.system import environment, process_handler
+from pingu_sdk.metrics import logs
+from pingu_sdk.system import environment, process_handler
 
 SCRIPT_DIR = os.path.join('bot', 'init')
 

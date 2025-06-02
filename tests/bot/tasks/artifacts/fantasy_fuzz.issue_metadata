@@ -1,0 +1,5 @@
+{
+  "priority": "High",
+  "severity": "Critical",
+  "repro_steps": "Run fuzzer with input crash-12345"
+}

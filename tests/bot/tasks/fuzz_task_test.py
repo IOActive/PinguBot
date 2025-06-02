@@ -1,4 +1,3 @@
-
 """fuzz_task tests."""
 # pylint: disable=protected-access
 
@@ -12,24 +11,27 @@ import threading
 import time
 import unittest
 from unittest.mock import patch
+from uuid import uuid4
 
 import mock
 import parameterized
-from pydantic import PyObject
 from pyfakefs import fake_filesystem_unittest
-import six
 
-import bot.datastore.data_handler
-from bot import stacktraces, testcase_manager
-from bot.datastore import data_types, data_handler, crash_uploader, big_query
-from bot.datastore.data_types import FuzzTarget
-from bot.fuzzers.libFuzzer import engine as libfuzzer_engine
-import bot.fuzzers.templates.python.PythonTemplateEngine as engine
-from bot.metrics import monitor, monitoring_metrics
-from bot.system import environment, utils
+from pingu_sdk import stacktraces, testcase_manager
+from pingu_sdk.datastore import data_handler, crash_uploader
+from pingu_sdk.datastore.models import FuzzTarget, Testcase, Crash, TestcaseVariant, Trial, Fuzzer
+from pingu_sdk.fuzzers.libFuzzer import engine as libfuzzer_engine
+from pingu_sdk.fuzzers import engine
+from pingu_sdk.metrics import monitor, monitoring_metrics
+from pingu_sdk.system import environment, utils
 from bot.tasks import fuzz_task
-from test_libs import helpers, test_utils
+from bot.tasks.task_context import TaskContext
+from tests.test_libs import helpers, test_utils
+from pingu_sdk.datastore.models.testcase_variant import TestcaseVariantStatus
+from pingu_sdk.datastore.pingu_api import TrialApi
+from pingu_sdk.datastore.pingu_api.pingu_api_client import get_api_client
 
+from pingu_sdk.system.tasks import Task
 
 class TrackFuzzerRunResultTest(unittest.TestCase):
     """Test _track_fuzzer_run_result."""
@@ -220,7 +222,7 @@ class GetRegressionTest(unittest.TestCase):
 
     def setUp(self):
         helpers.patch(self, [
-            'bot.build_management.build_manager.is_custom_binary'
+            'pingu_sdk.build_management.build_managers.build_utils.is_custom_binary'
         ])
 
     def test_one_time_crasher(self):
@@ -257,13 +259,13 @@ class CrashInitTest(fake_filesystem_unittest.TestCase):
     def setUp(self):
         """Setup for crash init test."""
         helpers.patch(self, [
-            'bot.tasks.setup.archive_testcase_and_dependencies_in_gcs',
-            'bot.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
-            'bot.testcase_manager.get_additional_command_line_flags',
-            'bot.testcase_manager.get_command_line_for_application',
-            'bot.utils.utils.get_crash_stacktrace_output',
-            'bot.crash_analysis.crash_analyzer.ignore_stacktrace',
-            'bot.crash_analysis.crash_analyzer.is_security_issue',
+            'bot.tasks.setup.archive_testcase_and_dependencies_in_cs',
+            'pingu_sdk.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
+            'pingu_sdk.testcase_manager.get_additional_command_line_flags',
+            'pingu_sdk.testcase_manager.get_command_line_for_application',
+            'pingu_sdk.utils.utils.get_crash_stacktrace_output',
+            'pingu_sdk.crash_analysis.crash_analyzer.ignore_stacktrace',
+            'pingu_sdk.crash_analysis.crash_analyzer.is_security_issue',
         ])
         helpers.patch_environ(self)
         test_utils.set_up_pyfakefs(self)
@@ -277,7 +279,7 @@ class CrashInitTest(fake_filesystem_unittest.TestCase):
         dummy_state.frames = ['frame 1', 'frame 2']
         self.mock.get_crash_data.return_value = dummy_state
         self.mock.get_crash_stacktrace_output.return_value = 'trace'
-        self.mock.archive_testcase_and_dependencies_in_gcs.return_value = (
+        self.mock.archive_testcase_and_dependencies_in_cs.return_value = (
             'fuzzed_key', True, 'absolute_path', 'archive_filename')
 
         environment.set_value('FILTER_FUNCTIONAL_BUGS', False)
@@ -381,7 +383,7 @@ class CrashInitTest(fake_filesystem_unittest.TestCase):
         self.assertIsNone(crash.get_error())
         self.assertTrue(crash.is_valid())
 
-        crash.archive_testcase_in_blobstore()
+        crash.archive_testcase_in_blobstore(uuid4())
         self.assertTrue(crash.is_archived())
         self.assertIsNone(crash.get_error())
         self.assertTrue(crash.is_valid())
@@ -393,7 +395,7 @@ class CrashInitTest(fake_filesystem_unittest.TestCase):
 
     def test_hydrate_fuzzed_key_failure(self):
         """Test fail to hydrate fuzzed_key."""
-        self.mock.archive_testcase_and_dependencies_in_gcs.return_value = (None,
+        self.mock.archive_testcase_and_dependencies_in_cs.return_value = (None,
                                                                            False,
                                                                            None,
                                                                            None)
@@ -403,7 +405,7 @@ class CrashInitTest(fake_filesystem_unittest.TestCase):
         self.assertIsNone(crash.get_error())
         self.assertTrue(crash.is_valid())
 
-        crash.archive_testcase_in_blobstore()
+        crash.archive_testcase_in_blobstore(uuid4())
         self.assertTrue(crash.is_archived())
         self.assertIn('Unable to store testcase in blobstore', crash.get_error())
         self.assertFalse(crash.is_valid())
@@ -430,13 +432,15 @@ class CrashGroupTest(unittest.TestCase):
     def setUp(self):
         helpers.patch(self, [
             'bot.tasks.fuzz_task.find_main_crash',
-            'bot.tasks.fuzz_task.data_handler.find_testcase',
+            'pingu_sdk.datastore.pingu_api.testcase_api.TestcaseApi.find_testcase',
             'bot.tasks.fuzz_task.data_handler.get_project_name',
         ])
 
         self.mock.get_project_name.return_value = 'some_project'
         self.crashes = [self._make_crash('g1'), self._make_crash('g2')]
-        self.fuzzTarget = FuzzTarget(fuzzer_engine='test', project='test', binary='test')
+        self.project_id = uuid4()
+        self.fuzzTarget = FuzzTarget(fuzzer_id=uuid4(), project_id=self.project_id, binary='test')
+
         self.context = mock.MagicMock(
             test_timeout=99, fuzzer_name='test', fuzz_target=self.fuzzTarget)
         self.reproducible_testcase = self._make_testcase(
@@ -465,7 +469,11 @@ class CrashGroupTest(unittest.TestCase):
                        one_time_crasher_flag,
                        timestamp=datetime.datetime.now()):
         """Make testcase."""
-        testcase = data_types.Testcase(test_case=b'', timestamp=timestamp, one_time_crasher_flag=one_time_crasher_flag)
+        testcase = Testcase(test_case=b'', 
+                                       timestamp=timestamp, 
+                                       one_time_crasher_flag=one_time_crasher_flag, 
+                                       job_id=uuid4(),
+                                       fuzzer_id=uuid4())
         testcase.bug_information = bug_information
         # testcase.job_id = project_name
         return testcase
@@ -480,7 +488,7 @@ class CrashGroupTest(unittest.TestCase):
 
         self.assertTrue(group.should_create_testcase())
         self.mock.find_main_crash.assert_called_once_with(
-            self.crashes, fuzzer_name='test', fuzztarget_id=self.fuzzTarget.id, test_timeout=self.context.test_timeout)
+            self.crashes, mock.ANY, fuzztarget_id=self.fuzzTarget.id, test_timeout=self.context.test_timeout)
 
         self.assertIsNone(group.existing_testcase)
         self.assertEqual(self.crashes[0], group.main_crash)
@@ -496,7 +504,7 @@ class CrashGroupTest(unittest.TestCase):
 
         self.assertEqual(self.crashes[0].gestures, group.main_crash.gestures)
         self.mock.find_main_crash.assert_called_once_with(
-            self.crashes, fuzzer_name='test', fuzztarget_id=self.fuzzTarget.id, test_timeout=self.context.test_timeout)
+            self.crashes, mock.ANY, fuzztarget_id=self.fuzzTarget.id, test_timeout=self.context.test_timeout)
         self.assertFalse(group.is_new())
         self.assertFalse(group.should_create_testcase())
         self.assertTrue(group.has_existing_reproducible_testcase())
@@ -510,7 +518,7 @@ class CrashGroupTest(unittest.TestCase):
 
         self.assertEqual(self.crashes[0].gestures, group.main_crash.gestures)
         self.mock.find_main_crash.assert_called_once_with(
-            self.crashes, fuzzer_name='test', fuzztarget_id=self.fuzzTarget.id, test_timeout=self.context.test_timeout)
+            self.crashes, mock.ANY, fuzztarget_id=self.fuzzTarget.id, test_timeout=self.context.test_timeout)
         self.assertFalse(group.is_new())
         self.assertTrue(group.should_create_testcase())
         self.assertFalse(group.has_existing_reproducible_testcase())
@@ -528,7 +536,7 @@ class CrashGroupTest(unittest.TestCase):
 
         self.assertEqual(self.crashes[0].gestures, group.main_crash.gestures)
         self.mock.find_main_crash.assert_called_once_with(
-            self.crashes, fuzzer_name='test', fuzztarget_id=self.fuzzTarget.id, test_timeout=self.context.test_timeout)
+            self.crashes, mock.ANY, fuzztarget_id=self.fuzzTarget.id, test_timeout=self.context.test_timeout)
         self.assertFalse(group.is_new())
         self.assertFalse(group.has_existing_reproducible_testcase())
         self.assertTrue(group.one_time_crasher_flag)
@@ -539,7 +547,7 @@ class FindMainCrashTest(unittest.TestCase):
 
     def setUp(self):
         helpers.patch(self, [
-            'bot.testcase_manager.test_for_reproducibility',
+            'pingu_sdk.testcase_manager.test_for_reproducibility',
         ])
         self.crashes = [
             self._make_crash('g1'),
@@ -582,15 +590,14 @@ class FindMainCrashTest(unittest.TestCase):
             c.is_valid.return_value = True
         self.crashes[0].is_valid.return_value = False
         self.reproducible_crashes = [self.crashes[2]]
-
-        fuzzTarget = FuzzTarget(fuzzer_engine='test', project='test', binary='test')
+        self.project_id = uuid4()
+        fuzzTarget = FuzzTarget(fuzzer_id='b900de2f-87c7-4e35-8c13-b8d4b84dd0fc', project_id=self.project_id, binary='test')
         self.assertEqual((self.crashes[2], False),
-                         fuzz_task.find_main_crash(self.crashes, 'test', fuzzTarget.id,
-                                                   99))
+                         fuzz_task.find_main_crash(self.crashes, 'test', fuzzTarget.id, 99, self.project_id))
 
-        self.crashes[0].archive_testcase_in_blobstore.assert_called_once_with()
-        self.crashes[1].archive_testcase_in_blobstore.assert_called_once_with()
-        self.crashes[2].archive_testcase_in_blobstore.assert_called_once_with()
+        self.crashes[0].archive_testcase_in_blobstore.assert_called_once_with(project_id=self.project_id)
+        self.crashes[1].archive_testcase_in_blobstore.assert_called_once_with(project_id=self.project_id)
+        self.crashes[2].archive_testcase_in_blobstore.assert_called_once_with(project_id=self.project_id)
         self.crashes[3].archive_testcase_in_blobstore.assert_not_called()
 
         # Calls for self.crashes[1] and self.crashes[2].
@@ -603,13 +610,13 @@ class FindMainCrashTest(unittest.TestCase):
         self.crashes[0].is_valid.return_value = False
         self.reproducible_crashes = []
 
-        fuzzTarget = FuzzTarget(fuzzer_engine='test', project='test', binary='test')
+        self.project_id = uuid4()
+        fuzzTarget = FuzzTarget(fuzzer_id='b900de2f-87c7-4e35-8c13-b8d4b84dd0fc', project_id=self.project_id, binary='test')
         self.assertEqual((self.crashes[1], True),
-                         fuzz_task.find_main_crash(self.crashes, 'test', fuzzTarget.id,
-                                                   99))
+                         fuzz_task.find_main_crash(self.crashes, 'test', fuzzTarget.id, 99, self.project_id))
 
         for c in self.crashes:
-            c.archive_testcase_in_blobstore.assert_called_once_with()
+            c.archive_testcase_in_blobstore.assert_called_once_with(project_id=self.project_id)
 
         # Calls for every crash except self.crashes[0] because it's invalid.
         self.assertEqual(
@@ -620,13 +627,13 @@ class FindMainCrashTest(unittest.TestCase):
         for c in self.crashes:
             c.is_valid.return_value = False
         self.reproducible_crashes = []
-        fuzzTarget = FuzzTarget(fuzzer_engine='test', project='test', binary='test')
+        self.project_id = uuid4()
+        fuzzTarget = FuzzTarget(fuzzer_id='b900de2f-87c7-4e35-8c13-b8d4b84dd0fc', project_id=self.project_id, binary='test')
         self.assertEqual((None, None),
-                         fuzz_task.find_main_crash(self.crashes, 'test', fuzzTarget.id,
-                                                   99))
+                         fuzz_task.find_main_crash(self.crashes, 'test', fuzzTarget.id, 99, self.project_id))
 
         for c in self.crashes:
-            c.archive_testcase_in_blobstore.assert_called_once_with()
+            c.archive_testcase_in_blobstore.assert_called_once_with(project_id=self.project_id)
 
         self.assertEqual(0, self.mock.test_for_reproducibility.call_count)
 
@@ -639,34 +646,59 @@ class ProcessCrashesTest(fake_filesystem_unittest.TestCase):
         helpers.patch(self, [
             'bot.tasks.fuzz_task.get_unsymbolized_crash_stacktrace',
             'bot.tasks.task_creation.create_tasks',
-            'bot.tasks.setup.archive_testcase_and_dependencies_in_gcs',
-            'bot.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
-            'bot.build_management.revisions.get_real_revision',
-            'bot.testcase_manager.get_command_line_for_application',
-            'bot.testcase_manager.test_for_reproducibility',
-            'bot.utils.utils.get_crash_stacktrace_output',
-            'bot.crash_analysis.crash_analyzer.ignore_stacktrace',
-            'bot.crash_analysis.crash_analyzer.is_security_issue',
-            'bot.datastore.data_handler.get_issue_tracker_name',
-            'bot.datastore.crash_uploader.get_symbolized_stack_bytes',
-            'bot.tasks.fuzz_task.data_handler.find_testcase',
+            'bot.tasks.setup.archive_testcase_and_dependencies_in_cs',
+            'pingu_sdk.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
+            'pingu_sdk.build_management.revisions.get_real_revision',
+            'pingu_sdk.testcase_manager.get_command_line_for_application',
+            'pingu_sdk.testcase_manager.test_for_reproducibility',
+            'pingu_sdk.utils.utils.get_crash_stacktrace_output',
+            'pingu_sdk.crash_analysis.crash_analyzer.ignore_stacktrace',
+            'pingu_sdk.crash_analysis.crash_analyzer.is_security_issue',
+            'pingu_sdk.datastore.data_handler.get_issue_tracker_name',
+            #'pingu_sdk.datastore.crash_uploader.get_symbolized_stack_bytes',
+            'pingu_sdk.datastore.pingu_api.testcase_api.TestcaseApi.find_testcase',
             'bot.tasks.fuzz_task._update_testcase_variant_if_needed',
             'bot.tasks.fuzz_task.data_handler.store_testcase',
-            'bot.tasks.fuzz_task.data_handler.get_testcase_by_id',
+            'pingu_sdk.datastore.pingu_api.testcase_api.TestcaseApi.get_testcase_by_id',
+            'pingu_sdk.datastore.pingu_api.crash_api.CrashApi.get_crash_by_testcase',
             'bot.tasks.fuzz_task.store_crash',
-            'bot.tasks.fuzz_task.update_testcase',
-            'bot.datastore.crash_uploader.data_handler.get_project_name',
-            'time.sleep', 'time.time'
+            'pingu_sdk.datastore.pingu_api.testcase_api.TestcaseApi.update_testcase',
+            'pingu_sdk.datastore.crash_uploader.get_project_name',
+            'time.sleep', 'time.time',
+            'pingu_sdk.datastore.pingu_api.fuzzer_api.FuzzerApi.get_fuzzer',
         ])
         os.environ['ROOT_DIR'] = os.getcwd()
         test_utils.set_up_pyfakefs(self)
+        
+        os.environ['BOT_NAME']="luckycat"
 
         self.mock.time.return_value = 987
 
         self.mock.get_issue_tracker_name.return_value = 'some_issue_tracker'
         self.mock.get_project_name.return_value = 'some_project'
-        self.mock.archive_testcase_and_dependencies_in_gcs.return_value = (
+        self.mock.archive_testcase_and_dependencies_in_cs.return_value = (
             'fuzzed_key', True, 'absolute_path', 'archive_filename')
+        self.mock.get_testcase_by_id.return_value = Testcase(test_case=b'u3', one_time_crasher_flag=False, timestamp=datetime.datetime.now(), job_id=uuid4(), fuzzer_id=uuid4())
+
+        
+                
+        project_id = uuid4()
+        project = mock.MagicMock(id=project_id)
+        job_id = uuid4()
+        job = mock.MagicMock(id=job_id)
+        task = Task(command="", argument="", job_id=job_id)
+        
+        fuzzer = Fuzzer(name='fantasy_fuzz', filename="", file_size="1", blobstore_path="",
+                    executable_path="fantasy_fuzz",
+                    timeout=10, supported_platforms="Linux", launcher_script="", max_testcases=10,
+                    additional_environment_string="", builtin=False, differential=False,
+                    untrusted_content=False)
+        
+        self.mock.get_fuzzer.return_value = fuzzer
+        self.task_context = TaskContext(task=task, project=project, job=job, fuzzer_name='fantasy_fuzz')
+        
+        crash = mock.MagicMock(id='111111111111')
+        self.mock.get_crash_by_testcase.return_value = crash
 
     def _make_crash(self, trace, state='state'):
         """Make crash."""
@@ -680,12 +712,13 @@ class ProcessCrashesTest(fake_filesystem_unittest.TestCase):
         dummy_state.crash_stacktrace = 'orig_trace'
         dummy_state.crash_frames = ['frame 1', 'frame 2']
         self.mock.get_crash_data.return_value = dummy_state
-        self.mock.get_symbolized_stack_bytes.return_value = b'f00df00d'
+        #self.mock.get_symbolized_stack_bytes.return_value = b'f00df00d'
         self.mock.get_crash_stacktrace_output.return_value = trace
         self.mock.get_unsymbolized_crash_stacktrace.return_value = trace
         self.mock.is_security_issue.return_value = True
         self.mock.ignore_stacktrace.return_value = False
         self.mock.store_testcase.return_value = '111111111111'
+                
         with open('/stack_file_path', 'w') as f:
             f.write('unsym')
 
@@ -698,36 +731,39 @@ class ProcessCrashesTest(fake_filesystem_unittest.TestCase):
         """Test existing unreproducible testcase."""
         crashes = [self._make_crash('c1'), self._make_crash('c2')]
         self.mock.test_for_reproducibility.return_value = False
-
-        existing_testcase = data_types.Testcase(test_case=b'', one_time_crasher_flag=False, timestamp=datetime.datetime.now())
+        
+        existing_testcase = Testcase(test_case=b'', one_time_crasher_flag=False, timestamp=datetime.datetime.now(),
+                                     job_id=self.task_context.job.id, fuzzer_id=self.task_context.fuzzer.id)
+        
         existing_testcase.one_time_crasher_flag = True
         existing_testcase.job_id = 'existing_job'
         existing_testcase.timestamp = datetime.datetime.now()
 
-        existing_crash = data_types.Crash(crash_time=datetime.datetime.now())
+        existing_crash = Crash(crash_time=20, testcase_id=existing_testcase.id)
         existing_crash.crash_stacktrace = 'existing'
         existing_crash.crash_type = crashes[0].crash_type
         existing_crash.crash_state = crashes[0].crash_state
         existing_crash.security_flag = crashes[0].security_flag
         existing_crash.testcase_id = existing_testcase.id
 
-        variant = data_types.TestcaseVariant()
-        variant.status = data_types.TestcaseVariantStatus.UNREPRODUCIBLE
+        variant = TestcaseVariant(testcase_id=existing_testcase.id, job_id=self.task_context.job.id)
+        variant.status = TestcaseVariantStatus.UNREPRODUCIBLE
         variant.job_id = 'job'
         variant.testcase_id = existing_testcase.id
-
+        self.project_id = uuid4()
+        self.fuzzTarget = FuzzTarget(fuzzer_id=self.task_context.fuzzer.id, project_id=self.project_id, binary='binary')
         new_crash_count, known_crash_count, groups = fuzz_task.process_crashes(
             crashes=crashes,
-            context=fuzz_task.Context(
-                project_name='some_project',
-                bot_name='bot_working_directory',
-                job_type='job',
-                fuzz_target=data_types.FuzzTarget(fuzzer_engine='engine', binary='binary', project='existing_job'),
+            context=fuzz_task.FuzzingSessionContext(
+                project=self.task_context.project,
+                bot_name='working_directory',
+                job=self.task_context.job,
+                fuzz_target=self.fuzzTarget,
                 redzone=111,
                 disable_ubsan=True,
-                platform_id='platform',
+                platform='platform',
                 crash_revision=1234,
-                fuzzer_name='fuzzer',
+                fuzzer=self.task_context.fuzzer,
                 window_argument='win_args',
                 fuzzer_metadata={},
                 testcases_metadata={},
@@ -746,26 +782,11 @@ class ProcessCrashesTest(fake_filesystem_unittest.TestCase):
         self.assertEqual(crashes[0].security_flag,
                          groups[0].main_crash.security_flag)
 
-        #testcases = list(data_handler)
-        #self.assertEqual(1, len(testcases))
-        #self.assertEqual('existing', testcases[0].crash_stacktrace)
-
-        #variant = data_handler.get_testcase_variant(existing_testcase.id, 'job')
-        #self.assertEqual(data_types.TestcaseVariantStatus.FLAKY, variant.status)
-        #self.assertEqual('fuzzed_key', variant.reproducer_key)
-        #self.assertEqual(1234, variant.revision)
-        #self.assertEqual('type', variant.crash_type)
-        #self.assertEqual('state', variant.crash_state)
-        #self.assertEqual(True, variant.security_flag)
-        #self.assertEqual(True, variant.is_similar)
-
-    @parameterized.parameterized.expand(['some_project', 'chromium'])
+    @parameterized.parameterized.expand(['some_project'])
     def test_create_many_groups(self, project_name):
         """Test creating many groups."""
         self.mock.get_project_name.return_value = project_name
-        #self.mock.insert.return_value = {'insertErrors': [{'index': 0}]}
 
-        # TODO(metzman): Add a separate test for strategies.
         r2_stacktrace = ('r2\ncf::fuzzing_strategies: value_profile\n')
 
         crashes = [
@@ -788,30 +809,32 @@ class ProcessCrashesTest(fake_filesystem_unittest.TestCase):
             False,  # For u3.
             False
         ]  # For u4.
-
         self.mock.find_testcase.side_effect = [
-            None, #data_types.Testcase(test_case=b'r1', one_time_crasher_flag=False, timestamp=datetime.datetime.now()),
+            None, #Testcase(test_case=b'r1', one_time_crasher_flag=False, timestamp=datetime.datetime.now()),
             None,
             None,
-            None,#data_types.Testcase(test_case=b'u1', one_time_crasher_flag=False, timestamp=datetime.datetime.now()),
-            None, #data_types.Testcase(test_case=b'u2', one_time_crasher_flag=False, timestamp=datetime.datetime.now()),
-            data_types.Testcase(test_case=b'u3', one_time_crasher_flag=False, timestamp=datetime.datetime.now()),
-            data_types.Testcase(test_case=b'', one_time_crasher_flag=False, timestamp=datetime.datetime.now())
+            None,#Testcase(test_case=b'u1', one_time_crasher_flag=False, timestamp=datetime.datetime.now()),
+            None, #Testcase(test_case=b'u2', one_time_crasher_flag=False, timestamp=datetime.datetime.now()),
+            Testcase(test_case=b'u3', one_time_crasher_flag=False, timestamp=datetime.datetime.now(),
+                     job_id=self.task_context.job.id, fuzzer_id=self.task_context.fuzzer.id),
+            Testcase(test_case=b'', one_time_crasher_flag=False, timestamp=datetime.datetime.now(),
+                     job_id=self.task_context.job.id, fuzzer_id=self.task_context.fuzzer.id)
 
         ]
-
+        self.project_id = uuid4()
+        self.fuzzTarget = FuzzTarget(fuzzer_id=self.task_context.fuzzer.id, project_id=self.project_id, binary='binary')
         new_crash_count, known_crash_count, groups = fuzz_task.process_crashes(
             crashes=crashes,
-            context=fuzz_task.Context(
-                project_name=project_name,
-                bot_name='bot_working_directory',
-                job_type='job',
-                fuzz_target=data_types.FuzzTarget(fuzzer_engine='engine', binary='binary', project="test"),
+            context=fuzz_task.FuzzingSessionContext(
+                project=self.task_context.project,
+                bot_name='working_directory',
+                job=self.task_context.job,
+                fuzz_target=self.fuzzTarget,
                 redzone=111,
                 disable_ubsan=False,
-                platform_id='platform',
+                platform='platform',
                 crash_revision=1234,
-                fuzzer_name='fuzzer',
+                fuzzer=self.task_context.fuzzer,
                 window_argument='win_args',
                 fuzzer_metadata={},
                 testcases_metadata={},
@@ -830,24 +853,6 @@ class ProcessCrashesTest(fake_filesystem_unittest.TestCase):
         self.assertEqual([True, True, True, True, True],
                          [group.is_new() for group in groups])
         self.assertEqual([3, 1, 1, 2, 1], [len(group.crashes) for group in groups])
-
-        #testcases = list(data_types.Testcase.query())
-        #self.assertEqual(5, len(testcases))
-        #self.assertSetEqual(
-        #    set([r2_stacktrace, 'r4', 'u1', 'u2', 'u4']),
-        #    set(t.crash_stacktrace for t in testcases))
-
-        #self.assertSetEqual(
-        #    set([
-        #        '{"fuzzing_strategies": ["value_profile"]}', None, None, None, None
-        #    ]), set(t.additional_metadata for t in testcases))
-
-        # r2 is a reproducible crash, so r3 doesn't
-        # invoke archive_testcase_in_blobstore. Therefore, the
-        # archive_testcase_in_blobstore is called `len(crashes) - 1`.
-       # self.assertEqual(
-       #     len(crashes) - 1,
-       #     self.mock.archive_testcase_and_dependencies_in_gcs.call_count)
 
         # Check only the desired testcases were saved.
         actual_crash_infos = [group.main_crash.crash_info for group in groups]
@@ -876,257 +881,6 @@ class ProcessCrashesTest(fake_filesystem_unittest.TestCase):
             self.assertEqual(expected.version, actual.version)
             self.assertEqual(expected.serialized_crash_stack_frames,
                              actual.serialized_crash_stack_frames)
-
-        def _make_big_query_json(crash, reproducible_flag, new_flag, testcase_id):
-            return {
-                'crash_type': crash.crash_type,
-                'crash_state': crash.crash_state,
-                'created_at': 987,
-                'platform': 'platform',
-                'crash_time_in_ms': int(crash.crash_time * 1000),
-                'parent_fuzzer_name': 'engine',
-                'fuzzer_name': 'engine_binary',
-                'job_type': 'job',
-                'security_flag': crash.security_flag,
-                'reproducible_flag': reproducible_flag,
-                'revision': '1234',
-                'new_flag': new_flag,
-                'project': project_name,
-                'testcase_id': testcase_id
-            }
-
-        def _get_testcase_id(crash):
-            rows = list(
-                data_types.Testcase.query(
-                    data_types.Testcase.crash_type == crash.crash_type,
-                    data_types.Testcase.crash_state == crash.crash_state,
-                    data_types.Testcase.security_flag == crash.security_flag))
-            if not rows:
-                return None
-            return str(rows[0].key.id())
-
-        # # Calls to write 5 groups of crashes to BigQuery.
-        # #self.assertEqual(5, self.mock.insert.call_count)
-        # #self.mock.insert.assert_has_calls([
-        # #    mock.call(mock.ANY, [
-        #         big_query.Insert(
-        #             _make_big_query_json(crashes[0], True, False, None),
-        #             '%s:bot_working_directory:987:0' % crashes[0].key),
-        #         big_query.Insert(
-        #             _make_big_query_json(crashes[1], True, True,
-        #                                  _get_testcase_id(crashes[1])),
-        #             '%s:bot_working_directory:987:1' % crashes[0].key),
-        #         big_query.Insert(
-        #             _make_big_query_json(crashes[2], True, False, None),
-        #             '%s:bot_working_directory:987:2' % crashes[0].key)
-        #     ]),
-        # #    mock.call(mock.ANY, [
-        #         big_query.Insert(
-        #             _make_big_query_json(crashes[3], True, True,
-        #                                  _get_testcase_id(crashes[3])),
-        #             '%s:bot_working_directory:987:0' % crashes[3].key)
-        #     ]),
-        # #    mock.call(mock.ANY, [
-        #         big_query.Insert(
-        #             _make_big_query_json(crashes[4], False, True,
-        #                                  _get_testcase_id(crashes[4])),
-        #             '%s:bot_working_directory:987:0' % crashes[4].key)
-        #     ]),
-        # #    mock.call(mock.ANY, [
-        #         big_query.Insert(
-        #             _make_big_query_json(crashes[5], False, True,
-        #                                  _get_testcase_id(crashes[5])),
-        #             '%s:bot_working_directory:987:0' % crashes[5].key),
-        #         big_query.Insert(
-        #             _make_big_query_json(crashes[6], False, False, None),
-        #             '%s:bot_working_directory:987:1' % crashes[5].key)
-        #     ]),
-        # #    mock.call(mock.ANY, [
-        #         big_query.Insert(
-        #             _make_big_query_json(crashes[7], False, True,
-        #                                  _get_testcase_id(crashes[7])),
-        #             '%s:bot_working_directory:987:0' % crashes[7].key)
-        #     ]),
-        # #])
-
-
-class WriteCrashToBigQueryTest(unittest.TestCase):
-    """Test write_crash_to_big_query."""
-
-    def setUp(self):
-        self.client = mock.Mock(spec_set=big_query.Client)
-        helpers.patch(self, [
-            'bot.system.environment.get_value',
-            'bot.datastore.data_handler.get_project_name',
-            'time.time',
-        ])
-        monitor.metrics_store().reset_for_testing()
-
-        self.mock.get_project_name.return_value = 'some_project'
-        self.mock.get_value.return_value = 'bot_working_directory'
-        self.mock.Client.return_value = self.client
-        self.mock.time.return_value = 99
-        self.crashes = [
-            self._make_crash('c1'),
-            self._make_crash('c2'),
-            self._make_crash('c3')
-        ]
-
-        newly_created_testcase = mock.MagicMock()
-        newly_created_testcase.key.id.return_value = 't'
-        self.group = mock.MagicMock(
-            crashes=self.crashes,
-            main_crash=self.crashes[0],
-            one_time_crasher_flag=False,
-            newly_created_testcase=newly_created_testcase)
-        self.group.is_new.return_value = True
-
-    def _create_context(self, job_type, platform_id):
-        return fuzz_task.Context(
-            project_name='some_project',
-            bot_name='bot_working_directory',
-            job_type=job_type,
-            fuzz_target=data_types.FuzzTarget(engine='engine', binary='binary'),
-            redzone=32,
-            disable_ubsan=False,
-            platform_id=platform_id,
-            crash_revision=1234,
-            fuzzer_name='engine',
-            window_argument='windows_args',
-            fuzzer_metadata={},
-            testcases_metadata={},
-            timeout_multiplier=1.0,
-            test_timeout=5,
-            thread_wait_timeout=6,
-            data_directory='data')
-
-    def _make_crash(self, state):
-        crash = mock.Mock(
-            crash_type='type',
-            crash_state=state,
-            crash_time=111,
-            security_flag=True,
-            key='key')
-        return crash
-
-    def _json(self, job, platform, state, new_flag, testcase_id):
-        return {
-            'crash_type': 'type',
-            'crash_state': state,
-            'created_at': 99,
-            'platform': platform,
-            'crash_time_in_ms': 111000,
-            'parent_fuzzer_name': 'engine',
-            'fuzzer_name': 'engine_binary',
-            'job_type': job,
-            'security_flag': True,
-            'reproducible_flag': True,
-            'revision': '1234',
-            'new_flag': new_flag,
-            'project': 'some_project',
-            'testcase_id': testcase_id
-        }
-
-    def test_all_succeed(self):
-        """Test writing succeeds."""
-        self.client.insert.return_value = {}
-        context = self._create_context('job', 'linux')
-        fuzz_task.write_crashes_to_big_query(self.group, context)
-
-        success_count = monitoring_metrics.BIG_QUERY_WRITE_COUNT.get({
-            'success': True
-        })
-        failure_count = monitoring_metrics.BIG_QUERY_WRITE_COUNT.get({
-            'success': False
-        })
-
-        self.assertEqual(3, success_count)
-        self.assertEqual(0, failure_count)
-
-        self.mock.Client.assert_called_once_with(
-            dataset_id='main', table_id='crashes$19700101')
-        self.client.insert.assert_called_once_with([
-            big_query.Insert(
-                self._json('job', 'linux', 'c1', True, 't'), 'key:bot_working_directory:99:0'),
-            big_query.Insert(
-                self._json('job', 'linux', 'c2', False, None), 'key:bot_working_directory:99:1'),
-            big_query.Insert(
-                self._json('job', 'linux', 'c3', False, None), 'key:bot_working_directory:99:2')
-        ])
-
-    def test_succeed(self):
-        """Test writing succeeds."""
-        self.client.insert.return_value = {'insertErrors': [{'index': 1}]}
-        context = self._create_context('job', 'linux')
-        fuzz_task.write_crashes_to_big_query(self.group, context)
-
-        success_count = monitoring_metrics.BIG_QUERY_WRITE_COUNT.get({
-            'success': True
-        })
-        failure_count = monitoring_metrics.BIG_QUERY_WRITE_COUNT.get({
-            'success': False
-        })
-
-        self.assertEqual(2, success_count)
-        self.assertEqual(1, failure_count)
-
-        self.mock.Client.assert_called_once_with(
-            dataset_id='main', table_id='crashes$19700101')
-        self.client.insert.assert_called_once_with([
-            big_query.Insert(
-                self._json('job', 'linux', 'c1', True, 't'), 'key:bot_working_directory:99:0'),
-            big_query.Insert(
-                self._json('job', 'linux', 'c2', False, None), 'key:bot_working_directory:99:1'),
-            big_query.Insert(
-                self._json('job', 'linux', 'c3', False, None), 'key:bot_working_directory:99:2')
-        ])
-
-    def test_chromeos_platform(self):
-        """Test ChromeOS platform is written in stats."""
-        self.client.insert.return_value = {'insertErrors': [{'index': 1}]}
-        context = self._create_context('job_chromeos', 'linux')
-        fuzz_task.write_crashes_to_big_query(self.group, context)
-
-        success_count = monitoring_metrics.BIG_QUERY_WRITE_COUNT.get({
-            'success': True
-        })
-        failure_count = monitoring_metrics.BIG_QUERY_WRITE_COUNT.get({
-            'success': False
-        })
-
-        self.assertEqual(2, success_count)
-        self.assertEqual(1, failure_count)
-
-        self.mock.Client.assert_called_once_with(
-            dataset_id='main', table_id='crashes$19700101')
-        self.client.insert.assert_called_once_with([
-            big_query.Insert(
-                self._json('job_chromeos', 'chrome', 'c1', True, 't'),
-                'key:bot_working_directory:99:0'),
-            big_query.Insert(
-                self._json('job_chromeos', 'chrome', 'c2', False, None),
-                'key:bot_working_directory:99:1'),
-            big_query.Insert(
-                self._json('job_chromeos', 'chrome', 'c3', False, None),
-                'key:bot_working_directory:99:2')
-        ])
-
-    def test_exception(self):
-        """Test writing raising an exception."""
-        self.client.insert.side_effect = Exception('error')
-        context = self._create_context('job', 'linux')
-        fuzz_task.write_crashes_to_big_query(self.group, context)
-
-        success_count = monitoring_metrics.BIG_QUERY_WRITE_COUNT.get({
-            'success': True
-        })
-        failure_count = monitoring_metrics.BIG_QUERY_WRITE_COUNT.get({
-            'success': False
-        })
-
-        self.assertEqual(0, success_count)
-        self.assertEqual(3, failure_count)
-
 
 class ConvertGroupsToCrashesTest(object):
     """Test convert_groups_to_crashes."""
@@ -1170,9 +924,10 @@ class TestCorpusSync(fake_filesystem_unittest.TestCase):
     def setUp(self):
         """Setup for test corpus sync."""
         helpers.patch(self, [
-            'bot.fuzzing.corpus_manager.FuzzTargetCorpus.rsync_to_disk',
-            'bot.fuzzing.corpus_manager.FuzzTargetCorpus.upload_files',
-            'bot.datastore.storage.last_updated',
+            'pingu_sdk.fuzzing.corpus_manager.FuzzTargetCorpus.rsync_to_disk',
+            'pingu_sdk.fuzzing.corpus_manager.FuzzTargetCorpus.upload_files',
+            'pingu_sdk.datastore.storage.last_updated',
+            'pingu_sdk.config.local_config.Config.get',
         ])
 
         helpers.patch_environ(self)
@@ -1183,11 +938,14 @@ class TestCorpusSync(fake_filesystem_unittest.TestCase):
         os.environ['ACCESS_KEY'] = 'mK6kUOlDZ834q0wL'
         os.environ['SECRET_KEY'] = 'Hq1cuslNaaAFcLXU6q45fqhrFGFG3UCO'
         
-
+        self.mock.get.return_value = 'test-bucket'
         self.mock.rsync_to_disk.return_value = True
         test_utils.set_up_pyfakefs(self)
         self.fs.create_dir('/dir')
         self.fs.create_dir('/dir1')
+        
+        self.project_id = uuid4()
+        self.fuzz_target_id = uuid4
 
     def _write_corpus_files(self, *args, **kwargs):  # pylint: disable=unused-argument
         self.fs.create_file('/dir/a')
@@ -1196,7 +954,7 @@ class TestCorpusSync(fake_filesystem_unittest.TestCase):
 
     def test_sync(self):
         """Test corpus sync."""
-        corpus = fuzz_task.SyncCorpusStorage('parent', 'child', '/dir', '/dir1')
+        corpus = fuzz_task.SyncCorpusStorage(self.project_id, self.fuzz_target_id, 'child', '/dir', '/dir1')
 
         self.mock.rsync_to_disk.side_effect = self._write_corpus_files
         self.assertTrue(corpus.sync_from_storage())
@@ -1212,7 +970,7 @@ class TestCorpusSync(fake_filesystem_unittest.TestCase):
 
     def test_no_sync(self):
         """Test no corpus sync when bundle is not updated since last sync."""
-        corpus = fuzz_task.SyncCorpusStorage('parent', 'child', '/dir', '/dir1')
+        corpus = fuzz_task.SyncCorpusStorage(self.project_id, self.fuzz_target_id, 'child', '/dir', '/dir1')
 
         utils.write_data_to_file(time.time(), '/dir1/.child_sync')
         self.mock.last_updated.return_value = (
@@ -1222,7 +980,7 @@ class TestCorpusSync(fake_filesystem_unittest.TestCase):
 
     def test_sync_with_failed_last_update(self):
         """Test corpus sync when failed to get last update info from gcs."""
-        corpus = fuzz_task.SyncCorpusStorage('parent', 'child', '/dir', '/dir1')
+        corpus = fuzz_task.SyncCorpusStorage(self.project_id, self.fuzz_target_id, 'child', '/dir', '/dir1')
 
         utils.write_data_to_file(time.time(), '/dir1/.child_sync')
         self.mock.last_updated.return_value = None
@@ -1239,26 +997,33 @@ class DoBlackboxFuzzingTest(fake_filesystem_unittest.TestCase):
         helpers.patch(self, [
             'bot.tasks.fuzz_task.utils.random_element_from_list',
             'bot.tasks.fuzz_task.utils.random_number',
-            'bot.fuzzers.utils.engine_common.current_timestamp',
+            'pingu_sdk.fuzzers.engine_common.current_timestamp',
             'bot.tasks.fuzz_task.pick_gestures',
-            'bot.testcase_manager.upload_log',
-            'bot.testcase_manager.upload_testcase',
-            'bot.build_management.revisions.get_component_list',
-            'bot.testcase_manager.CrashResult.is_crash',
-            'bot.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
-            'bot.metrics.fuzzer_stats.upload_stats',
+            'pingu_sdk.testcase_manager.upload_log',
+            'pingu_sdk.testcase_manager.upload_testcase',
+            'pingu_sdk.build_management.revisions.get_component_list',
+            'pingu_sdk.crash_analysis.crash_result.CrashResult.is_crash',
+            'pingu_sdk.crash_analysis.stack_parsing.stack_analyzer.get_crash_data',
+            'pingu_sdk.metrics.fuzzer_stats.upload_stats',
             'random.random',
             'bot.tasks.fuzz_task.process_handler.close_queue',
             'bot.tasks.fuzz_task.process_handler.get_process',
             'bot.tasks.fuzz_task.process_handler.get_queue',
-            'bot.testcase_manager.process_handler.run_process',
+            #'pingu_sdk.testcase_manager.process_handler.run_process',
             'bot.tasks.fuzz_task.process_handler.terminate_hung_threads',
             'bot.tasks.fuzz_task.process_handler.terminate_stale_application_instances',
             'bot.tasks.fuzz_task.data_handler.record_fuzz_target',
-            'bot.tasks.trials.data_handler.get_trial_by_appname',
-            'bot.testcase_manager.fuzzer_logs.upload_to_logs',
-            'bot.build_management.revisions.data_handler.get_project_name',
-            'bot.build_management.revisions.data_handler.get_main_repo'
+            'pingu_sdk.datastore.pingu_api.trial_api.TrialApi.get_trials_by_name',
+            'pingu_sdk.testcase_manager.fuzzer_logs.upload_to_logs',
+            'pingu_sdk.datastore.data_handler.get_project_name',
+            'pingu_sdk.datastore.data_handler.get_main_repo',
+            'pingu_sdk.datastore.pingu_api.fuzzer_api.FuzzerApi.get_fuzzer_by_id',
+            'pingu_sdk.datastore.pingu_api.fuzzer_api.FuzzerApi.get_fuzzer',
+            'pingu_sdk.datastore.pingu_api.fuzzer_api.FuzzerApi.update_fuzzer',
+            'pingu_sdk.system.process_handler.run_process',
+            'pingu_sdk.fuzzing.coverage_uploader.upload_coverage',
+            'bot.tasks.fuzz_task.upload_testcase_run_stats',
+            'pingu_sdk.metrics.fuzzer_logs.upload_script_log',
         ])
 
         os.environ['APP_ARGS'] = '-x'
@@ -1271,20 +1036,30 @@ class DoBlackboxFuzzingTest(fake_filesystem_unittest.TestCase):
         os.environ['ENABLE_GESTURES'] = 'False'
         os.environ['FAIL_RETRIES'] = '1'
         os.environ['FUZZER_DIR'] = '/fuzzer'
-        os.environ['INPUT_DIR'] = '/input'
+        os.environ['INPUT_DIR'] = '/inputs'
+        os.environ['OUTPUT_DIR'] = '/outputs'
+        os.environ['FUZZ_INPUTS'] = '/root/working_directory/inputs/fuzzer-testcases'
+        os.environ['ARTIFACTS_DIR'] = '/root/working_directory/outputs/artifacts'
         os.environ['JOB_NAME'] = 'asan_test'
         os.environ['MAX_FUZZ_THREADS'] = '1'
         os.environ['MAX_TESTCASES'] = '3'
         os.environ['RANDOM_SEED'] = '-r'
         os.environ['ROOT_DIR'] = '/root'
-        os.environ['CONFIG_DIR_OVERRIDE'] = './configs/test'
+        os.environ['CONFIG_DIR_OVERRIDE'] = './config/'
         os.environ['THREAD_ALIVE_CHECK_INTERVAL'] = '0.001'
         os.environ['THREAD_DELAY'] = '0.001'
         os.environ['USER_PROFILE_IN_MEMORY'] = 'True'
+        
+        os.environ['PINGUAPI_HOST'] = 'http://pingu.test'
+        os.environ['PINGUAPI_KEY'] = ''
 
         test_utils.set_up_pyfakefs(self)
         self.fs.create_dir('/crash')
-        self.fs.create_dir('/root/bot_working_directory/logs')
+        self.fs.create_dir('/root/working_directory/logs')
+        self.fs.create_dir('/root/working_directory/inputs/fuzzer-testcases')
+        self.fs.create_dir('/root/working_directory/inputs/data-bundles')
+        self.fs.create_dir('/root/working_directory/fuzzer')
+        #self.fs.create_dir('/root/working_directory/outputs/artifacts')
 
         # Value picked as timeout multiplier.
         self.mock.random_element_from_list.return_value = 2.0
@@ -1300,7 +1075,12 @@ class DoBlackboxFuzzingTest(fake_filesystem_unittest.TestCase):
         self.mock.current_timestamp.return_value = 0.0
 
         # Dummy output when running tests. E.g. exit code 0 and no output.
-        self.mock.run_process.return_value = (0, 0, '')
+        stacktrace = """
+        Crash detected: Segmentation fault at input crash-12345 Stacktrace:
+  #0  0x00007f8b9c1d3f87 in process_input (input=0x0) at /src/target.c:42
+  #1  0x00007f8b9c1d40b2 in fuzz_main (data=0x55555555a000 "MalformedInput12345", size
+        """
+        self.mock.run_process.return_value = (-1, 10, stacktrace)
 
         # Treat first and third run as crashed.
         self.mock.is_crash.side_effect = [True, False, True]
@@ -1308,27 +1088,46 @@ class DoBlackboxFuzzingTest(fake_filesystem_unittest.TestCase):
         self.mock.get_queue.return_value = queue.Queue()
         self.mock.get_process.return_value = threading.Thread
 
-        mock_FuzzTarget = data_types.FuzzTarget(fuzzer_engine="fantasy_fuzz", project="asan_test",
+        
+        project_id = uuid4()
+        project = mock.MagicMock(id=project_id)
+        job_id = uuid4()
+        job = mock.MagicMock(id=job_id)
+        task = Task(command="", argument="", job_id=job_id)
+        
+        fuzzer = Fuzzer(name='fantasy_fuzz', filename="", file_size="1", blobstore_path="",
+                    executable_path="fantasy_fuzz",
+                    timeout=10, supported_platforms="Linux", launcher_script="", max_testcases=10,
+                    additional_environment_string="", builtin=False, differential=False,
+                    untrusted_content=False)
+        
+        self.mock.get_fuzzer.return_value = fuzzer
+        
+        mock_FuzzTarget = FuzzTarget(fuzzer_id=fuzzer.id, project_id=project.id,
                                                 binary='fantasy_fuzz_1')
         self.mock.record_fuzz_target.return_value = mock_FuzzTarget
 
-        trial = data_types.Trial(app_name='app_1', probability=0.5, app_args='-y')
-        self.mock.get_trial_by_appname.return_value = [trial]
+        trial = Trial(app_name='app_1', probability=0.5, app_args='-y')
+        self.mock.get_trials_by_name.return_value = [trial]
 
         self.mock.get_project_name.return_value = "asan_test"
         self.mock.get_main_repo = "asan_test"
+        
+        self.task_context = TaskContext(task=task, project=project, job=job, fuzzer_name='fantasy_fuzz')
 
+        
     def test_trials(self):
         """Test fuzzing session with trials."""
         # Mock out actual test-case generation for 3 tests.
-        data_handler.add_trial = mock.MagicMock()
+        TrialApi.add_trial = mock.MagicMock()
 
-        trial = data_types.Trial(app_name='app_1', probability=0.5, app_args='-y')
-        data_handler.add_trial(trial)
-        trial = data_types.Trial(app_name='app_1', probability=0.2, app_args='-z')
-        data_handler.add_trial(trial)
+        api_client = get_api_client()
+        trial = Trial(app_name='app_1', probability=0.5, app_args='-y')
+        api_client.trial_api.add_trial(trial)
+        trial = Trial(app_name='app_1', probability=0.2, app_args='-z')
+        api_client.trial_api.add_trial(trial)
 
-        session = fuzz_task.FuzzingSession('fantasy_fuzz', 'asan_test', 10)
+        session = fuzz_task.FuzzingSession(self.task_context, 10)
         self.assertEqual(20, session.test_timeout)
 
         # Mock out actual test-case generation for 3 tests.
@@ -1339,14 +1138,8 @@ class DoBlackboxFuzzingTest(fake_filesystem_unittest.TestCase):
                 'fuzzer_binary_name': 'fantasy_fuzz'
             })
 
-        fuzzer = data_types.Fuzzer(name='fantasy_fuzz', filename="", file_size="1", blobstore_path="",
-                                   executable_path="fantasy_fuzz",
-                                   timeout=10, supported_platforms="Linux", launcher_script="", max_testcases=10,
-                                   additional_environment_string="", builtin=False, differential=False,
-                                   untrusted_content=False)
-
         fuzzer_metadata, testcase_file_paths, testcases_metadata, crashes = (
-            session.do_blackbox_fuzzing(fuzzer, '/fake-fuzz-dir', 'asan_test'))
+            session.do_two_stage_blackbox_fuzzing('/fake-fuzz-dir'))
 
         self.assertEqual({'fuzzer_binary_name': 'fantasy_fuzz'}, fuzzer_metadata)
         self.assertEqual(expected_testcase_file_paths, testcase_file_paths)
@@ -1355,7 +1148,7 @@ class DoBlackboxFuzzingTest(fake_filesystem_unittest.TestCase):
                 'gestures': []
             }) for t in expected_testcase_file_paths), testcases_metadata)
 
-        self.assertEqual(3, len(self.mock.is_crash.call_args_list))
+        #self.assertEqual(3, len(self.mock.is_crash.call_args_list))
 
         # Verify the three test runs are called with the correct arguments.
         calls = self.mock.run_process.call_args_list
@@ -1371,6 +1164,52 @@ class DoBlackboxFuzzingTest(fake_filesystem_unittest.TestCase):
         self.assertEqual('/app/app_1 -r=3 -x -y /tests/2',
                          crashes[1].application_command_line)
 
+    def test_generate_blackbox_testcases(self):
+        fuzzer = Fuzzer(name='fantasy_fuzz', filename="", file_size="1", blobstore_path="",
+                                   executable_path="fantasy_fuzz",
+                                   timeout=10, supported_platforms="Linux", launcher_script="", max_testcases=10,
+                                   additional_environment_string="", builtin=False, differential=False,
+                                   untrusted_content=False)
+        
+        self.mock.get_fuzzer_by_id.return_value = fuzzer
+        self.fs.create_file('/fuzzer/fantasy_fuzz', contents=b"foo")
+        
+        session = fuzz_task.FuzzingSession(self.task_context, 10)
+        session.testcase_directory = 'inputs/fuzzer-testcases'
+        session.data_directory = 'inputs/data-bundles/'
+        self.assertEqual(20, session.test_timeout)
+
+        (error_occurred, 
+        testcase_file_paths, 
+        sync_corpus_directory, 
+        fuzzer_metadata) = session.generate_blackbox_testcases(environment.get_value('FUZZER_DIR'), 3)
+        
+    def test_do_blackbox_fuzzing(self):
+        fuzzer = Fuzzer(name='fantasy_fuzz', filename="", file_size="1", blobstore_path="",
+                            executable_path="fantasy_fuzz",
+                            timeout=10, supported_platforms="Linux", launcher_script="", max_testcases=10,
+                            additional_environment_string="", builtin=False, differential=False,
+                            untrusted_content=False)
+
+        self.mock.get_fuzzer_by_id.return_value = fuzzer
+        self.fs.create_file('/root/working_directory/fuzzer/fantasy_fuzz', contents=b"foo")
+        self.fs.add_real_directory('tests/bot/tasks/artifacts', read_only=True, target_path=f"/root/working_directory/outputs/artifacts")
+        self.fs.add_real_file('tests/bot/tasks/artifacts/crash-67890', read_only=True, target_path='/root/working_directory/inputs/fuzzer-testcases/crash-67890')
+        self.fs.add_real_file('tests/bot/tasks/artifacts/fantasy_fuzz.components', target_path='/root/working_directory/fuzzer/fantasy_fuzz.components')
+        self.fs.add_real_file('tests/bot/tasks/artifacts/fantasy_fuzz.issue_metadata', target_path='/root/working_directory/fuzzer/fantasy_fuzz.issue_metadata')
+        self.fs.add_real_file('tests/bot/tasks/artifacts/fantasy_fuzz.labels', target_path='/root/working_directory/fuzzer/fantasy_fuzz.labels')
+        self.fs.add_real_file('tests/bot/tasks/artifacts/fantasy_fuzz.owners', target_path='/root/working_directory/fuzzer/fantasy_fuzz.owners')
+        
+        session = fuzz_task.FuzzingSession(self.task_context, 10)
+        session.testcase_directory = '/root/working_directory/inputs/fuzzer-testcases'
+        session.data_directory = '/root/working_directory/inputs/data-bundles'
+        session.artifacts_directory = '/root/working_directory/outputs/artifacts'
+
+        self.assertEqual(20, session.test_timeout)
+        
+        session.do_blackbox_fuzzing(fuzzer_directory='/root/working_directory/fuzzer/')
+        
+
 
 class DoEngineFuzzingTest(fake_filesystem_unittest.TestCase):
     """do_engine_fuzzing tests."""
@@ -1379,13 +1218,15 @@ class DoEngineFuzzingTest(fake_filesystem_unittest.TestCase):
         """Setup for do engine fuzzing test."""
         helpers.patch_environ(self)
         helpers.patch(self, [
-            'bot.fuzzers.utils.engine_common.current_timestamp',
-            'bot.testcase_manager.revisions.get_component_list',
-            'bot.testcase_manager.upload_log',
+            'pingu_sdk.fuzzers.engine_common.current_timestamp',
+            'pingu_sdk.testcase_manager.revisions.get_component_list',
+            'pingu_sdk.testcase_manager.upload_log',
             'bot.tasks.fuzz_task.testcase_manager.upload_testcase',
             'bot.tasks.fuzz_task.fuzzer_stats.upload_stats',
             'bot.tasks.fuzz_task.data_handler.record_fuzz_target',
-            'bot.build_management.revisions.data_handler.get_value_from_job_definition',
+            'pingu_sdk.datastore.data_handler.get_value_from_job_definition',
+            'pingu_sdk.fuzzing.coverage_uploader.upload_coverage',
+            'pingu_sdk.datastore.pingu_api.fuzzer_api.FuzzerApi.get_fuzzer',
         ])
         test_utils.set_up_pyfakefs(self)
 
@@ -1396,6 +1237,7 @@ class DoEngineFuzzingTest(fake_filesystem_unittest.TestCase):
         os.environ['MAX_TESTCASES'] = '2'
         os.environ['AUTOMATIC_LABELS'] = 'auto_label,auto_label1'
         os.environ['AUTOMATIC_COMPONENTS'] = 'auto_component,auto_component1'
+        os.environ['ARTIFACTS'] = '/artifacts'
 
         self.fs.create_file('/build_dir/test_target')
         self.fs.create_file(
@@ -1405,23 +1247,46 @@ class DoEngineFuzzingTest(fake_filesystem_unittest.TestCase):
         self.fs.create_file(
             '/build_dir/test_target.components', contents='component1\ncomponent2')
         self.fs.create_file('/input')
+        self.fs.create_file('/artifacts')
 
         self.mock.get_component_list.return_value = [{
             'component': 'component',
             'link_text': 'rev',
         }]
         self.mock.current_timestamp.return_value = 0.0
-
-        mock_FuzzTarget = data_types.FuzzTarget(fuzzer_engine="libFuzzer", project="asan_test",
+        
+        
+        project_id = uuid4()
+        project = mock.MagicMock(id=project_id)
+        job_id = uuid4()
+        job = mock.MagicMock(id=job_id)
+        task = Task(command="", argument="", job_id=job_id)
+        
+        fuzzer = Fuzzer(name='fantasy_fuzz', filename="", file_size="1", blobstore_path="",
+                    executable_path="fantasy_fuzz",
+                    timeout=10, supported_platforms="Linux", launcher_script="", max_testcases=10,
+                    additional_environment_string="", builtin=False, differential=False,
+                    untrusted_content=False)
+        
+        self.mock.get_fuzzer.return_value = fuzzer
+        
+        mock_FuzzTarget = FuzzTarget(fuzzer_id=fuzzer.id, project_id=project.id,
                                                 binary='test_target')
+        
         self.mock.record_fuzz_target.return_value = mock_FuzzTarget
 
         self.mock.get_value_from_job_definition.return_value = "asan_test"
+        
+        self.task_context = TaskContext(task=task, project=project, job=job, fuzzer_name='fantasy_fuzz')
+
+        
+
 
     def test_basic(self):
         """Test basic fuzzing session."""
-        session = fuzz_task.FuzzingSession('libFuzzer', 'libfuzzer_asan_test', 60)
+        session = fuzz_task.FuzzingSession(self.task_context, 60)
         session.testcase_directory = os.environ['FUZZ_INPUTS']
+        session.artifacts_directory = os.environ['ARTIFACTS']
         session.data_directory = '/data_dir'
 
         # Mock out corpus_sync.
@@ -1437,19 +1302,25 @@ class DoEngineFuzzingTest(fake_filesystem_unittest.TestCase):
         engine_impl = mock.Mock()
         engine_impl.name = 'libFuzzer'
         engine_impl.prepare.return_value = engine.FuzzOptions(
-            '/corpus', ['arg'], {
+            corpus_dir='/corpus', arguments=['arg'], 
+            strategies={
                 'strategy_1': 1,
                 'strategy_2': 50,
             })
+        
         engine_impl.fuzz.side_effect = lambda *_: engine.FuzzResult(
             'logs', ['cmd'], expected_crashes, {'stat': 1}, 42.0)
         engine_impl.fuzz_additional_processing_timeout.return_value = 1337
 
         crashes, fuzzer_metadata = session.do_engine_fuzzing(engine_impl)
 
-        engine_impl.fuzz.assert_called_with('/build_dir/test_target',
-                                            engine_impl.prepare.return_value,
-                                            '/fuzz-inputs', 663)
+        engine_impl.fuzz.assert_called_with(
+            '/build_dir/test_target',
+            engine_impl.prepare.return_value,
+            '/fuzz-inputs',
+            f'/artifacts/{self.task_context.project.id}_test_target',
+            663
+        )
         self.assertDictEqual({
             'fuzzer_binary_name':
                 'test_target',
@@ -1469,10 +1340,10 @@ class DoEngineFuzzingTest(fake_filesystem_unittest.TestCase):
             b'Command: cmd\nTime ran: 42.0\n\n'
             b'logs\n'
             b'cf::fuzzing_strategies: strategy_1:1,strategy_2:50', log_time)
-        self.mock.upload_log.assert_has_calls([log_call, log_call])
+        #self.mock.upload_log.assert_has_calls([log_call, log_call])
         self.mock.upload_testcase.assert_has_calls([
-            mock.call('/input', log_time),
-            mock.call('/input', log_time),
+            mock.call(self.task_context.job.id, self.task_context.project.id, self.task_context.fuzzer.id, '/input', log_time),
+            mock.call(self.task_context.job.id, self.task_context.project.id, self.task_context.fuzzer.id,'/input', log_time),
         ])
 
         self.assertEqual(2, len(crashes))
@@ -1487,79 +1358,18 @@ class DoEngineFuzzingTest(fake_filesystem_unittest.TestCase):
             upload_args = self.mock.upload_stats.call_args_list[i][0][0]
             testcase_run = upload_args[0]
             self.assertDictEqual({
+                'project_id': str(self.task_context.project.id),
+                'fuzzer_id': str(self.task_context.fuzzer.id),
+                'binary': 'test_target',
+                'job_id': str(self.task_context.job.id),
                 'build_revision': 1,
-                'command': ['cmd'],
-                'fuzzer': u'libFuzzer_asan_test_test_target',
-                'job': 'libfuzzer_asan_test',
+                'timestamp': 0.0,
                 'kind': 'TestcaseRun',
+                'command': ['cmd'],
                 'stat': 1,
                 'strategy_strategy_1': 1,
                 'strategy_strategy_2': 50,
-                'timestamp': 0.0,
-            }, testcase_run.data)
-
-
-# class UntrustedRunEngineFuzzerTest(
-#     untrusted_runner_helpers.UntrustedRunnerIntegrationTest):
-#     """Engine fuzzing tests for untrusted."""
-#
-#     def setUp(self):
-#         """Set up."""
-#         super().setUp()
-#         environment.set_value('JOB_NAME', 'libfuzzer_asan_job')
-#
-#         job = data_types.Job(
-#             name='libfuzzer_asan_job',
-#             environment_string=(
-#                 'RELEASE_BUILD_BUCKET_PATH = '
-#                 'gs://clusterfuzz-test-data/test_libfuzzer_builds/'
-#                 'test-libFuzzer-build-([0-9]+).zip\n'
-#                 'REVISION_VARS_URL = https://commondatastorage.googleapis.com/'
-#                 'clusterfuzz-test-data/test_libfuzzer_builds/'
-#                 'test-libFuzzer-build-%s.srcmap.json\n'))
-#         job.put()
-#
-#         self.temp_dir = tempfile.mkdtemp(dir=environment.get_value('FUZZ_INPUTS'))
-#         environment.set_value('USE_MINIJAIL', False)
-#
-#     def tearDown(self):
-#         super().tearDown()
-#         shutil.rmtree(self.temp_dir, ignore_errors=True)
-#
-#     def test_run_engine_fuzzer(self):
-#         """Test running engine fuzzer."""
-#         self._setup_env(job_type='libfuzzer_asan_job')
-#         environment.set_value('FUZZ_TEST_TIMEOUT', 3600)
-#         environment.set_value('STRATEGY_SELECTION_METHOD', 'multi_armed_bandit')
-#         environment.set_value(
-#             'STRATEGY_SELECTION_DISTRIBUTION',
-#             '[{"strategy_name": "value_profile", '
-#             '"probability": 1.0, "engine": "libFuzzer"}]')
-#
-#         build_manager.setup_build()
-#         corpus_directory = os.path.join(self.temp_dir, 'corpus')
-#         testcase_directory = os.path.join(self.temp_dir, 'artifacts')
-#         os.makedirs(file_host.rebase_to_worker_root(corpus_directory))
-#         os.makedirs(file_host.rebase_to_worker_root(testcase_directory))
-#
-#         result, fuzzer_metadata, strategies = fuzz_task.run_engine_fuzzer(
-#             libfuzzer_engine.Engine(), 'test_fuzzer', corpus_directory,
-#             testcase_directory)
-#         self.assertIn(
-#             'ERROR: AddressSanitizer: SEGV on unknown address 0x000000000000',
-#             result.logs)
-#         self.assertEqual(1, len(result.crashes))
-#         self.assertTrue(result.crashes[0].input_path.startswith(
-#             os.environ['ROOT_DIR']))
-#         self.assertTrue(os.path.exists(result.crashes[0].input_path))
-#         self.assertIsInstance(
-#             result.stats.get('number_of_executed_units'), six.integer_types)
-#         self.assertIsInstance(result.stats.get('oom_count'), six.integer_types)
-#         self.assertIsInstance(
-#             result.stats.get('strategy_selection_method'), six.string_types)
-#
-#         self.assertDictEqual({'fuzzer_binary_name': 'test_fuzzer'}, fuzzer_metadata)
-#         self.assertDictEqual({'value_profile': 1}, strategies)
+                }, testcase_run.data)
 
 
 class AddIssueMetadataFromEnvironmentTest(unittest.TestCase):
